@@ -313,7 +313,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
-tab1, tab2 = st.tabs(["✍️ Gerador de Artigos (WP Ready)", "📚 Base de Conhecimento (Brandbook)"])
+
 tab1, tab2, tab3 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO"])
 
 with tab2:
