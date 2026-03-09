@@ -280,6 +280,7 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 3. ESTRUTURA DE DADOS: Quais tabelas criar para gerar Featured Snippets melhores?
 4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos que OBRIGATORIAMENTE devem aparecer.
 5. ARSENAL DE EVIDÊNCIAS NOMINAIS: Extraia dados reais do contexto e OBRIGATORIAMENTE vincule a uma fonte (ex: MEC, INEP, OCDE, Porvir, IBGE). Se não houver dados reais no contexto, crie APENAS argumentos qualitativos lógicos. É EXPRESSAMENTE PROIBIDO inventar números genéricos como "estudos mostram 30%"."""    
+    
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
     # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
@@ -293,8 +294,7 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
 5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
 6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
-7. ATUALIZAÇÃO TEMPORAL: O ano corrente é 2026. Certifique-se de que todas as referências temporais, projeções e títulos utilizem o ano de 2026 ou datas futuras. NUNCA cite 2024 ou 2025 como anos vigentes.
-
+7. ATUALIZAÇÃO TEMPORAL E DADOS REAIS: O foco do texto é projetar o cenário para 2026. No entanto, para embasar seus argumentos, você DEVE usar APENAS dados reais, históricos e comprovados (ex: relatórios de 2022, 2023 ou 2024). É ESTRITAMENTE PROIBIDO inventar "estudos de 2025" ou "dados de 2026" que não existem. Use o cenário real documentado para justificar a urgência do tema para 2026.
 REGRAS DE ALTA PERFORMANCE (GEO):
 8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
 9. TOLERÂNCIA ZERO PARA DADOS FALSOS: NUNCA escreva frases vazias como "pesquisas mostram que 40%...". Se for usar uma porcentagem ou dado, você TEM QUE CITAR A INSTITUIÇÃO (ex: Segundo o INEP, De acordo com o MEC). Se não tiver a fonte exata validada no briefing, não use números, use apenas força argumentativa.
