@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import re
 import concurrent.futures
-import urllib.parse  # ADICIONADO PARA O POLLINATIONS
+import urllib.parse
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -27,20 +27,14 @@ st.title("🤖 Arco Martech | Motor GEO v3.0 (Integração WP)")
 st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas de LLMs e Google.")
 
 # ==========================================
-# ESTRUTURAS PYDANTIC (MELHORIA 2: SUBSTITUI O REGEX PARA METADADOS)
+# ESTRUTURAS PYDANTIC
 # ==========================================
 class MetadadosArtigo(BaseModel):
-    # Removemos o limite rígido (max_length) do Field para evitar o crash, 
-    # mas mantemos na description para a IA continuar tentando acertar.
     title: str = Field(..., description="Título H1 otimizado (max 60 chars)")
     meta_description: str = Field(..., description="Meta description persuasiva (max 150 chars)")
-    
-    # MELHORIA POLLINATIONS: Agora é uma lista de strings em inglês
-    dicas_imagens: list[str] = Field(..., description="Lista com 2 prompts curtos EM INGLÊS para gerar imagens de IA (ex: ['futuristic classroom', 'happy student studying'])")
-    
+    dicas_imagens: list[str] = Field(..., description="Lista com 2 prompts curtos EM INGLÊS para buscar imagens (ex: ['futuristic classroom', 'student studying'])")
     schema_faq: dict = Field(..., description="Objeto JSON-LD FAQPage completo e idêntico ao texto")
 
-    # Interceptador Inteligente: Se a IA passar do limite, nós cortamos via código em vez de travar o app.
     @field_validator('title', mode='before')
     @classmethod
     def ajustar_tamanho_titulo(cls, v: str) -> str:
@@ -153,7 +147,6 @@ WP_READY = bool(WP_URL and WP_USER and WP_PWD)
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
 
-# MELHORIA: Cache para não gastar API atoa se clicar duas vezes, e leitura real via Jina Reader.
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY: 
@@ -179,7 +172,6 @@ def buscar_contexto_google(palavra_chave):
         if "organic" in dados:
             contexto_extraido.append("📊 TOP 3 RESULTADOS ORGÂNICOS (CONTEÚDO LIDO VIA JINA):")
             
-            # Função auxiliar para o Jina rodar em paralelo
             def buscar_jina(res_item, index):
                 titulo = res_item.get('title', 'Sem Título')
                 snippet = res_item.get('snippet', 'Sem Snippet')
@@ -187,18 +179,19 @@ def buscar_contexto_google(palavra_chave):
                 conteudo_real = ""
                 if link:
                     try:
-                        # Adicionando User-Agent para evitar bloqueios 403
+                        # MELHORIA: Jina em Modo Markdown e 12s de respiro
                         jina_headers = {
-                            'User-Agent': 'Mozilla/5.0...',
-                            'X-Return-Format': 'markdown', # Força o Jina a limpar menus e banners
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'X-Return-Format': 'markdown', 
                             'Accept': 'text/plain' 
-                                        }
-                        jina_res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=12) # 12s dá o respiro necessário
+                        }
+                        jina_res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=12)
+                        if jina_res.status_code == 200:
+                            conteudo_real = jina_res.text[:1500] 
                     except:
                         conteudo_real = "Falha ao ler o conteúdo integral."
                 return f"{index+1}. Título: {titulo}\n   Snippet: {snippet}\n   Link: {link}\n   Conteúdo:\n{conteudo_real}\n"
 
-            # Paralelizando as 3 requisições do Jina Reader
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 resultados_jina = list(executor.map(lambda x: buscar_jina(x[1], x[0]), enumerate(dados["organic"][:3])))
                 contexto_extraido.extend(resultados_jina)
@@ -208,7 +201,6 @@ def buscar_contexto_google(palavra_chave):
     except Exception as e:
         return f"Erro ao coletar dados do Google (Serper): {e}"
 
-# MELHORIA 1: Tolerância a Falhas via Tenacity (Retry automático)
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_format=None):
     client = OpenAI(
@@ -232,14 +224,12 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
     response = client.chat.completions.create(**kwargs)
     return response.choices[0].message.content
 
-# MELHORIA: Cache para a chamada do Baseline
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_baseline_llm(palavra_chave):
     system_prompt = "Você é um pesquisador de IA sênior. Forneça a resposta que uma IA daria hoje para o termo pesquisado, citando o consenso atual."
     user_prompt = f"O que você sabe sobre: '{palavra_chave}'? Retorne um resumo profundo de como esse tema é respondido atualmente pelas IAs."
     
     try:
-        # ATUALIZADO: Trocando Perplexity por GPT-4o-Mini (Muito mais rápido e 100% estável)
         return chamar_llm(system_prompt, user_prompt, model="openai/gpt-4o-mini", temperature=0.1)
     except Exception as e:
         return f"Erro ao buscar Baseline de IA: {e}"
@@ -255,7 +245,6 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     
     st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
     
-    # MELHORIA 3: Paralelismo com TIMEOUT ajustado para 45s (Tempo ideal para IAs que leem a internet)
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
@@ -294,7 +283,6 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
-    # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
     st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
     system_2 = """Você é um Redator Sênior especialista em SEO e Algoritmos de IA (GEO).
 
@@ -333,13 +321,9 @@ Regras Negativas: {marca_info['RegrasNegativas']}
 Retorne apenas o código HTML do artigo."""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
-    
-    # CORREÇÃO DO BUG: A limpeza do HTML DEVE ocorrer AQUI, depois de ele ter sido gerado!
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
-    
-    # MELHORIA 2: Forçando a saída com Schema do Pydantic para não precisar mais de Regex
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
     
     system_3 = f"""Você é especialista em SEO técnico e Schema.org. 
@@ -350,8 +334,6 @@ REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE a
 NÃO envolva a resposta em markdown (como ```json)."""
     
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
-    
-    # Passando response_format para os provedores que suportam garantir o JSON
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
     
     return artigo_html, dicas_json, contexto_google, baseline_ia
@@ -403,7 +385,6 @@ with tab1:
         else:
             st.success("🔌 Conectado ao WordPress (Pronto para Yoast).")
 
-    # LÓGICA DE GERAÇÃO
     if gerar_btn:
         if not TOKEN: 
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets.")
@@ -414,15 +395,12 @@ with tab1:
                 try:
                     artigo_html, dicas_json, google_data, ia_data = executar_geracao_completa(palavra_chave_input, marca_selecionada)
                     
-                    # SALVANDO NA MEMÓRIA PARA PERSISTÊNCIA ENTRE ABAS
                     st.session_state['art_gerado'] = artigo_html
                     st.session_state['metas_geradas'] = dicas_json
                     st.session_state['google_ctx'] = google_data
                     st.session_state['ia_ctx'] = ia_data
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
-                    
-                    # FLAG PARA CONTROLAR A INJEÇÃO DE IMAGEM APENAS UMA VEZ
                     st.session_state['imagens_injetadas'] = False 
                     
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
@@ -430,49 +408,45 @@ with tab1:
                     status.update(label="❌ Erro durante a geração", state="error")
                     st.error(f"Erro Crítico: {e}")
 
-    # EXIBIÇÃO PERSISTENTE (RENDERIZA SEMPRE QUE HOUVER ALGO NA MEMÓRIA)
     if 'art_gerado' in st.session_state:
         with col2:
             st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
             
-            # MELHORIA 2.1: Validação Limpa usando o Pydantic
             try:
-                # Remove potenciais blocos de markdown que o Claude insiste em colocar as vezes
                 string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
-                
-                # O Pydantic valida os tipos, assegurando que nada vai quebrar mais para a frente
                 meta_validada = MetadadosArtigo.model_validate_json(string_json_limpa)
                 meta = meta_validada.model_dump()
                 
                 st.subheader(meta.get("title", "Artigo Gerado"))
                 
-                # Nova lógica Substituindo o Pollinations:
-UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
+                # MELHORIA: Integração Unsplash
+                UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
 
-if not st.session_state.get('imagens_injetadas') and UNSPLASH_KEY:
-    html_atual = st.session_state['art_gerado']
-    termos_busca = meta.get('dicas_imagens', [])
-    
-    for i, termo in enumerate(termos_busca[:2]): # Pega no máximo 2 imagens
-        url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
-        res = requests.get(url).json()
-        
-        if "results" in res and len(res["results"]) > 0:
-            img_url = res["results"][0]["urls"]["regular"]
-            alt_text = res["results"][0]["alt_description"] or termo
-            
-            tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-            
-            # Injeta a Imagem 1 antes do Resumo, e a Imagem 2 antes do FAQ
-            alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
-            html_atual = html_atual.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
+                if not st.session_state.get('imagens_injetadas') and UNSPLASH_KEY:
+                    html_atual = st.session_state['art_gerado']
+                    termos_busca = meta.get('dicas_imagens', [])
+                    
+                    for i, termo in enumerate(termos_busca[:2]): 
+                        url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                        try:
+                            res = requests.get(url, timeout=5).json()
+                            if "results" in res and len(res["results"]) > 0:
+                                img_url = res["results"][0]["urls"]["regular"]
+                                alt_text = res["results"][0]["alt_description"] or termo
+                                
+                                tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                                
+                                alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
+                                html_atual = html_atual.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
+                        except Exception as e:
+                            st.toast(f"Falha ao buscar imagem no Unsplash para '{termo}': {e}")
 
-    st.session_state['art_gerado'] = html_atual
-    st.session_state['imagens_injetadas'] = True
+                    st.session_state['art_gerado'] = html_atual
+                    st.session_state['imagens_injetadas'] = True
 
             except ValidationError as ve:
                 meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
-                st.error(f"Aviso: O JSON gerado pela IA feriu a estrutura do Pydantic. Validando fallback bruto. Detalhe: {ve}")
+                st.error(f"Aviso: O JSON gerado pela IA feriu a estrutura do Pydantic. Detalhe: {ve}")
             except Exception as e:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
@@ -501,11 +475,13 @@ if not st.session_state.get('imagens_injetadas') and UNSPLASH_KEY:
                         else:
                             st.error(f"❌ Falha ao enviar: {res.text}")
 
+# ==========================================
+# 6. MONITOR DE GEO (GAMIFICAÇÃO)
+# ==========================================
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto.")
     
-    # Recupera os dados da memória de forma segura
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -518,8 +494,6 @@ with tab3:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
             with st.spinner("Auditando conteúdo e calculando GEO Score..."):
-                
-                # NOVO PROMPT: Forçando a saída em JSON puro
                 sys_audit = """Você é um algoritmo rigoroso de busca e auditoria E-E-A-T.
                 
                 REGRAS DE AUDITORIA:
@@ -541,7 +515,6 @@ with tab3:
                 
                 Audite e retorne APENAS o JSON."""
                 
-                # Chamando o LLM com o comando de forçar JSON (response_format)
                 try:
                     relatorio_bruto = chamar_llm(
                         sys_audit, 
@@ -551,7 +524,6 @@ with tab3:
                         response_format={"type": "json_object"}
                     )
                     
-                    # Limpando possíveis formatações markdown antes do parse
                     relatorio_limpo = relatorio_bruto.strip().removeprefix('```json').removesuffix('```').strip()
                     dados_audit = json.loads(relatorio_limpo)
                     
@@ -560,17 +532,14 @@ with tab3:
                     st.markdown("---")
                     st.markdown("### 📊 Relatório de Performance GEO")
                     
-                    # Renderização dos KPIs Visuais
                     kpi1, kpi2 = st.columns([1, 3])
                     
                     with kpi1:
-                        # Cor dinâmica da métrica baseada na nota
                         cor_delta = "normal" if score >= 80 else "inverse"
                         st.metric("🎯 GEO Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
                     
                     with kpi2:
                         st.markdown("**Progresso E-E-A-T:**")
-                        # Barra de progresso visual (converte nota de 0-100 para 0.0-1.0)
                         st.progress(score / 100)
                         
                         if score >= 90:
@@ -580,7 +549,6 @@ with tab3:
                         else:
                             st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
 
-                    # Renderização das Críticas e Melhorias
                     st.markdown("#### Análise Profunda")
                     col_critica, col_melhoria = st.columns(2)
                     
@@ -594,6 +562,5 @@ with tab3:
                             
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
-                    # Mostra a resposta crua caso o GPT tenha ignorado o JSON
                     with st.expander("Ver resposta bruta da IA"):
                         st.write(relatorio_bruto if 'relatorio_bruto' in locals() else "Nenhuma resposta obtida.")
