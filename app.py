@@ -27,6 +27,38 @@ st.title("🤖 Arco Martech | Motor GEO v3.0 (Integração WP)")
 st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas de LLMs e Google.")
 
 # ==========================================
+# MENU LATERAL (GUIA DO USUÁRIO)
+# ==========================================
+with st.sidebar:
+    st.header("📖 Guia do Usuário")
+    st.markdown("Bem-vindo ao **Motor GEO v3.0**. Veja como extrair o máximo de cada aba:")
+    
+    with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
+        st.markdown("""
+        - **Como funciona:** O motor lê os 3 primeiros sites do Google e audita as respostas das IAs atuais antes de escrever.
+        - **Tempo:** Pode levar até **60 segundos** devido à leitura profunda da internet.
+        - **Imagens:** Injetamos fotos reais do Unsplash automaticamente.
+        - **Dica de Prompt:** Seja específico. Ex: *"Focar no público B2B de escolas particulares de médio porte."*
+        """)
+        
+    with st.expander("📚 2. Brandbook", expanded=False):
+        st.markdown("""
+        - **Edição ao vivo:** Clique na tabela para alterar regras na hora.
+        - **Regras Negativas:** Essencial para proibir jargões ou tom de voz inadequado.
+        - **Regras Positivas:** Use para forçar a IA a citar a metodologia específica da marca.
+        """)
+        
+    with st.expander("🔍 3. Monitor de GEO", expanded=False):
+        st.markdown("""
+        - **O que é:** Um simulador do algoritmo do Google (E-E-A-T).
+        - **Métrica:** Avalia densidade de entidades técnicas e autoridade construída.
+        - **Uso:** Cole qualquer texto HTML externo aqui para auditar antes de postar no WordPress.
+        """)
+        
+    st.divider()
+    st.caption("🚀 Desenvolvido com Arquitetura de IA Múltipla (OpenRouter + Serper + Jina)")
+
+# ==========================================
 # ESTRUTURAS PYDANTIC
 # ==========================================
 class MetadadosArtigo(BaseModel):
