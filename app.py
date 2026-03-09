@@ -314,6 +314,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
 # 5. INTERFACE PRINCIPAL
 # ==========================================
 tab1, tab2 = st.tabs(["✍️ Gerador de Artigos (WP Ready)", "📚 Base de Conhecimento (Brandbook)"])
+tab1, tab2, tab3 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO"])
 
 with tab2:
     st.markdown("### Edite as regras, marcas e diretrizes:")
@@ -389,3 +390,27 @@ with tab1:
                 except Exception as e:
                     status.update(label="❌ Erro durante a geração", state="error")
                     st.error(f"Erro Crítico: {e}")
+
+with tab 3:
+    st.subheader("🔍 Monitor de Autoridade GEO")
+    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto.")
+    
+    # Preenche automaticamente se já gerou um artigo
+    txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=st.session_state.get('art_gerado', ''))
+    kw_auditoria = st.text_input("Palavra-Chave Alvo", value=kw_input if 'kw_input' in locals() else "")
+    
+    if st.button("🔎 Analisar com GPT-4o"):
+        with st.spinner("Auditando conteúdo..."):
+            marca_nome = st.session_state.get('marca_atual', 'a marca citada').replace('@', '')
+            sys_audit = "Você é um algoritmo de busca de IA. Sua missão é auditar se um texto merece ser citado como fonte oficial."
+            usr_audit = f"""Palavra-chave: {kw_auditoria}
+            Texto: {txt_auditoria}
+            
+            Avalie:
+            1. GEO SCORE (0-100) baseado em Densidade de Entidades e Escaneabilidade.
+            2. VEREDITO: Você citaria a marca '{marca_nome}' como autoridade?
+            3. CRÍTICA: Onde o texto falha tecnicamente?
+            4. MELHORIA: O que adicionar para subir o score?"""
+            
+            relatorio = chamar_llm(sys_audit, usr_audit, model="openai/gpt-4o", temperature=0.2)
+            st.info(relatorio)
