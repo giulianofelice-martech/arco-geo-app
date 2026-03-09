@@ -7,6 +7,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import re
 import concurrent.futures
+import urllib.parse  # ADICIONADO PARA O POLLINATIONS
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -33,7 +34,10 @@ class MetadadosArtigo(BaseModel):
     # mas mantemos na description para a IA continuar tentando acertar.
     title: str = Field(..., description="Título H1 otimizado (max 60 chars)")
     meta_description: str = Field(..., description="Meta description persuasiva (max 150 chars)")
-    dicas_imagens: str = Field(..., description="Dicas de Alt Text para 2 imagens")
+    
+    # MELHORIA POLLINATIONS: Agora é uma lista de strings em inglês
+    dicas_imagens: list[str] = Field(..., description="Lista com 2 prompts curtos EM INGLÊS para gerar imagens de IA (ex: ['futuristic classroom', 'happy student studying'])")
+    
     schema_faq: dict = Field(..., description="Objeto JSON-LD FAQPage completo e idêntico ao texto")
 
     # Interceptador Inteligente: Se a IA passar do limite, nós cortamos via código em vez de travar o app.
@@ -279,8 +283,6 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 5. ARSENAL DE EVIDÊNCIAS NOMINAIS: Extraia dados reais do contexto e OBRIGATORIAMENTE vincule a uma fonte (ex: MEC, INEP, OCDE, Porvir, IBGE). Se não houver dados reais no contexto, crie APENAS argumentos qualitativos lógicos. É EXPRESSAMENTE PROIBIDO inventar números genéricos como "estudos mostram 30%"."""    
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
-
-    artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
     # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
     st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
@@ -321,6 +323,9 @@ Regras Negativas: {marca_info['RegrasNegativas']}
 Retorne apenas o código HTML do artigo."""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
+    
+    # CORREÇÃO DO BUG: A limpeza do HTML DEVE ocorrer AQUI, depois de ele ter sido gerado!
+    artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     
@@ -407,6 +412,9 @@ with tab1:
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
                     
+                    # FLAG PARA CONTROLAR A INJEÇÃO DE IMAGEM APENAS UMA VEZ
+                    st.session_state['imagens_injetadas'] = False 
+                    
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
                 except Exception as e:
                     status.update(label="❌ Erro durante a geração", state="error")
@@ -417,7 +425,7 @@ with tab1:
         with col2:
             st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
             
-            # MELHORIA 2.1: Validação Limpa usando o Pydantic (Adeus Regex frágil!)
+            # MELHORIA 2.1: Validação Limpa usando o Pydantic
             try:
                 # Remove potenciais blocos de markdown que o Claude insiste em colocar as vezes
                 string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
@@ -427,11 +435,34 @@ with tab1:
                 meta = meta_validada.model_dump()
                 
                 st.subheader(meta.get("title", "Artigo Gerado"))
+                
+                # --- INÍCIO DA INJEÇÃO POLLINATIONS ---
+                if not st.session_state.get('imagens_injetadas'):
+                    html_atual = st.session_state['art_gerado']
+                    prompts = meta.get('dicas_imagens', [])
+                    
+                    if isinstance(prompts, list) and len(prompts) >= 1:
+                        # Imagem 1: Injetada logo antes do Resumo Rápido
+                        p1_codificado = urllib.parse.quote(prompts[0])
+                        img_1 = f'<img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){p1_codificado}?width=800&height=400&nologo=true" alt="{prompts[0]}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
+                    
+                    if isinstance(prompts, list) and len(prompts) >= 2:
+                        # Imagem 2: Injetada logo antes do FAQ
+                        p2_codificado = urllib.parse.quote(prompts[1])
+                        img_2 = f'<img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){p2_codificado}?width=800&height=400&nologo=true" alt="{prompts[1]}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
+                    
+                    # Salva o HTML modificado de volta na sessão
+                    st.session_state['art_gerado'] = html_atual
+                    st.session_state['imagens_injetadas'] = True
+                # --- FIM DA INJEÇÃO POLLINATIONS ---
+
             except ValidationError as ve:
-                meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": "", "schema_faq": {}}
+                meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON gerado pela IA feriu a estrutura do Pydantic. Validando fallback bruto. Detalhe: {ve}")
             except Exception as e:
-                meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": "", "schema_faq": {}}
+                meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
             
             with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
