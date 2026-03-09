@@ -322,12 +322,12 @@ Contexto da nossa marca:
 - Posicionamento: {marca_info['Posicionamento']}
 - Público: {marca_info['PublicoAlvo']}
 
-Com base nas respostas atuais (que precisamos superar), crie o briefing:
-1. ANÁLISE DE LACUNAS: Como abordar o tema (80% educativo / 20% marca) preenchendo o que Google e LLMs deixaram de fora?
-2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais e superiores aos atuais.
-3. ESTRUTURA DE DADOS: Quais tabelas criar para gerar Featured Snippets melhores?
-4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos que OBRIGATORIAMENTE devem aparecer.
-5. ARSENAL DE EVIDÊNCIAS NOMINAIS: Extraia dados reais do contexto e OBRIGATORIAMENTE vincule a uma fonte (ex: MEC, INEP, OCDE, Porvir, IBGE). Se não houver dados reais no contexto, crie APENAS argumentos qualitativos lógicos. É EXPRESSAMENTE PROIBIDO inventar números genéricos como "estudos mostram 30%"."""    
+Com base nas respostas atuais, crie o briefing:
+1. ANÁLISE DE LACUNAS: Como abordar o tema preenchendo o que deixaram de fora?
+2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais.
+3. ESTRUTURA DE DADOS: Quais tabelas criar?
+4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos obrigatórios.
+5. ARSENAL DE EVIDÊNCIAS (FILTRO ANTI-CONCORRENTE): Extraia dados reais do contexto APENAS se vierem de fontes NEUTRAS (governos, ONGs, jornais, universidades - ex: MEC, UNESCO, IBGE, Porvir). É EXPRESSAMENTE PROIBIDO extrair ou sugerir dados que venham de sites de concorrentes (outras escolas, sistemas de ensino ou franquias). Se o contexto for só lixo concorrente, exija apenas argumentos qualitativos lógicos."""
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
@@ -336,24 +336,24 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Não use <html>, <head> ou <body>. Não use Markdown.
-2. BLINDAGEM ANTI-CONCORRENTE: NUNCA cite o nome de NENHUMA empresa ou escola concorrente. A ÚNICA marca permitida é a sua.
+2. BLINDAGEM ANTI-CONCORRENTE EXTREMA: NUNCA, sob nenhuma hipótese, cite nomes ou crie links para escolas, franquias ou sistemas de ensino concorrentes (ex: Maple Bear, Edify, Cultura Inglesa, etc). Se o contexto trouxer essas marcas, IGNORE-AS. A ÚNICA marca permitida é a sua.
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
-5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>). Seja 100% técnico e neutro.
+5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>).
 6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
 
 REGRAS CRÍTICAS DE E-E-A-T E LINKAGEM (PARA NOTA 100):
-7. PROIBIÇÃO DE DADOS INVENTADOS DA MARCA (ZERO ALUCINAÇÃO): É EXPRESSAMENTE PROIBIDO inventar "relatórios", "pesquisas" ou "dados numéricos" atribuídos à sua própria marca (ex: "Segundo o relatório da International School 2025"). Para falar da marca, use APENAS os argumentos qualitativos descritos no Brandbook.
-8. BACKLINKS REAIS OBRIGATÓRIOS: Você receberá um contexto com artigos e seus respectivos links (URLs). Quando citar uma informação desse contexto, você DEVE OBRIGATORIAMENTE copiar a URL EXATA fornecida no contexto e criar um link. EXTREMAMENTE PROIBIDO criar links genéricos (como ir para a home do g1.com ou ibge.gov). Use o link completo da página lida. Ex: <a href="URL_EXATA_DO_CONTEXTO_AQUI" target="_blank" rel="noopener noreferrer">Fonte</a>.
-9. ESCANEABILIDADE: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar entidades.
-10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...".
-11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade das escolas públicas e a democratização do acesso.
-12. ESTUDO DE CASO: Na conclusão, apresente a marca como uma "Referência Prática" justificando sua eficácia de forma elegante e real, SEM inventar números milagrosos."""
+7. ZERO ALUCINAÇÃO DE DADOS DA MARCA: É EXPRESSAMENTE PROIBIDO inventar "relatórios numéricos" atribuídos à sua própria marca. Para falar da marca alvo, use APENAS argumentos qualitativos.
+8. BACKLINKS REAIS DE FONTES NEUTRAS: Ao citar dados externos do contexto, você DEVE incluir um link HTML (<a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Fonte</a>). REGRA DE OURO: Só faça links para domínios neutros (.gov, .org, .edu, portais de notícias). NUNCA faça links para domínios de concorrentes disfarçados de "pesquisas". Se não houver fonte neutra, NÃO invente o dado e NÃO faça o link.
+9. ESCANEABILIDADE: Parágrafos curtos (máx 3 frases). Use <strong> para entidades.
+10. BANIMENTO DE CLICHÊS E DATAS FUTURAS INVENTADAS: Proibido iniciar com "Em um mundo...". Não cite anos futuros (ex: 2025, 2026) a menos que seja uma projeção real com fonte linkada.
+11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios", abordando a realidade do acesso e infraestrutura.
+12. ESTUDO DE CASO: Na conclusão, apresente a marca de forma elegante, justificando sua autoridade sem parecer panfleto."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
     
-O QUE A CONCORRÊNCIA DIZ HOJE (COPIE AS URLs EXATAS DAQUI PARA EMBASAR SEUS DADOS):
+O QUE A CONCORRÊNCIA DIZ HOJE (USE OS LINKS NEUTROS DAQUI PARA EMBASAR OS DADOS):
 {contexto_google}
 {baseline_ia}
 
@@ -558,19 +558,19 @@ with tab3:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
             with st.spinner("Auditando conteúdo e calculando GEO Score..."):
-                sys_audit = """Você é um algoritmo rigoroso de busca e auditoria E-E-A-T.
+                sys_audit = """Você é um auditor sênior de SEO e E-E-A-T do Google. Seu padrão é altíssimo.
                 
-                REGRAS DE AUDITORIA:
-                1. A REGRA DE NEGÓCIO DESTA EMPRESA PROÍBE CITAR CONCORRENTES. É estritamente proibido penalizar o texto por falta de comparação com outras marcas ou sistemas.
-                2. PENALIZAÇÃO DE ALUCINAÇÃO DE MARCA (FALHA CRÍTICA): Se o texto inventar que a própria marca alvo fez um "estudo", "relatório" ou "pesquisa numérica" (ex: "Relatório da Marca X em 2025"), REDUZA A NOTA DRASTICAMENTE. A marca deve ser citada apenas qualitativamente ou com base no Brandbook.
-                3. PENALIZAÇÃO DE BACKLINKS: Verifique se as estatísticas e instituições externas citadas possuem links reais em HTML (tags <a href="...">). Se o texto citou um dado de mercado sem linká-lo, penalize a pontuação.
-                4. Avalie se a marca é apresentada de forma elegante e técnica e não como um panfleto publicitário barato.
+                REGRAS DE AUDITORIA (SEJA CARRASCO):
+                1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações externas com outras marcas privadas.
+                2. PENALIZAÇÃO DE ALUCINAÇÃO: Se o texto inventar anos futuros (ex: Censo Escolar 2026) sem prova, ou inventar relatórios numéricos irreais da marca alvo, DESTRUA A NOTA.
+                3. PENALIZAÇÃO DE LINKS CONCORRENTES E FALSOS: Verifique as tags <a href>. Se houver links para marcas privadas concorrentes mascarados como estudos, ou se houver estatísticas sem links para fontes neutras (governos, universidades, ONGs), a nota não pode passar de 60.
+                4. AVALIAÇÃO E-E-A-T: Para tirar uma nota ACIMA DE 90, o texto deve ter backlinks perfeitos para fontes neutras, argumentos de autoridade inquestionáveis, e a marca alvo deve ser citada de forma elegante como estudo de caso, não como propaganda.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
                   "score": "Um número inteiro de 0 a 100",
-                  "veredito": "Um parágrafo de resumo se a marca ganhou autoridade ou parece panfletagem",
-                  "critica": "Pontos fracos técnicos (em bullet points)",
+                  "veredito": "Resumo de autoridade e apontamento crítico se houve panfletagem ou links errados",
+                  "critica": "Pontos fracos técnicos (em bullet points, seja duro)",
                   "melhoria": "O que adicionar para bater a nota 100 (em bullet points)"
                 }"""
                 
