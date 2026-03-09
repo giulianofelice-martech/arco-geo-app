@@ -188,10 +188,12 @@ def buscar_contexto_google(palavra_chave):
                 if link:
                     try:
                         # Adicionando User-Agent para evitar bloqueios 403
-                        jina_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-                        jina_res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=8)
-                        if jina_res.status_code == 200:
-                            conteudo_real = jina_res.text[:1500] 
+                        jina_headers = {
+                            'User-Agent': 'Mozilla/5.0...',
+                            'X-Return-Format': 'markdown', # Força o Jina a limpar menus e banners
+                            'Accept': 'text/plain' 
+                                        }
+                        jina_res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=12) # 12s dá o respiro necessário
                     except:
                         conteudo_real = "Falha ao ler o conteúdo integral."
                 return f"{index+1}. Título: {titulo}\n   Snippet: {snippet}\n   Link: {link}\n   Conteúdo:\n{conteudo_real}\n"
@@ -444,28 +446,29 @@ with tab1:
                 
                 st.subheader(meta.get("title", "Artigo Gerado"))
                 
-                # --- INÍCIO DA INJEÇÃO POLLINATIONS (DESATIVADO TEMPORARIAMENTE) ---
-                # if not st.session_state.get('imagens_injetadas'):
-                #     html_atual = st.session_state['art_gerado']
-                #     prompts = meta.get('dicas_imagens', [])
-                #     
-                #     base_url = "https://" + "image.pollinations.ai/prompt/"
-                #     
-                #     if isinstance(prompts, list) and len(prompts) >= 1:
-                #         clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
-                #         p1_codificado = urllib.parse.quote(clean_p1)
-                #         img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p1}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                #         html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
-                #     
-                #     if isinstance(prompts, list) and len(prompts) >= 2:
-                #         clean_p2 = str(prompts[1]).replace("Imagem 2:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
-                #         p2_codificado = urllib.parse.quote(clean_p2)
-                #         img_2 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p2_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p2}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                #         html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
-                #     
-                #     st.session_state['art_gerado'] = html_atual
-                #     st.session_state['imagens_injetadas'] = True
-                # --- FIM DA INJEÇÃO POLLINATIONS ---
+                # Nova lógica Substituindo o Pollinations:
+UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
+
+if not st.session_state.get('imagens_injetadas') and UNSPLASH_KEY:
+    html_atual = st.session_state['art_gerado']
+    termos_busca = meta.get('dicas_imagens', [])
+    
+    for i, termo in enumerate(termos_busca[:2]): # Pega no máximo 2 imagens
+        url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+        res = requests.get(url).json()
+        
+        if "results" in res and len(res["results"]) > 0:
+            img_url = res["results"][0]["urls"]["regular"]
+            alt_text = res["results"][0]["alt_description"] or termo
+            
+            tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+            
+            # Injeta a Imagem 1 antes do Resumo, e a Imagem 2 antes do FAQ
+            alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
+            html_atual = html_atual.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
+
+    st.session_state['art_gerado'] = html_atual
+    st.session_state['imagens_injetadas'] = True
 
             except ValidationError as ve:
                 meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
@@ -514,22 +517,83 @@ with tab3:
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
-            with st.spinner("Auditando conteúdo..."):
+            with st.spinner("Auditando conteúdo e calculando GEO Score..."):
+                
+                # NOVO PROMPT: Forçando a saída em JSON puro
                 sys_audit = """Você é um algoritmo rigoroso de busca e auditoria E-E-A-T.
                 
                 REGRAS DE AUDITORIA:
                 1. A REGRA DE NEGÓCIO DESTA EMPRESA PROÍBE CITAR CONCORRENTES. É estritamente proibido penalizar o texto por falta de comparação com outras marcas ou sistemas.
                 2. Verifique se o texto evita alucinações (ex: "estudos mostram 30%" sem citar fonte).
-                3. Avalie se a marca é apresentada de forma elegante e técnica (como um estudo de caso/solução estruturada) e não como um panfleto publicitário barato."""
+                3. Avalie se a marca é apresentada de forma elegante e técnica (como um estudo de caso/solução estruturada) e não como um panfleto publicitário barato.
+                
+                VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
+                {
+                  "score": "Um número inteiro de 0 a 100",
+                  "veredito": "Um parágrafo de resumo se a marca ganhou autoridade ou parece panfletagem",
+                  "critica": "Pontos fracos técnicos (em bullet points)",
+                  "melhoria": "O que adicionar para bater a nota 100 (em bullet points)"
+                }"""
                 
                 usr_audit = f"""Palavra-chave: {kw_auditoria}
-                Texto: {txt_auditoria}
+                Texto HTML: {txt_auditoria}
+                Marca Alvo: {marca_para_auditoria}
                 
-                Avalie:
-                1. GEO SCORE (0-100) baseado em Densidade de Entidades, E-E-A-T e Escaneabilidade.
-                2. VEREDITO: Você citaria a marca '{marca_para_auditoria}' como autoridade com base na argumentação construída? (Lembre-se: não exija comparações externas).
-                3. CRÍTICA: Onde o texto falha tecnicamente?
-                4. MELHORIA: O que adicionar para subir o score?"""
+                Audite e retorne APENAS o JSON."""
                 
-                relatorio = chamar_llm(sys_audit, usr_audit, model="openai/gpt-4o", temperature=0.2)
-                st.info(relatorio)
+                # Chamando o LLM com o comando de forçar JSON (response_format)
+                try:
+                    relatorio_bruto = chamar_llm(
+                        sys_audit, 
+                        usr_audit, 
+                        model="openai/gpt-4o", 
+                        temperature=0.1, 
+                        response_format={"type": "json_object"}
+                    )
+                    
+                    # Limpando possíveis formatações markdown antes do parse
+                    relatorio_limpo = relatorio_bruto.strip().removeprefix('```json').removesuffix('```').strip()
+                    dados_audit = json.loads(relatorio_limpo)
+                    
+                    score = int(dados_audit.get("score", 0))
+                    
+                    st.markdown("---")
+                    st.markdown("### 📊 Relatório de Performance GEO")
+                    
+                    # Renderização dos KPIs Visuais
+                    kpi1, kpi2 = st.columns([1, 3])
+                    
+                    with kpi1:
+                        # Cor dinâmica da métrica baseada na nota
+                        cor_delta = "normal" if score >= 80 else "inverse"
+                        st.metric("🎯 GEO Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
+                    
+                    with kpi2:
+                        st.markdown("**Progresso E-E-A-T:**")
+                        # Barra de progresso visual (converte nota de 0-100 para 0.0-1.0)
+                        st.progress(score / 100)
+                        
+                        if score >= 90:
+                            st.success(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        elif score >= 75:
+                            st.info(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        else:
+                            st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+
+                    # Renderização das Críticas e Melhorias
+                    st.markdown("#### Análise Profunda")
+                    col_critica, col_melhoria = st.columns(2)
+                    
+                    with col_critica:
+                        with st.expander("🚨 Críticas Técnicas", expanded=True):
+                            st.markdown(dados_audit.get('critica'))
+                            
+                    with col_melhoria:
+                        with st.expander("🛠️ Plano de Melhoria", expanded=True):
+                            st.markdown(dados_audit.get('melhoria'))
+                            
+                except Exception as e:
+                    st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
+                    # Mostra a resposta crua caso o GPT tenha ignorado o JSON
+                    with st.expander("Ver resposta bruta da IA"):
+                        st.write(relatorio_bruto if 'relatorio_bruto' in locals() else "Nenhuma resposta obtida.")
