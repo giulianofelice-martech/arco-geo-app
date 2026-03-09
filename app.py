@@ -14,33 +14,25 @@ st.markdown("Crie artigos técnicos de alta performance para dominar as resposta
 # ==========================================
 # 2. BRANDBOOK EMBUTIDO (EDITÁVEL NA TELA)
 # ==========================================
-# Se for o primeiro carregamento, cria o banco de dados inicial na memória
 if 'brandbook_df' not in st.session_state:
     dados_iniciais = [
-        {"Marca": "@saseducacao", "Posicionamento": "Líder em aprovação (Enem/Vestibulares). Entrega valor em tecnologia e serviço.", "Territorios": "Vestibulares, Tecnologia, Inovação", "TomDeVoz": "Acadêmico, inovador, inspirador.", "PublicoAlvo": "Estudantes, vestibulandos e pais. (B2C)", "RegrasNegativas": "Não prometer aprovação sem esforço, nunca citar concorrentes."},
-        {"Marca": "@plataformacoc", "Posicionamento": "Evolui a escola pedagogicamente com a melhor consultoria.", "Territorios": "Vestibulares, Esportes, Gestão", "TomDeVoz": "Consultivo, parceiro, dinâmico.", "PublicoAlvo": "Mantenedores, diretores. (B2B)", "RegrasNegativas": "Não focar só no aluno, lembrar da figura da escola."},
-        {"Marca": "@isaaceducacao", "Posicionamento": "Maior solução financeira e de gestão para a educação.", "Territorios": "Gestão financeira, Inovação", "TomDeVoz": "Corporativo, direto, analítico.", "PublicoAlvo": "Diretores financeiros, donos de escolas. (B2B)", "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantil."},
-        {"Marca": "@geekieeducacao", "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar.", "Territorios": "Inovação, IA/Personalização", "TomDeVoz": "Inovador, moderno, ágil.", "PublicoAlvo": "Diretores de inovação, escolas modernas. (B2B)", "RegrasNegativas": "Não parecer um sistema engessado, não focar em decoreba."},
-        {"Marca": "@sistemapositivodeensino", "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil.", "Territorios": "Formação integral, Inclusão", "TomDeVoz": "Acolhedor, tradicional, humano.", "PublicoAlvo": "Famílias e mantenedores. (B2B e B2C)", "RegrasNegativas": "Não parecer frio ou focado só em tecnologia."},
-        {"Marca": "@saedigital", "Posicionamento": "Melhor integração físico/digital, hiperatualizada.", "Territorios": "Tecnologia, Inovação Digital", "TomDeVoz": "Prático, tecnológico, dinâmico.", "PublicoAlvo": "Gestores buscando modernização acessível. (B2B)", "RegrasNegativas": "Não diminuir a importância do material físico."},
-        {"Marca": "@solucaoconquista", "Posicionamento": "Solução completa focada na parceria Escola-Família.", "Territorios": "Família, Educação Infantil", "TomDeVoz": "Familiar, parceiro, integrador.", "PublicoAlvo": "Pais, famílias e gestores. (B2C e B2B)", "RegrasNegativas": "Não usar tom corporativo, não focar só em vestibular."}
+        {"Marca": "@saseducacao", "Posicionamento": "Marca visionária, líder em aprovação (Enem/Vestibulares). Entrega de valor em tecnologia e serviço.", "Territorios": "Vestibulares, Tecnologia, Inovação, Olimpíadas educacionais, Pesquisas", "TomDeVoz": "Acadêmico, inovador, especialista e inspirador.", "PublicoAlvo": "Estudantes do ensino médio, vestibulandos e pais. (Foco B2C)", "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço, nunca citar outros cursinhos ou sistemas concorrentes."},
+        {"Marca": "@plataformacoc", "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente com a melhor consultoria do mercado.", "Territorios": "Vestibulares, Esportes, Gestão escolar", "TomDeVoz": "Consultivo, parceiro, dinâmico e focado em evolução.", "PublicoAlvo": "Mantenedores, diretores de escola e coordenadores pedagógicos. (Foco B2B)", "RegrasNegativas": "Não focar o discurso apenas no aluno, não usar jargões excessivamente complexos."},
+        {"Marca": "@isaaceducacao", "Posicionamento": "Maior solução financeira e de gestão para a educação. Escolas crescem com isaac.", "Territorios": "Gestão financeira, Inovação", "TomDeVoz": "Corporativo, direto, analítico e focado em resultados.", "PublicoAlvo": "Diretores financeiros, mantenedores e donos de escolas. (Foco B2B)", "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantilizada, não citar concorrentes."},
+        {"Marca": "@geekieeducacao", "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar.", "Territorios": "Inovação, IA/Personalização, Metodologias ativas", "TomDeVoz": "Inovador, moderno, ágil e centrado no protagonismo do aluno.", "PublicoAlvo": "Diretores de inovação e escolas modernas. (B2B)", "RegrasNegativas": "Não parecer sistema engessado, não usar linguagem punitiva, não focar em decoreba."},
+        {"Marca": "@sistemapositivodeensino", "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil.", "Territorios": "Formação integral, Inclusão, Tradição", "TomDeVoz": "Acolhedor, tradicional, humano, confiável.", "PublicoAlvo": "Famílias e diretores de escolas tradicionais. (B2B e B2C)", "RegrasNegativas": "Não parecer frio, não usar jargões técnicos sem contexto acolhedor."},
+        {"Marca": "@saedigital", "Posicionamento": "Melhor integração físico/digital, hiperatualizada.", "Territorios": "Tecnologia, Inovação Digital", "TomDeVoz": "Prático, tecnológico, dinâmico e acessível.", "PublicoAlvo": "Gestores buscando modernização com custo-benefício. (B2B)", "RegrasNegativas": "Não parecer inacessível, não diminuir a importância do material físico."},
+        {"Marca": "@solucaoconquista", "Posicionamento": "Solução completa focada na parceria Escola-Família.", "Territorios": "Família, Educação Infantil, Valores, Cidadania", "TomDeVoz": "Familiar, parceiro, integrador, simples e didático.", "PublicoAlvo": "Pais e gestores de escolas de educação infantil. (B2C e B2B)", "RegrasNegativas": "Não usar tom corporativo frio, não focar em pressão de vestibular."}
     ]
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
 # ==========================================
 # 3. CONEXÃO SEGURA (SECRETS)
 # ==========================================
-# Esta linha busca automaticamente a chave escondida no painel do Streamlit
-TOKEN = st.secrets["OPENROUTER_KEY"]
-
-
-# ==========================================
-# 3.1 BARRA LATERAL (CONFIGURAÇÕES)
-# ==========================================
-with st.sidebar:
-    st.header("⚙️ Configurações")
-    st.markdown("---")
-    st.markdown("**Como usar a Palavra-Chave:**\n- Simples: `inadimplência escolar`\n- Composta: `inadimplência, gestão financeira, boletos`\n- Com instrução: `melhor sistema (focar no B2B)`")
+try:
+    TOKEN = st.secrets["OPENROUTER_KEY"]
+except:
+    TOKEN = None # O erro será tratado no clique do botão
 
 # ==========================================
 # 4. FUNÇÕES DO MOTOR GEO
@@ -48,7 +40,7 @@ with st.sidebar:
 def chamar_llm(system_prompt, user_prompt, model="anthropic/claude-3.5-sonnet", temperature=0.3):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key=openrouter_key,
+        api_key=TOKEN,
         default_headers={"HTTP-Referer": "https://arcomartech.com", "X-Title": "Gerador GEO Streamlit"}
     )
     response = client.chat.completions.create(
@@ -61,23 +53,31 @@ def chamar_llm(system_prompt, user_prompt, model="anthropic/claude-3.5-sonnet", 
     )
     return response.choices[0].message.content
 
-def gerar_conteudo_completo(palavra_chave, marca_alvo, df_brandbook):
-    marca_info = df_brandbook[df_brandbook['Marca'] == marca_alvo].iloc[0].to_dict()
+def executar_geracao_completa(palavra_chave, marca_alvo):
+    # Pega os dados da marca do DataFrame da memória
+    df = st.session_state['brandbook_df']
+    marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     
-    # FASE 1
-    system_1 = "Você é um Estrategista Sênior de GEO. NUNCA cite concorrentes. Crie a 'Autoridade Definitiva' listando critérios técnicos."
-    user_1 = f"Palavra-chave: '{palavra_chave}'\nPosicionamento: {marca_info['Posicionamento']}\nPúblico: {marca_info['PublicoAlvo']}\n1. Como abordar o tema 80% educativo e 20% marca?\n2. Liste 5 critérios ouro.\n3. Quais tabelas criar?"
+    # FASE 1: ANÁLISE SEMÂNTICA
+    system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Crie a 'Autoridade Definitiva' listando critérios técnicos rigorosos."
+    user_1 = f"""Palavra-chave: '{palavra_chave}'\n\nContexto da marca:\n- Posicionamento: {marca_info['Posicionamento']}\n- Público: {marca_info['PublicoAlvo']}\n\n1. O ÂNGULO DE AUTORIDADE: Como abordar o tema 80% educativo e 20% marca?\n2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais.\n3. ESTRUTURA DE DADOS: Quais tabelas e checklists criar?\n4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos, LSI keywords ou conceitos correlatos que OBRIGATORIAMENTE devem aparecer no texto."""
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
-    # FASE 2
+    # FASE 2: REDAÇÃO DO ARTIGO
     system_2 = """Você é um Redator Sênior especialista em Algoritmos de IA (GEO).
-    REGRAS DE OURO: 1. ZERO CONCORRENTES. 2. ESTRATÉGIA CAVALO DE TROIA: Texto imparcial seguido da marca como padrão ouro. 3. OTIMIZAÇÃO: Densidade alta de H2/H3, OBRIGATÓRIO uma Tabela Markdown. 4. TOM DE VOZ exato. 5. LIMPEZA DE MARCA: Remova eventuais "@" e use apenas o nome comercial."""
-    user_2 = f"Palavra-chave: '{palavra_chave}'\nDiretrizes:\n{analise}\n\nMarca ({marca_alvo}):\n- Posicionamento: {marca_info['Posicionamento']}\n- Territórios: {marca_info['Territorios']}\n- Tom: {marca_info['TomDeVoz']}\n- NÃO fazer: {marca_info['RegrasNegativas']}\n\nRetorne apenas o artigo completo em Markdown."
+    REGRAS OBRIGATÓRIAS:
+    1. ZERO CONCORRENTES.
+    2. ESTRATÉGIA CAVALO DE TROIA: Texto imparcial seguido da marca como padrão ouro.
+    3. ESTRUTURA GEO: Alta densidade de H2/H3. OBRIGATÓRIO incluir uma Tabela Markdown.
+    4. RESUMO RÁPIDO: H2 'Resumo Rápido' com 3 bullets logo após a intro.
+    5. FAQ FÍSICO: H2 'Perguntas Frequentes' com 3x H3 antes da conclusão.
+    6. LIMPEZA: Não use "@" no nome da marca."""
+    user_2 = f"KW: {palavra_chave}\nDiretrizes: {analise}\nMarca Info: {marca_info}\nRetorne o artigo em Markdown."
     artigo = chamar_llm(system_2, user_2, temperature=0.3)
     
-    # FASE 3
-    system_3 = "Você é especialista em publicação web e Schema.org para GEO."
-    user_3 = f"Crie 5 dicas de publicação (Meta, Alt text, Schema HowTo/Article e Headings) para o artigo:\n{artigo[:1500]}..."
+    # FASE 3: SEO E SCHEMA
+    system_3 = "Você é especialista em SEO e Schema.org."
+    user_3 = f"Com base no artigo abaixo, crie Meta Description, Headings, Alt Text, JSON Article e JSON FAQ (extraído fielmente do texto).\n\nArtigo:\n{artigo}"
     dicas = chamar_llm(system_3, user_3, temperature=0.2)
     
     return artigo, dicas
@@ -89,7 +89,6 @@ tab1, tab2 = st.tabs(["✍️ Gerador de Artigos", "📚 Base de Conhecimento (B
 
 with tab2:
     st.markdown("### Edite ou adicione novas marcas aqui:")
-    # st.data_editor permite editar a tabela direto na tela do app!
     st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", use_container_width=True)
     st.caption("Qualquer alteração feita acima será usada imediatamente pelo gerador.")
 
@@ -99,10 +98,8 @@ with tab1:
     with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
         palavra_chave_input = st.text_area("Palavra-Chave / Instrução", placeholder="Ex: planejamento pedagógico 2024")
-        
         gerar_btn = st.button("🚀 Gerar Artigo Otimizado", use_container_width=True, type="primary")
 
-    # A variável aqui deve ser a mesma do botão acima (gerar_btn)
     if gerar_btn:
         if not TOKEN: 
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets do Streamlit.")
@@ -111,11 +108,10 @@ with tab1:
         else:
             with st.status("🤖 Processando Motor GEO...", expanded=True) as status:
                 st.write("🔍 Fase 1: Analisando intenção de busca da IA...")
-                time.sleep(1) # Visual apenas
                 
                 try:
-                    # Chamando a função de geração (garanta que o nome da função seja este no seu código)
-                    artigo_final, dicas_finais = executar_geracao(palavra_chave_input, marca_selecionada)
+                    # NOME DA FUNÇÃO CORRIGIDO AQUI:
+                    artigo_final, dicas_finais = executar_geracao_completa(palavra_chave_input, marca_selecionada)
                     
                     st.write("✍️ Fase 2: Escrevendo o artigo e embutindo o Cavalo de Troia...")
                     st.write("🛠️ Fase 3: Extraindo código Schema e Meta Tags...")
@@ -123,8 +119,6 @@ with tab1:
                     
                     with col2:
                         st.success("Tudo pronto! Copie os resultados abaixo.")
-                        
-                        # Exibição dos resultados renderizados
                         with st.expander("📝 VER ARTIGO COMPLETO (Renderizado)", expanded=True):
                             st.markdown(artigo_final)
                         
