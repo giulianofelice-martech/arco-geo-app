@@ -305,8 +305,8 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
 
 REGRAS CRÍTICAS DE E-E-A-T (PARA NOTA 100):
-7. PROIBIÇÃO DE ALUCINAÇÃO DE DADOS: É ESTRITAMENTE PROIBIDO inventar estatísticas, taxas de crescimento (ex: "cresceu 147%") ou dados numéricos que não existam no briefing. Use APENAS os dados fornecidos. Se não houver dados no briefing, faça projeções de forma QUALITATIVA (usando palavras, não números).
-8. FONTES REAIS: Ao citar qualquer dado, OBRIGATORIAMENTE cite a fonte ao lado (ex: Segundo o Censo Escolar).
+7. PROIBIÇÃO ABSOLUTA DE DADOS INVENTADOS: Se o briefing não fornecer um número exato com o NOME DO RELATÓRIO e o ANO, VOCÊ É PROIBIDO de inventar porcentagens (ex: "reduziu 30%"). Use apenas termos qualitativos (ex: "redução significativa", "crescimento expressivo").
+8. CITAÇÃO NOMINAL COMPLETA: Sempre que citar uma instituição (INEP, MEC, UNESCO), você DEVE citar o nome do relatório ou o ano do estudo. Se não souber o ano exato, não cite o dado.
 9. ESCANEABILIDADE: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar entidades.
 10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...".
 11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade das escolas públicas e a democratização do acesso.
