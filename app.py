@@ -28,11 +28,17 @@ if 'brandbook_df' not in st.session_state:
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
 # ==========================================
-# 3. BARRA LATERAL (CONFIGURAÇÕES)
+# 3. CONEXÃO SEGURA (SECRETS)
+# ==========================================
+# Esta linha busca automaticamente a chave escondida no painel do Streamlit
+TOKEN = st.secrets["OPENROUTER_KEY"]
+
+
+# ==========================================
+# 3.1 BARRA LATERAL (CONFIGURAÇÕES)
 # ==========================================
 with st.sidebar:
     st.header("⚙️ Configurações")
-    openrouter_key = st.text_input("Chave OpenRouter (API Key)", type="password", help="Insira sua chave para liberar o gerador.")
     st.markdown("---")
     st.markdown("**Como usar a Palavra-Chave:**\n- Simples: `inadimplência escolar`\n- Composta: `inadimplência, gestão financeira, boletos`\n- Com instrução: `melhor sistema (focar no B2B)`")
 
