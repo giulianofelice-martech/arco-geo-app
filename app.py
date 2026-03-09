@@ -230,15 +230,15 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
     response = client.chat.completions.create(**kwargs)
     return response.choices[0].message.content
 
-# MELHORIA: Cache para a chamada do Perplexity
+# MELHORIA: Cache para a chamada do Baseline
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_baseline_llm(palavra_chave):
-    system_prompt = "Você é um pesquisador de IA sênior. Forneça a resposta atualizada que uma IA daria hoje para o termo pesquisado, citando referências e o consenso atual."
+    system_prompt = "Você é um pesquisador de IA sênior. Forneça a resposta que uma IA daria hoje para o termo pesquisado, citando o consenso atual."
     user_prompt = f"O que você sabe sobre: '{palavra_chave}'? Retorne um resumo profundo de como esse tema é respondido atualmente pelas IAs."
     
     try:
-        # ATUALIZADO: Tag nova e oficial do modelo Perplexity no OpenRouter
-        return chamar_llm(system_prompt, user_prompt, model="perplexity/sonar", temperature=0.1)
+        # ATUALIZADO: Trocando Perplexity por GPT-4o-Mini (Muito mais rápido e 100% estável)
+        return chamar_llm(system_prompt, user_prompt, model="openai/gpt-4o-mini", temperature=0.1)
     except Exception as e:
         return f"Erro ao buscar Baseline de IA: {e}"
 
@@ -251,24 +251,24 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     from datetime import datetime
     ano_atual = datetime.now().year
     
-    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
+    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs em paralelo...")
     
-    # MELHORIA 3: Paralelismo com TIMEOUT (Limite de 25 segundos para não travar a tela)
+    # MELHORIA 3: Paralelismo com TIMEOUT RÁPIDO (Limite de 15 segundos para NUNCA travar)
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         
         try:
-            # Dá no máximo 60 segundos para o Google/Jina responderem
-            contexto_google = futuro_google.result(timeout=60)
+            # Dá no máximo 15 segundos para o Google/Jina responderem
+            contexto_google = futuro_google.result(timeout=15)
         except concurrent.futures.TimeoutError:
-            contexto_google = "Aviso: O site alvo bloqueou a leitura ou a busca orgânica demorou muito. Conteúdo orgânico ignorado."
+            contexto_google = "Aviso: A busca orgânica demorou muito. Conteúdo ignorado para manter a velocidade."
             
         try:
-            # Dá no máximo 60 segundos para o Perplexity responder
-            baseline_ia = futuro_ia.result(timeout=60)
+            # Dá no máximo 15 segundos para a IA responder
+            baseline_ia = futuro_ia.result(timeout=15)
         except concurrent.futures.TimeoutError:
-            baseline_ia = "Aviso: O motor da Perplexity demorou muito a responder. Baseline ignorada."
+            baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
 
     st.write("🧠 Fase 1: Análise Semântica (GPT-4o)...")
     system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Você receberá o que o Google e as IAs respondem hoje. Sua missão é criar o escopo para a 'Autoridade Definitiva' que SUPERE essas respostas atuais."
