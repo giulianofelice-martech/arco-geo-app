@@ -156,21 +156,12 @@ def buscar_contexto_google(palavra_chave):
         return "Sem chave Serper configurada. Pule o contexto do Google."
         
     url = "https://google.serper.dev/search"
-    payload = json.dumps({
-        "q": palavra_chave,
-        "gl": "br", 
-        "hl": "pt-br"
-    })
-    
-    headers = {
-        'X-API-KEY': SERPAPI_KEY, 
-        'Content-Type': 'application/json'
-    }
+    payload = json.dumps({"q": palavra_chave, "gl": "br", "hl": "pt-br"})
+    headers = {'X-API-KEY': SERPAPI_KEY, 'Content-Type': 'application/json'}
     
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
         dados = response.json()
-        
         contexto_extraido = []
         
         if "answerBox" in dados:
@@ -183,22 +174,28 @@ def buscar_contexto_google(palavra_chave):
             
         if "organic" in dados:
             contexto_extraido.append("📊 TOP 3 RESULTADOS ORGÂNICOS (CONTEÚDO LIDO VIA JINA):")
-            for i, res in enumerate(dados["organic"][:3]):
-                titulo = res.get('title', 'Sem Título')
-                snippet = res.get('snippet', 'Sem Snippet')
-                link = res.get('link', '')
-                
-                # MELHORIA 4: Lendo a página real com Jina Reader em vez de ficar só no Snippet do Google
+            
+            # Função auxiliar para o Jina rodar em paralelo
+            def buscar_jina(res_item, index):
+                titulo = res_item.get('title', 'Sem Título')
+                snippet = res_item.get('snippet', 'Sem Snippet')
+                link = res_item.get('link', '')
                 conteudo_real = ""
                 if link:
                     try:
-                        jina_res = requests.get(f"https://r.jina.ai/{link}", timeout=8)
+                        # Adicionando User-Agent para evitar bloqueios 403
+                        jina_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+                        jina_res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=8)
                         if jina_res.status_code == 200:
-                            conteudo_real = jina_res.text[:1500] # Pega os 1500 primeiros chars para não estourar o contexto
+                            conteudo_real = jina_res.text[:1500] 
                     except:
-                        conteudo_real = "Falha ao ler o conteúdo integral da página."
-                
-                contexto_extraido.append(f"{i+1}. Título: {titulo}\n   Snippet: {snippet}\n   Link: {link}\n   Conteúdo Real da Página:\n{conteudo_real}\n")
+                        conteudo_real = "Falha ao ler o conteúdo integral."
+                return f"{index+1}. Título: {titulo}\n   Snippet: {snippet}\n   Link: {link}\n   Conteúdo:\n{conteudo_real}\n"
+
+            # Paralelizando as 3 requisições do Jina Reader
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                resultados_jina = list(executor.map(lambda x: buscar_jina(x[1], x[0]), enumerate(dados["organic"][:3])))
+                contexto_extraido.extend(resultados_jina)
                 
         resultado_final = "\n".join(contexto_extraido)
         return resultado_final if resultado_final else "Sem resultados orgânicos relevantes."
@@ -282,6 +279,8 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 5. ARSENAL DE EVIDÊNCIAS NOMINAIS: Extraia dados reais do contexto e OBRIGATORIAMENTE vincule a uma fonte (ex: MEC, INEP, OCDE, Porvir, IBGE). Se não houver dados reais no contexto, crie APENAS argumentos qualitativos lógicos. É EXPRESSAMENTE PROIBIDO inventar números genéricos como "estudos mostram 30%"."""    
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
+
+    artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
     # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
     st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
