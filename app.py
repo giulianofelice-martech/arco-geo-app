@@ -232,13 +232,13 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>). Não use <html>, <head> ou <body>. Não use Markdown.
-2. ZERO CONCORRENTES: Nunca cite sistemas concorrentes.
+2. BLINDAGEM ANTI-CONCORRENTE: NUNCA, sob nenhuma hipótese, cite o nome de NENHUMA empresa, escola ou sistema de ensino que aparecer no contexto da concorrência (Google/IAs). A ÚNICA marca permitida em todo o texto é a sua.
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
 5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
 6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ."""
     
-    user_2 = f"""Palavra-chave: '{palavra_chave}'
+user_2 = f"""Palavra-chave: '{palavra_chave}'
 
 O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
 {contexto_google}
@@ -247,7 +247,8 @@ O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
 SUA ESTRATÉGIA DE SUPERAÇÃO:
 {analise}
 
-Sua Marca: {marca_info['Posicionamento']}
+NOME DA SUA MARCA (A ÚNICA QUE PODE SER CITADA): {marca_alvo} (Remova o @ ao escrever no texto final)
+Posicionamento da Marca: {marca_info['Posicionamento']}
 Tom: {marca_info['TomDeVoz']}
 Regras Positivas: {marca_info.get('RegrasPositivas', '')}
 Regras Negativas: {marca_info['RegrasNegativas']}
