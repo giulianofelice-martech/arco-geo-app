@@ -30,33 +30,34 @@ st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas
 # MENU LATERAL (GUIA DO USUÁRIO)
 # ==========================================
 with st.sidebar:
-    st.header("📖 Guia do Usuário")
-    st.markdown("Bem-vindo ao **Motor GEO v3.0**. Veja como extrair o máximo de cada aba:")
+    st.header("📖 Guia do Motor GEO")
+    st.markdown("Bem-vindo à v3.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima (E-E-A-T).")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
-        - **Como funciona:** O motor lê os 3 primeiros sites do Google e audita as respostas das IAs atuais antes de escrever.
-        - **Tempo:** Pode levar até **60 segundos** devido à leitura profunda da internet.
-        - **Imagens:** Injetamos fotos reais do Unsplash automaticamente.
-        - **Dica de Prompt:** Seja específico. Ex: *"Focar no público B2B de escolas particulares de médio porte."*
+        **O Fluxo da Inteligência Artificial:**
+        1. **Busca (Serper + Jina Reader):** Lê o conteúdo real do Top 3 do Google.
+        2. **Auditoria (GPT-4o-mini):** Analisa o que as IAs já respondem hoje.
+        3. **Estratégia (GPT-4o):** Identifica lacunas e cria o briefing de superação.
+        4. **Redação (Claude 3.7 Sonnet):** Escreve o código HTML blindado.
+        5. **Mídia (Unsplash API):** Injeta fotos corporativas em alta resolução.
+        
+        ⏱️ *Tempo médio: 45 a 60 segundos.*
+
+        **💡 Como escrever a Palavra-Chave:**
+        Adicione direcionamento (prompt) junto à palavra para resultados cirúrgicos:
+        - ❌ **Fraco:** `inadimplência escolar`
+        - ✅ **Forte:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais)`
+        
+        - ❌ **Fraco:** `ensino bilíngue`
+        - ✅ **Forte:** `impactos cognitivos do bilinguismo (usar referências de neurociência e dados de retenção)`
         """)
         
     with st.expander("📚 2. Brandbook", expanded=False):
         st.markdown("""
-        - **Edição ao vivo:** Clique na tabela para alterar regras na hora.
-        - **Regras Negativas:** Essencial para proibir jargões ou tom de voz inadequado.
-        - **Regras Positivas:** Use para forçar a IA a citar a metodologia específica da marca.
-        """)
-        
-    with st.expander("🔍 3. Monitor de GEO", expanded=False):
-        st.markdown("""
-        - **O que é:** Um simulador do algoritmo do Google (E-E-A-T).
-        - **Métrica:** Avalia densidade de entidades técnicas e autoridade construída.
-        - **Uso:** Cole qualquer texto HTML externo aqui para auditar antes de postar no WordPress.
-        """)
-        
-    st.divider()
-    st.caption("🚀 Desenvolvido com Arquitetura de IA Múltipla (OpenRouter + Serper + Jina)")
+        O **Claude 3.7** consulta esta matriz antes de escrever qualquer vírgula.
+        - **Regras Negativas:** Proíba vícios (ex: *"Nunca use a palavra 'aluno', use 'estudante'"* ou *"Nunca critique o sistema público"*).
+        - **Regras Positivas:** Force formatos
 
 # ==========================================
 # ESTRUTURAS PYDANTIC
