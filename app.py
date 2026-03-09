@@ -335,6 +335,35 @@ NÃO envolva a resposta em markdown (como ```json)."""
     
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
+
+    # NOVO MOTOR DE IMAGENS UNSPLASH
+    try:
+        # Lê o JSON que acabou de ser gerado
+        json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
+        meta_dicas = json.loads(json_limpo)
+        termos_busca = meta_dicas.get('dicas_imagens', [])
+        
+        UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
+        
+        if UNSPLASH_KEY and isinstance(termos_busca, list):
+            for i, termo in enumerate(termos_busca[:2]): 
+                url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                res = requests.get(url, timeout=5)
+                
+                if res.status_code == 200:
+                    dados_img = res.json()
+                    if "results" in dados_img and len(dados_img["results"]) > 0:
+                        img_url = dados_img["results"][0]["urls"]["regular"]
+                        alt_text = dados_img["results"][0]["alt_description"] or termo
+                        
+                        # Cria a tag HTML da foto
+                        tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                        
+                        # Encontra onde colar no HTML gerado
+                        alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
+                        artigo_html = artigo_html.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
+    except Exception as e:
+        print(f"Erro silencioso ao injetar imagem: {e}")
     
     return artigo_html, dicas_json, contexto_google, baseline_ia
 
