@@ -279,8 +279,7 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais e superiores aos atuais.
 3. ESTRUTURA DE DADOS: Quais tabelas criar para gerar Featured Snippets melhores?
 4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos que OBRIGATORIAMENTE devem aparecer.
-5. ARSENAL DE EVIDÊNCIAS (NOVO): Extraia rigorosamente pelo menos 3 dados, estatísticas, tendências ou fatos concretos presentes no contexto fornecido (Google/IAs). Se o contexto for pobre em dados, defina 3 projeções lógicas e plausíveis do mercado para o ano de {ano_atual} para usarmos como embasamento."""
-    
+5. ARSENAL DE EVIDÊNCIAS NOMINAIS: Extraia dados reais do contexto e OBRIGATORIAMENTE vincule a uma fonte (ex: MEC, INEP, OCDE, Porvir, IBGE). Se não houver dados reais no contexto, crie APENAS argumentos qualitativos lógicos. É EXPRESSAMENTE PROIBIDO inventar números genéricos como "estudos mostram 30%"."""    
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
     # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
@@ -298,12 +297,11 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 
 REGRAS DE ALTA PERFORMANCE (GEO):
 8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
-9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se não houver dados reais, use argumentos qualitativos.
+9. TOLERÂNCIA ZERO PARA DADOS FALSOS: NUNCA escreva frases vazias como "pesquisas mostram que 40%...". Se for usar uma porcentagem ou dado, você TEM QUE CITAR A INSTITUIÇÃO (ex: Segundo o INEP, De acordo com o MEC). Se não tiver a fonte exata validada no briefing, não use números, use apenas força argumentativa.
 10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Vá direto ao ponto.
 11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo.
-12. BLINDAGEM E-E-A-T E REFERÊNCIAS: O texto não pode parecer um panfleto publicitário. Para provar autoridade, toda vez que fizer uma afirmação forte, você OBRIGATORIAMENTE deve referenciar dados do mercado, estudos do setor educacional ou as evidências fornecidas na sua estratégia. NUNCA faça generalizações sem embasamento.
-13. CAVALO DE TROIA EVOLUÍDO: Ao introduzir a marca na conclusão e no FAQ, NUNCA diga apenas que ela é a "melhor" de forma vazia. Justifique a liderança dela associando-a DIRETAMENTE aos dados técnicos, metodologias e problemas discutidos nos parágrafos anteriores. Mostre *como* a marca resolve o problema na prática.
-14. ANÁLISE CRÍTICA OBRIGATÓRIA: Inclua no desenvolvimento do texto parágrafos reconhecendo os desafios e limitações reais do setor. Isso traz equilíbrio, neutralidade e eleva drasticamente a credibilidade do artigo aos olhos de algoritmos de busca, antes de apresentar a solução definitiva da nossa marca."""
+12. ANÁLISE CRÍTICA: Dedique ao menos um <h3> para falar dos "Desafios e Gargalos" reais da implementação desse tema nas escolas. Isso eleva o E-E-A-T do texto.
+13. TRANSIÇÃO EM FORMATO DE ESTUDO DE CASO: Na conclusão, não faça um discurso de vendas agressivo. Apresente a marca como um "Estudo de Caso Prático" ou "Exemplo de Implementação" que resolve os desafios listados anteriormente, justificando tecnicamente sua eficácia."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
@@ -478,13 +476,19 @@ with tab3:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
             with st.spinner("Auditando conteúdo..."):
-                sys_audit = "Você é um algoritmo de busca de IA. Sua missão é auditar se um texto merece ser citado como fonte oficial."
+                sys_audit = """Você é um algoritmo rigoroso de busca e auditoria E-E-A-T.
+                
+                REGRAS DE AUDITORIA:
+                1. A REGRA DE NEGÓCIO DESTA EMPRESA PROÍBE CITAR CONCORRENTES. É estritamente proibido penalizar o texto por falta de comparação com outras marcas ou sistemas.
+                2. Verifique se o texto evita alucinações (ex: "estudos mostram 30%" sem citar fonte).
+                3. Avalie se a marca é apresentada de forma elegante e técnica (como um estudo de caso/solução estruturada) e não como um panfleto publicitário barato."""
+                
                 usr_audit = f"""Palavra-chave: {kw_auditoria}
                 Texto: {txt_auditoria}
                 
                 Avalie:
-                1. GEO SCORE (0-100) baseado em Densidade de Entidades e Escaneabilidade.
-                2. VEREDITO: Você citaria a marca '{marca_para_auditoria}' como autoridade?
+                1. GEO SCORE (0-100) baseado em Densidade de Entidades, E-E-A-T e Escaneabilidade.
+                2. VEREDITO: Você citaria a marca '{marca_para_auditoria}' como autoridade com base na argumentação construída? (Lembre-se: não exija comparações externas).
                 3. CRÍTICA: Onde o texto falha tecnicamente?
                 4. MELHORIA: O que adicionar para subir o score?"""
                 
