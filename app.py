@@ -6,6 +6,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 import re
+import concurrent.futures
+from tenacity import retry, stop_after_attempt, wait_exponential
+from pydantic import BaseModel, Field, ValidationError
 
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -21,6 +24,15 @@ st.markdown("""
 
 st.title("🤖 Arco Martech | Motor GEO v3.0 (Integração WP)")
 st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas de LLMs e Google.")
+
+# ==========================================
+# ESTRUTURAS PYDANTIC (MELHORIA 2: SUBSTITUI O REGEX PARA METADADOS)
+# ==========================================
+class MetadadosArtigo(BaseModel):
+    title: str = Field(..., max_length=60, description="Título H1 otimizado (max 60 chars)")
+    meta_description: str = Field(..., max_length=150, description="Meta description persuasiva (max 150 chars)")
+    dicas_imagens: str = Field(..., description="Dicas de Alt Text para 2 imagens")
+    schema_faq: dict = Field(..., description="Objeto JSON-LD FAQPage completo e idêntico ao texto")
 
 # ==========================================
 # 2. BRANDBOOK EMBUTIDO (COM REGRAS POSITIVAS)
@@ -123,6 +135,9 @@ WP_READY = bool(WP_URL and WP_USER and WP_PWD)
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
+
+# MELHORIA: Cache para não gastar API atoa se clicar duas vezes, e leitura real via Jina Reader.
+@st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY: 
         return "Sem chave Serper configurada. Pule o contexto do Google."
@@ -154,34 +169,55 @@ def buscar_contexto_google(palavra_chave):
             contexto_extraido.append(f"🧠 GOOGLE KNOWLEDGE GRAPH:\n{desc}\n")
             
         if "organic" in dados:
-            contexto_extraido.append("📊 TOP 3 RESULTADOS ORGÂNICOS:")
+            contexto_extraido.append("📊 TOP 3 RESULTADOS ORGÂNICOS (CONTEÚDO LIDO VIA JINA):")
             for i, res in enumerate(dados["organic"][:3]):
-                # Ajuste de segurança (.get sempre com valor padrão)
                 titulo = res.get('title', 'Sem Título')
                 snippet = res.get('snippet', 'Sem Snippet')
-                contexto_extraido.append(f"{i+1}. Título: {titulo}\n   Snippet: {snippet}")
+                link = res.get('link', '')
+                
+                # MELHORIA 4: Lendo a página real com Jina Reader em vez de ficar só no Snippet do Google
+                conteudo_real = ""
+                if link:
+                    try:
+                        jina_res = requests.get(f"https://r.jina.ai/{link}", timeout=8)
+                        if jina_res.status_code == 200:
+                            conteudo_real = jina_res.text[:1500] # Pega os 1500 primeiros chars para não estourar o contexto
+                    except:
+                        conteudo_real = "Falha ao ler o conteúdo integral da página."
+                
+                contexto_extraido.append(f"{i+1}. Título: {titulo}\n   Snippet: {snippet}\n   Link: {link}\n   Conteúdo Real da Página:\n{conteudo_real}\n")
                 
         resultado_final = "\n".join(contexto_extraido)
         return resultado_final if resultado_final else "Sem resultados orgânicos relevantes."
     except Exception as e:
         return f"Erro ao coletar dados do Google (Serper): {e}"
 
-def chamar_llm(system_prompt, user_prompt, model, temperature=0.3):
+# MELHORIA 1: Tolerância a Falhas via Tenacity (Retry automático)
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_format=None):
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=TOKEN,
         default_headers={"HTTP-Referer": "https://arcomartech.com", "X-Title": "Gerador GEO WP"}
     )
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
+    
+    kwargs = {
+        "model": model,
+        "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        temperature=temperature,
-    )
+        "temperature": temperature,
+    }
+    
+    if response_format:
+        kwargs["response_format"] = response_format
+
+    response = client.chat.completions.create(**kwargs)
     return response.choices[0].message.content
 
+# MELHORIA: Cache para a chamada do Perplexity
+@st.cache_data(ttl=3600, show_spinner=False)
 def buscar_baseline_llm(palavra_chave):
     system_prompt = "Você é um pesquisador de IA sênior. Forneça a resposta atualizada que uma IA daria hoje para o termo pesquisado, citando referências e o consenso atual."
     user_prompt = f"O que você sabe sobre: '{palavra_chave}'? Retorne um resumo profundo de como esse tema é respondido atualmente pelas IAs."
@@ -200,12 +236,16 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     from datetime import datetime
     ano_atual = datetime.now().year
     
-    st.write("🕵️‍♂️ Fase 0: Lendo o que o Google já responde hoje (Serper)...")
-    contexto_google = buscar_contexto_google(palavra_chave)
-
-    st.write("🤖 Auditando respostas atuais das LLMs (Perplexity/Web)...")
-    baseline_ia = buscar_baseline_llm(palavra_chave)
+    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
     
+    # MELHORIA 3: Paralelismo. Google e IA agora rodam ao mesmo tempo!
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
+        futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
+        
+        contexto_google = futuro_google.result()
+        baseline_ia = futuro_ia.result()
+
     st.write("🧠 Fase 1: Análise Semântica (GPT-4o)...")
     system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Você receberá o que o Google e as IAs respondem hoje. Sua missão é criar o escopo para a 'Autoridade Definitiva' que SUPERE essas respostas atuais."
     
@@ -268,23 +308,22 @@ Retorne apenas o código HTML do artigo."""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
-    st.write("🛠️ Fase 3: Extraindo JSON e Metadados...")
-    system_3 = """Você é especialista em SEO técnico e Schema.org. Retorne APENAS um objeto JSON válido, sem formatação markdown em volta.
+    st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     
-REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE as perguntas (<h3>) e respostas (<p>) que estão fisicamente escritas na seção 'Perguntas Frequentes' do HTML. NUNCA invente perguntas que não existam no texto."""
+    # MELHORIA 2: Forçando a saída com Schema do Pydantic para não precisar mais de Regex
+    schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
     
-    user_3 = f"""Com base no artigo HTML completo abaixo, crie um JSON contendo:
-{{
-  "title": "Título H1 otimizado (max 60 chars)",
-  "meta_description": "Meta description persuasiva (max 150 chars)",
-  "dicas_imagens": "Dicas de Alt Text para 2 imagens",
-  "schema_faq": "Objeto JSON-LD FAQPage completo e idêntico ao texto"
-}}
+    system_3 = f"""Você é especialista em SEO técnico e Schema.org. 
+Você DEVE retornar APENAS UM JSON puro, válido e compatível com este schema:
+{json.dumps(schema_gerado, ensure_ascii=False)}
 
-HTML COMPLETO:
-{artigo_html}"""
+REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE as perguntas (<h3>) e respostas (<p>) que estão fisicamente escritas na seção 'Perguntas Frequentes' do HTML. NUNCA invente perguntas que não existam no texto.
+NÃO envolva a resposta em markdown (como ```json)."""
     
-    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1)
+    user_3 = f"HTML COMPLETO:\n{artigo_html}"
+    
+    # Passando response_format para os provedores que suportam garantir o JSON
+    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
     
     return artigo_html, dicas_json, contexto_google, baseline_ia
 
@@ -364,21 +403,25 @@ with tab1:
         with col2:
             st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
             
+            # MELHORIA 2.1: Validação Limpa usando o Pydantic (Adeus Regex frágil!)
             try:
-                match = re.search(r'\{.*\}', st.session_state['metas_geradas'], re.DOTALL)
-                if match:
-                    string_limpa = match.group(0)
-                    meta = json.loads(string_limpa)
-                else:
-                    meta = json.loads(st.session_state['metas_geradas'].strip('`').replace('json\n',''))
-                    
+                # Remove potenciais blocos de markdown que o Claude insiste em colocar as vezes
+                string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
+                
+                # O Pydantic valida os tipos, assegurando que nada vai quebrar mais para a frente
+                meta_validada = MetadadosArtigo.model_validate_json(string_json_limpa)
+                meta = meta_validada.model_dump()
+                
                 st.subheader(meta.get("title", "Artigo Gerado"))
+            except ValidationError as ve:
+                meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": "", "schema_faq": {}}
+                st.error(f"Aviso: O JSON gerado pela IA feriu a estrutura do Pydantic. Validando fallback bruto. Detalhe: {ve}")
             except Exception as e:
-                meta = {"title": "Artigo Gerado via Motor GEO"}
-                st.error(f"Aviso: O JSON gerado veio mal formatado. Detalhe: {e}")
+                meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": "", "schema_faq": {}}
+                st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
             
             with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
-                st.markdown("**Google (Serper):**")
+                st.markdown("**Google (Serper + Jina Reader):**")
                 st.info(st.session_state['google_ctx'])
                 st.markdown("**IA (Perplexity):**")
                 st.info(st.session_state['ia_ctx'])
