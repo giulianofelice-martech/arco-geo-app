@@ -197,6 +197,8 @@ def buscar_baseline_llm(palavra_chave):
 def executar_geracao_completa(palavra_chave, marca_alvo):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
+    from datetime import datetime
+    ano_atual = datetime.now().year
     
     st.write("🕵️‍♂️ Fase 0: Lendo o que o Google já responde hoje (Serper)...")
     contexto_google = buscar_contexto_google(palavra_chave)
@@ -241,13 +243,13 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 7. ATUALIZAÇÃO TEMPORAL: O ano corrente é 2026. Certifique-se de que todas as referências temporais, projeções e títulos utilizem o ano de 2026 ou datas futuras. NUNCA cite 2024 ou 2025 como anos vigentes.
 
 REGRAS DE ALTA PERFORMANCE (GEO):
-8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave. IAs precisam identificar pontos de resposta rápida no texto.
-9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se o contexto de busca não trouxer números reais, use argumentos lógicos e qualitativos.
-10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...", "É importante ressaltar..." ou usar palavras como "Desvendar", "Crucial", "Divisor de águas". Vá direto ao ponto com voz ativa.
-11. GANHO DE INFORMAÇÃO: Identifique lacunas na resposta da concorrência e preencha com conteúdo mais profundo e técnico."""
+8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
+9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se não houver dados reais, use argumentos qualitativos.
+10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Vá direto ao ponto.
+11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
-    CONTEXTO TEMPORAL: Hoje é ano de {ano_atual}.
+    CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
     
 O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
 {contexto_google}
@@ -264,7 +266,6 @@ Regras Negativas: {marca_info['RegrasNegativas']}
 
 Retorne apenas o código HTML do artigo."""
 
-    # ESTA LINHA ABAIXO PRECISA ESTAR ALINHADA COM O 'user_2' ACIMA
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados...")
