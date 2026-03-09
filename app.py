@@ -448,7 +448,7 @@ with tab1:
                         # ANTI-BUG 2: Limpa o prompt caso a IA tenha escrito "Imagem 1:" na frente
                         clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
                         p1_codificado = urllib.parse.quote(clean_p1)
-                        img_1 = f'<img src="{base_url}{p1_codificado}?width=800&height=400&nologo=true" alt="{clean_p1}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1200&height=600&nologo=true" alt="{clean_p1}" width="1200" height="600" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
                         html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
                     
                     if isinstance(prompts, list) and len(prompts) >= 2:
