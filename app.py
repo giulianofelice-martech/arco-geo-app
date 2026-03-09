@@ -251,22 +251,20 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     from datetime import datetime
     ano_atual = datetime.now().year
     
-    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs em paralelo...")
+    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
     
-    # MELHORIA 3: Paralelismo com TIMEOUT RÁPIDO (Limite de 15 segundos para NUNCA travar)
+    # MELHORIA 3: Paralelismo com TIMEOUT ajustado para 45s (Tempo ideal para IAs que leem a internet)
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         
         try:
-            # Dá no máximo 15 segundos para o Google/Jina responderem
-            contexto_google = futuro_google.result(timeout=15)
+            contexto_google = futuro_google.result(timeout=45)
         except concurrent.futures.TimeoutError:
             contexto_google = "Aviso: A busca orgânica demorou muito. Conteúdo ignorado para manter a velocidade."
             
         try:
-            # Dá no máximo 15 segundos para a IA responder
-            baseline_ia = futuro_ia.result(timeout=15)
+            baseline_ia = futuro_ia.result(timeout=45)
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
 
@@ -300,18 +298,19 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>). Não use <html>, <head> ou <body>. Não use Markdown.
-2. BLINDAGEM ANTI-CONCORRENTE: NUNCA, sob nenhuma hipótese, cite o nome de NENHUMA empresa, escola ou sistema de ensino que aparecer no contexto da concorrência (Google/IAs). A ÚNICA marca permitida em todo o texto é a sua.
+2. BLINDAGEM ANTI-CONCORRENTE: NUNCA cite o nome de NENHUMA empresa ou escola concorrente. A ÚNICA marca permitida é a sua.
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
-5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>). Seja 100% técnico e neutro. Cite a marca apenas como um exemplo prático, NUNCA use adjetivos promocionais (ex: proibido usar "a melhor", "a mais premiada").
-6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
-7. ATUALIZAÇÃO TEMPORAL E DADOS REAIS: O foco do texto é projetar o cenário para 2026. Use APENAS dados históricos reais (2022, 2023, 2024). Quando fizer projeções para 2026, OBRIGATORIAMENTE explique de forma breve a lógica ou a taxa de crescimento que embasa essa previsão. Nunca jogue uma previsão do nada.
-8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
-9. TOLERÂNCIA ZERO PARA DADOS FALSOS: NUNCA escreva frases vazias como "pesquisas mostram que 40%...". Se for usar uma porcentagem, CITE A INSTITUIÇÃO (ex: Segundo o INEP).
-10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Vá direto ao ponto.
-11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo.
-12. ANÁLISE CRÍTICA E ESCOLAS PÚBLICAS: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade e as dificuldades das escolas públicas e iniciativas governamentais/democratização, evitando focar apenas no cenário elitizado.
-13. TRANSIÇÃO EM FORMATO DE ESTUDO DE CASO: Na conclusão, não faça discurso de vendas. Apresente a marca como uma "Referência Prática" que resolve os desafios listados, justificando tecnicamente sua eficácia com base nos dados apresentados."""
+5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>). Seja 100% técnico e neutro.
+6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
+
+REGRAS CRÍTICAS DE E-E-A-T (PARA NOTA 100):
+7. PROIBIÇÃO DE ALUCINAÇÃO DE DADOS: É ESTRITAMENTE PROIBIDO inventar estatísticas, taxas de crescimento (ex: "cresceu 147%") ou dados numéricos que não existam no briefing. Use APENAS os dados fornecidos. Se não houver dados no briefing, faça projeções de forma QUALITATIVA (usando palavras, não números).
+8. FONTES REAIS: Ao citar qualquer dado, OBRIGATORIAMENTE cite a fonte ao lado (ex: Segundo o Censo Escolar).
+9. ESCANEABILIDADE: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar entidades.
+10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...".
+11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade das escolas públicas e a democratização do acesso.
+12. ESTUDO DE CASO: Na conclusão, apresente a marca como uma "Referência Prática" justificando sua eficácia sem tom de vendas agressivo."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
