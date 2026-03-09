@@ -391,7 +391,7 @@ with tab1:
                     status.update(label="❌ Erro durante a geração", state="error")
                     st.error(f"Erro Crítico: {e}")
 
-with tab 3:
+with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto.")
     
