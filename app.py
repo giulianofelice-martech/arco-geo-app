@@ -335,6 +335,7 @@ with tab1:
         else:
             st.success("🔌 Conectado ao WordPress (Pronto para Yoast).")
 
+    # LÓGICA DE GERAÇÃO
     if gerar_btn:
         if not TOKEN: 
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets.")
@@ -345,72 +346,87 @@ with tab1:
                 try:
                     artigo_html, dicas_json, google_data, ia_data = executar_geracao_completa(palavra_chave_input, marca_selecionada)
                     
-                    status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
+                    # SALVANDO NA MEMÓRIA PARA PERSISTÊNCIA ENTRE ABAS
+                    st.session_state['art_gerado'] = artigo_html
+                    st.session_state['metas_geradas'] = dicas_json
+                    st.session_state['google_ctx'] = google_data
+                    st.session_state['ia_ctx'] = ia_data
+                    st.session_state['marca_atual'] = marca_selecionada
+                    st.session_state['keyword_atual'] = palavra_chave_input
                     
-                    with col2:
-                        st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
-                        
-                        try:
-                            match = re.search(r'\{.*\}', dicas_json, re.DOTALL)
-                            if match:
-                                string_limpa = match.group(0)
-                                meta = json.loads(string_limpa)
-                            else:
-                                meta = json.loads(dicas_json.strip('`').replace('json\n',''))
-                                
-                            st.subheader(meta.get("title", "Artigo Gerado"))
-                        except Exception as e:
-                            meta = {"title": "Artigo Gerado via Motor GEO"}
-                            st.error(f"Aviso: O JSON gerado veio mal formatado. Detalhe: {e}")
-                        
-                        with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
-                            st.markdown("**Google (Serper):**")
-                            st.info(google_data)
-                            st.markdown("**IA (Perplexity):**")
-                            st.info(ia_data)
-
-                        with st.expander("👁️ Pré-visualização do HTML", expanded=False):
-                            st.markdown(artigo_html, unsafe_allow_html=True)
-                        
-                        st.markdown("### 📋 Código HTML:")
-                        st.code(artigo_html, language="html")
-                        
-                        with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
-                            st.json(meta)
-                        
-                        if WP_READY:
-                            if st.button("📤 Enviar Rascunho para WordPress (Yoast)"):
-                                with st.spinner("Enviando via API..."):
-                                    res = publicar_wp(meta.get("title", palavra_chave_input), artigo_html, meta)
-                                    if res.status_code == 201:
-                                        st.success(f"✅ Rascunho criado! Link: {res.json().get('link')}")
-                                    else:
-                                        st.error(f"❌ Falha ao enviar: {res.text}")
-                                        
+                    status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
                 except Exception as e:
                     status.update(label="❌ Erro durante a geração", state="error")
                     st.error(f"Erro Crítico: {e}")
+
+    # EXIBIÇÃO PERSISTENTE (RENDERIZA SEMPRE QUE HOUVER ALGO NA MEMÓRIA)
+    if 'art_gerado' in st.session_state:
+        with col2:
+            st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
+            
+            try:
+                match = re.search(r'\{.*\}', st.session_state['metas_geradas'], re.DOTALL)
+                if match:
+                    string_limpa = match.group(0)
+                    meta = json.loads(string_limpa)
+                else:
+                    meta = json.loads(st.session_state['metas_geradas'].strip('`').replace('json\n',''))
+                    
+                st.subheader(meta.get("title", "Artigo Gerado"))
+            except Exception as e:
+                meta = {"title": "Artigo Gerado via Motor GEO"}
+                st.error(f"Aviso: O JSON gerado veio mal formatado. Detalhe: {e}")
+            
+            with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
+                st.markdown("**Google (Serper):**")
+                st.info(st.session_state['google_ctx'])
+                st.markdown("**IA (Perplexity):**")
+                st.info(st.session_state['ia_ctx'])
+
+            with st.expander("👁️ Pré-visualização do HTML", expanded=False):
+                st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
+            
+            st.markdown("### 📋 Código HTML:")
+            st.code(st.session_state['art_gerado'], language="html")
+            
+            with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
+                st.json(meta)
+            
+            if WP_READY:
+                if st.button("📤 Enviar Rascunho para WordPress (Yoast)"):
+                    with st.spinner("Enviando via API..."):
+                        res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta)
+                        if res.status_code == 201:
+                            st.success(f"✅ Rascunho criado! Link: {res.json().get('link')}")
+                        else:
+                            st.error(f"❌ Falha ao enviar: {res.text}")
 
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto.")
     
-    # Preenche automaticamente se já gerou um artigo
-    txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=st.session_state.get('art_gerado', ''))
-    kw_auditoria = st.text_input("Palavra-Chave Alvo", value=kw_input if 'kw_input' in locals() else "")
+    # Recupera os dados da memória de forma segura
+    conteudo_para_auditoria = st.session_state.get('art_gerado', '')
+    keyword_para_auditoria = st.session_state.get('keyword_atual', '')
+    marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
+
+    txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=conteudo_para_auditoria)
+    kw_auditoria = st.text_input("Palavra-Chave Alvo", value=keyword_para_auditoria)
     
     if st.button("🔎 Analisar com GPT-4o"):
-        with st.spinner("Auditando conteúdo..."):
-            marca_nome = st.session_state.get('marca_atual', 'a marca citada').replace('@', '')
-            sys_audit = "Você é um algoritmo de busca de IA. Sua missão é auditar se um texto merece ser citado como fonte oficial."
-            usr_audit = f"""Palavra-chave: {kw_auditoria}
-            Texto: {txt_auditoria}
-            
-            Avalie:
-            1. GEO SCORE (0-100) baseado em Densidade de Entidades e Escaneabilidade.
-            2. VEREDITO: Você citaria a marca '{marca_nome}' como autoridade?
-            3. CRÍTICA: Onde o texto falha tecnicamente?
-            4. MELHORIA: O que adicionar para subir o score?"""
-            
-            relatorio = chamar_llm(sys_audit, usr_audit, model="openai/gpt-4o", temperature=0.2)
-            st.info(relatorio)
+        if not txt_auditoria:
+            st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
+        else:
+            with st.spinner("Auditando conteúdo..."):
+                sys_audit = "Você é um algoritmo de busca de IA. Sua missão é auditar se um texto merece ser citado como fonte oficial."
+                usr_audit = f"""Palavra-chave: {kw_auditoria}
+                Texto: {txt_auditoria}
+                
+                Avalie:
+                1. GEO SCORE (0-100) baseado em Densidade de Entidades e Escaneabilidade.
+                2. VEREDITO: Você citaria a marca '{marca_para_auditoria}' como autoridade?
+                3. CRÍTICA: Onde o texto falha tecnicamente?
+                4. MELHORIA: O que adicionar para subir o score?"""
+                
+                relatorio = chamar_llm(sys_audit, usr_audit, model="openai/gpt-4o", temperature=0.2)
+                st.info(relatorio)
