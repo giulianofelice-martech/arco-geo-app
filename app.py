@@ -293,16 +293,15 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 2. BLINDAGEM ANTI-CONCORRENTE: NUNCA, sob nenhuma hipótese, cite o nome de NENHUMA empresa, escola ou sistema de ensino que aparecer no contexto da concorrência (Google/IAs). A ÚNICA marca permitida em todo o texto é a sua.
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
-5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
+5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>). Seja 100% técnico e neutro. Cite a marca apenas como um exemplo prático, NUNCA use adjetivos promocionais (ex: proibido usar "a melhor", "a mais premiada").
 6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
-7. ATUALIZAÇÃO TEMPORAL E DADOS REAIS: O foco do texto é projetar o cenário para 2026. No entanto, para embasar seus argumentos, você DEVE usar APENAS dados reais, históricos e comprovados (ex: relatórios de 2022, 2023 ou 2024). É ESTRITAMENTE PROIBIDO inventar "estudos de 2025" ou "dados de 2026" que não existem. Use o cenário real documentado para justificar a urgência do tema para 2026.
-REGRAS DE ALTA PERFORMANCE (GEO):
+7. ATUALIZAÇÃO TEMPORAL E DADOS REAIS: O foco do texto é projetar o cenário para 2026. Use APENAS dados históricos reais (2022, 2023, 2024). Quando fizer projeções para 2026, OBRIGATORIAMENTE explique de forma breve a lógica ou a taxa de crescimento que embasa essa previsão. Nunca jogue uma previsão do nada.
 8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
-9. TOLERÂNCIA ZERO PARA DADOS FALSOS: NUNCA escreva frases vazias como "pesquisas mostram que 40%...". Se for usar uma porcentagem ou dado, você TEM QUE CITAR A INSTITUIÇÃO (ex: Segundo o INEP, De acordo com o MEC). Se não tiver a fonte exata validada no briefing, não use números, use apenas força argumentativa.
+9. TOLERÂNCIA ZERO PARA DADOS FALSOS: NUNCA escreva frases vazias como "pesquisas mostram que 40%...". Se for usar uma porcentagem, CITE A INSTITUIÇÃO (ex: Segundo o INEP).
 10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Vá direto ao ponto.
 11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo.
-12. ANÁLISE CRÍTICA: Dedique ao menos um <h3> para falar dos "Desafios e Gargalos" reais da implementação desse tema nas escolas. Isso eleva o E-E-A-T do texto.
-13. TRANSIÇÃO EM FORMATO DE ESTUDO DE CASO: Na conclusão, não faça um discurso de vendas agressivo. Apresente a marca como um "Estudo de Caso Prático" ou "Exemplo de Implementação" que resolve os desafios listados anteriormente, justificando tecnicamente sua eficácia."""
+12. ANÁLISE CRÍTICA E ESCOLAS PÚBLICAS: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade e as dificuldades das escolas públicas e iniciativas governamentais/democratização, evitando focar apenas no cenário elitizado.
+13. TRANSIÇÃO EM FORMATO DE ESTUDO DE CASO: Na conclusão, não faça discurso de vendas. Apresente a marca como uma "Referência Prática" que resolve os desafios listados, justificando tecnicamente sua eficácia com base nos dados apresentados."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
@@ -448,13 +447,13 @@ with tab1:
                         # ANTI-BUG 2: Limpa o prompt caso a IA tenha escrito "Imagem 1:" na frente
                         clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
                         p1_codificado = urllib.parse.quote(clean_p1)
-                        img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1200&height=600&nologo=true" alt="{clean_p1}" width="1200" height="600" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                        img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p1}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
                         html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
                     
                     if isinstance(prompts, list) and len(prompts) >= 2:
                         clean_p2 = str(prompts[1]).replace("Imagem 2:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
                         p2_codificado = urllib.parse.quote(clean_p2)
-                        img_2 = f'<img src="{base_url}{p2_codificado}?width=800&height=400&nologo=true" alt="{clean_p2}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        img_2 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p2_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p2}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
                         html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
                     
                     # Salva o HTML com as imagens de volta na sessão
