@@ -102,11 +102,14 @@ with tab1:
         
         gerar_btn = st.button("🚀 Gerar Artigo Otimizado", use_container_width=True, type="primary")
 
-    if gerar_btn:
-        if not TOKEN: 
+    if processar:
+    # ALTERE ESTA LINHA:
+    # De: if not openrouter_key:
+    # Para:
+    if not TOKEN: 
         st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets do Streamlit.")
-        elif not palavra_chave_input:
-            st.warning("⚠️ Digite uma palavra-chave.")
+    elif not palavra_chave_input:
+        st.warning("⚠️ Por favor, digite uma palavra-chave ou instrução.")
         else:
             with st.status("🤖 Processando Motor GEO...", expanded=True) as status:
                 st.write("🔍 Fase 1: Analisando intenção de busca da IA...")
