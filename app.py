@@ -253,13 +253,22 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     
     st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
     
-    # MELHORIA 3: Paralelismo. Google e IA agora rodam ao mesmo tempo!
+    # MELHORIA 3: Paralelismo com TIMEOUT (Limite de 25 segundos para não travar a tela)
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         
-        contexto_google = futuro_google.result()
-        baseline_ia = futuro_ia.result()
+        try:
+            # Dá no máximo 60 segundos para o Google/Jina responderem
+            contexto_google = futuro_google.result(timeout=60)
+        except concurrent.futures.TimeoutError:
+            contexto_google = "Aviso: O site alvo bloqueou a leitura ou a busca orgânica demorou muito. Conteúdo orgânico ignorado."
+            
+        try:
+            # Dá no máximo 60 segundos para o Perplexity responder
+            baseline_ia = futuro_ia.result(timeout=60)
+        except concurrent.futures.TimeoutError:
+            baseline_ia = "Aviso: O motor da Perplexity demorou muito a responder. Baseline ignorada."
 
     st.write("🧠 Fase 1: Análise Semântica (GPT-4o)...")
     system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Você receberá o que o Google e as IAs respondem hoje. Sua missão é criar o escopo para a 'Autoridade Definitiva' que SUPERE essas respostas atuais."
