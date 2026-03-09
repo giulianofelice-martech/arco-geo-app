@@ -228,7 +228,6 @@ def buscar_contexto_google(palavra_chave):
                 conteudo_real = ""
                 if link:
                     try:
-                        # MELHORIA: Jina em Modo Markdown e 12s de respiro
                         jina_headers = {
                             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                             'X-Return-Format': 'markdown', 
@@ -336,25 +335,25 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     system_2 = """Você é um Redator Sênior especialista em SEO e Algoritmos de IA (GEO).
 
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
-1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>). Não use <html>, <head> ou <body>. Não use Markdown.
+1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Não use <html>, <head> ou <body>. Não use Markdown.
 2. BLINDAGEM ANTI-CONCORRENTE: NUNCA cite o nome de NENHUMA empresa ou escola concorrente. A ÚNICA marca permitida é a sua.
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
 5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>). Seja 100% técnico e neutro.
 6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
 
-REGRAS CRÍTICAS DE E-E-A-T (PARA NOTA 100):
-7. PROIBIÇÃO ABSOLUTA DE DADOS INVENTADOS: Se o briefing não fornecer um número exato com o NOME DO RELATÓRIO e o ANO, VOCÊ É PROIBIDO de inventar porcentagens (ex: "reduziu 30%"). Use apenas termos qualitativos (ex: "redução significativa", "crescimento expressivo").
-8. CITAÇÃO NOMINAL COMPLETA: Sempre que citar uma instituição (INEP, MEC, UNESCO), você DEVE citar o nome do relatório ou o ano do estudo. Se não souber o ano exato, não cite o dado.
+REGRAS CRÍTICAS DE E-E-A-T E LINKAGEM (PARA NOTA 100):
+7. PROIBIÇÃO DE DADOS INVENTADOS DA MARCA (ZERO ALUCINAÇÃO): É EXPRESSAMENTE PROIBIDO inventar "relatórios", "pesquisas" ou "dados numéricos" atribuídos à sua própria marca (ex: "Segundo o relatório da International School 2025" - NÃO FAÇA ISSO SE NÃO ESTIVER NO BRIEFING). Para falar da marca, use APENAS os argumentos qualitativos descritos no Brandbook.
+8. BACKLINKS REAIS OBRIGATÓRIOS: Toda vez que você citar um estudo, estatística ou instituição externa verdadeira (ex: UNESCO, INEP, IBGE) proveniente do contexto da busca, você DEVE incluir um link HTML real envolvendo o nome do estudo ou instituição (ex: <a href="LINK_EXTRAIDO_DO_CONTEXTO" target="_blank" rel="noopener noreferrer">Nome da Instituição</a>). NUNCA cite um dado de mercado sem embasar com uma tag de link <a>.
 9. ESCANEABILIDADE: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar entidades.
 10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...".
 11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade das escolas públicas e a democratização do acesso.
-12. ESTUDO DE CASO: Na conclusão, apresente a marca como uma "Referência Prática" justificando sua eficácia sem tom de vendas agressivo."""
+12. ESTUDO DE CASO: Na conclusão, apresente a marca como uma "Referência Prática" justificando sua eficácia de forma elegante e real, SEM inventar números milagrosos."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
     
-O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
+O QUE A CONCORRÊNCIA DIZ HOJE (USE OS LINKS DAQUI PARA EMBASAR OS DADOS):
 {contexto_google}
 {baseline_ia}
 
@@ -396,7 +395,7 @@ NÃO envolva a resposta em markdown (como ```json)."""
         
         if UNSPLASH_KEY and isinstance(termos_busca, list):
             for i, termo in enumerate(termos_busca[:2]): 
-                url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                 res = requests.get(url, timeout=5)
                 
                 if res.status_code == 200:
@@ -497,31 +496,6 @@ with tab1:
                 
                 st.subheader(meta.get("title", "Artigo Gerado"))
                 
-                # MELHORIA: Integração Unsplash
-                UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
-
-                if not st.session_state.get('imagens_injetadas') and UNSPLASH_KEY:
-                    html_atual = st.session_state['art_gerado']
-                    termos_busca = meta.get('dicas_imagens', [])
-                    
-                    for i, termo in enumerate(termos_busca[:2]): 
-                        url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
-                        try:
-                            res = requests.get(url, timeout=5).json()
-                            if "results" in res and len(res["results"]) > 0:
-                                img_url = res["results"][0]["urls"]["regular"]
-                                alt_text = res["results"][0]["alt_description"] or termo
-                                
-                                tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                                
-                                alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
-                                html_atual = html_atual.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
-                        except Exception as e:
-                            st.toast(f"Falha ao buscar imagem no Unsplash para '{termo}': {e}")
-
-                    st.session_state['art_gerado'] = html_atual
-                    st.session_state['imagens_injetadas'] = True
-
             except ValidationError as ve:
                 meta = {"title": "Artigo Gerado via Motor GEO (Schema Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON gerado pela IA feriu a estrutura do Pydantic. Detalhe: {ve}")
@@ -576,8 +550,9 @@ with tab3:
                 
                 REGRAS DE AUDITORIA:
                 1. A REGRA DE NEGÓCIO DESTA EMPRESA PROÍBE CITAR CONCORRENTES. É estritamente proibido penalizar o texto por falta de comparação com outras marcas ou sistemas.
-                2. Verifique se o texto evita alucinações (ex: "estudos mostram 30%" sem citar fonte).
-                3. Avalie se a marca é apresentada de forma elegante e técnica (como um estudo de caso/solução estruturada) e não como um panfleto publicitário barato.
+                2. PENALIZAÇÃO DE ALUCINAÇÃO DE MARCA (FALHA CRÍTICA): Se o texto inventar que a própria marca alvo fez um "estudo", "relatório" ou "pesquisa numérica" (ex: "Relatório da Marca X em 2025"), REDUZA A NOTA DRASTICAMENTE. A marca deve ser citada apenas qualitativamente ou com base no Brandbook.
+                3. PENALIZAÇÃO DE BACKLINKS: Verifique se as estatísticas e instituições externas citadas possuem links reais em HTML (tags <a href="...">). Se o texto citou um dado de mercado sem linká-lo, penalize a pontuação.
+                4. Avalie se a marca é apresentada de forma elegante e técnica e não como um panfleto publicitário barato.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
