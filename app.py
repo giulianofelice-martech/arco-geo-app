@@ -102,38 +102,38 @@ with tab1:
         
         gerar_btn = st.button("🚀 Gerar Artigo Otimizado", use_container_width=True, type="primary")
 
-    if processar:
-    # ALTERE ESTA LINHA:
-    # De: if not openrouter_key:
-    # Para:
-    if not TOKEN: 
-        st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets do Streamlit.")
-    elif not palavra_chave_input:
-        st.warning("⚠️ Por favor, digite uma palavra-chave ou instrução.")
+    # A variável aqui deve ser a mesma do botão acima (gerar_btn)
+    if gerar_btn:
+        if not TOKEN: 
+            st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets do Streamlit.")
+        elif not palavra_chave_input:
+            st.warning("⚠️ Por favor, digite uma palavra-chave ou instrução.")
         else:
             with st.status("🤖 Processando Motor GEO...", expanded=True) as status:
                 st.write("🔍 Fase 1: Analisando intenção de busca da IA...")
                 time.sleep(1) # Visual apenas
                 
                 try:
-                    artigo_final, dicas_finais = gerar_conteudo_completo(palavra_chave_input, marca_selecionada, st.session_state['brandbook_df'])
+                    # Chamando a função de geração (garanta que o nome da função seja este no seu código)
+                    artigo_final, dicas_finais = executar_geracao(palavra_chave_input, marca_selecionada)
                     
                     st.write("✍️ Fase 2: Escrevendo o artigo e embutindo o Cavalo de Troia...")
                     st.write("🛠️ Fase 3: Extraindo código Schema e Meta Tags...")
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
                     
-                    st.success("Tudo pronto! Copie os resultados abaixo.")
-                    
-                    # Exibição dos resultados
-                    with st.expander("📝 VER ARTIGO COMPLETO (Renderizado)", expanded=True):
-                        st.markdown(artigo_final)
-                    
-                    st.markdown("### Código Fonte para Copiar:")
-                    st.code(artigo_final, language="markdown")
-                    
-                    st.markdown("### 🛠️ Dicas de Publicação (SEO/Schema):")
-                    st.info(dicas_finais)
-                    
+                    with col2:
+                        st.success("Tudo pronto! Copie os resultados abaixo.")
+                        
+                        # Exibição dos resultados renderizados
+                        with st.expander("📝 VER ARTIGO COMPLETO (Renderizado)", expanded=True):
+                            st.markdown(artigo_final)
+                        
+                        st.markdown("### Código Fonte para Copiar:")
+                        st.code(artigo_final, language="markdown")
+                        
+                        st.markdown("### 🛠️ Dicas de Publicação (SEO/Schema):")
+                        st.info(dicas_finais)
+                        
                 except Exception as e:
                     status.update(label="❌ Erro durante a geração", state="error")
                     st.error(f"Erro: {e}")
