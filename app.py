@@ -254,7 +254,8 @@ Regras Positivas: {marca_info.get('RegrasPositivas', '')}
 Regras Negativas: {marca_info['RegrasNegativas']}
 
 Retorne apenas o código HTML do artigo."""
-    
+
+    # Esta linha DEVE estar alinhada exatamente com a palavra user_2 lá em cima!
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados...")
