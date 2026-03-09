@@ -310,6 +310,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     st.write("🧠 Fase 1: Análise Semântica (GPT-4o)...")
     system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Você receberá o que o Google e as IAs respondem hoje. Sua missão é criar o escopo para a 'Autoridade Definitiva' que SUPERE essas respostas atuais."
     
+    # [AQUI ESTÁ A PRIMEIRA TRAVA INSERIDA: O Filtro Anti-Concorrente na Fase 1]
     user_1 = f"""Palavra-chave: '{palavra_chave}'
 
 Contexto do que o GOOGLE responde hoje:
@@ -327,40 +328,42 @@ Com base nas respostas atuais, crie o briefing:
 2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais.
 3. ESTRUTURA DE DADOS: Quais tabelas criar?
 4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos obrigatórios.
-5. ARSENAL DE EVIDÊNCIAS (FILTRO ANTI-CONCORRENTE): Extraia dados reais do contexto APENAS se vierem de fontes NEUTRAS (governos, ONGs, jornais, universidades - ex: MEC, UNESCO, IBGE, Porvir). É EXPRESSAMENTE PROIBIDO extrair ou sugerir dados que venham de sites de concorrentes (outras escolas, sistemas de ensino ou franquias). Se o contexto for só lixo concorrente, exija apenas argumentos qualitativos lógicos."""
+5. ARSENAL DE EVIDÊNCIAS (TOLERÂNCIA ZERO PARA INVENÇÕES E CONCORRENTES): Extraia dados reais do contexto APENAS se vierem de fontes NEUTRAS com URL (governos, ONGs, Jornais, Universidades). SE NÃO HOUVER NÚMEROS NO CONTEXTO, É PROIBIDO INVENTAR PORCENTAGENS OU DADOS. Sugira argumentos qualitativos. Extraia as URLs exatas para o redator usar. JOGUE FORA links de escolas e sistemas concorrentes."""    
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
     st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
-    system_2 = """Você é um Redator Sênior especialista em SEO e Algoritmos de IA (GEO).
+    
+    # [AQUI ESTÁ A SEGUNDA TRAVA INSERIDA: A Blindagem de Jornalismo e URLs no Redator]
+    system_2 = """Você é um Redator Sênior especialista em SEO Jornalístico e Algoritmos de IA (GEO).
 
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Não use <html>, <head> ou <body>. Não use Markdown.
-2. BLINDAGEM ANTI-CONCORRENTE EXTREMA: NUNCA, sob nenhuma hipótese, cite nomes ou crie links para escolas, franquias ou sistemas de ensino concorrentes (ex: Maple Bear, Edify, Cultura Inglesa, etc). Se o contexto trouxer essas marcas, IGNORE-AS. A ÚNICA marca permitida é a sua.
-3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
-4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
+2. BLINDAGEM ANTI-CONCORRENTE: NUNCA cite nomes ou crie links para outras empresas, sistemas de ensino ou escolas concorrentes. A ÚNICA marca permitida é a sua.
+3. CAVALO DE TROIA: Texto imparcial e técnico no início. A marca alvo só pode aparecer no final.
+4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" com uma lista <ul> de 3 itens logo no início.
 5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>).
-6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
+6. TOM E MARCA: Remova o "@" do nome da marca ao citá-la. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
 
-REGRAS CRÍTICAS DE E-E-A-T E LINKAGEM (PARA NOTA 100):
-7. ZERO ALUCINAÇÃO DE DADOS DA MARCA: É EXPRESSAMENTE PROIBIDO inventar "relatórios numéricos" atribuídos à sua própria marca. Para falar da marca alvo, use APENAS argumentos qualitativos.
-8. BACKLINKS REAIS DE FONTES NEUTRAS: Ao citar dados externos do contexto, você DEVE incluir um link HTML (<a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Fonte</a>). REGRA DE OURO: Só faça links para domínios neutros (.gov, .org, .edu, portais de notícias). NUNCA faça links para domínios de concorrentes disfarçados de "pesquisas". Se não houver fonte neutra, NÃO invente o dado e NÃO faça o link.
+REGRAS CRÍTICAS DE E-E-A-T (TOLERÂNCIA ZERO):
+7. PROIBIÇÃO ABSOLUTA DE INVENÇÃO NUMÉRICA: Você NÃO PODE inventar porcentagens, anos ou números estatísticos (ex: "cresceu 114%", "estudo de 2025"). Só use números se eles existirem explicitamente no briefing e possuírem um link <a href>. Na dúvida, use palavras qualitativas (ex: "crescimento expressivo", "aumento significativo").
+8. LINKS NEUTROS OBRIGATÓRIOS: NUNCA cite um estudo ou dado sem envelopá-lo com um link HTML (<a href="URL_AQUI" target="_blank" rel="noopener noreferrer">Nome da Fonte</a>) apontando para a URL exata extraída do contexto. Só crie links para fontes governamentais, acadêmicas ou portais neutros.
 9. ESCANEABILIDADE: Parágrafos curtos (máx 3 frases). Use <strong> para entidades.
-10. BANIMENTO DE CLICHÊS E DATAS FUTURAS INVENTADAS: Proibido iniciar com "Em um mundo...". Não cite anos futuros (ex: 2025, 2026) a menos que seja uma projeção real com fonte linkada.
+10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Não cite anos futuros a menos que seja projeção real com fonte linkada.
 11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios", abordando a realidade do acesso e infraestrutura.
-12. ESTUDO DE CASO: Na conclusão, apresente a marca de forma elegante, justificando sua autoridade sem parecer panfleto."""
+12. ESTUDO DE CASO JORNALÍSTICO (SEM PANFLETAGEM): Na conclusão, você DEVE criar um <h3> chamado "Estudo de Caso: [Nome da Marca]". Descreva a marca de forma FRIA, TÉCNICA E JORNALÍSTICA, relatando como a metodologia dela resolve os desafios educacionais abordados no texto. É ESTRITAMENTE PROIBIDO usar adjetivos promocionais e bajuladores como "pioneira", "excelente", "a melhor opção", "premiada". Relate apenas fatos e metodologias da marca presentes no Brandbook."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
     
-O QUE A CONCORRÊNCIA DIZ HOJE (USE OS LINKS NEUTROS DAQUI PARA EMBASAR OS DADOS):
+O QUE A CONCORRÊNCIA DIZ HOJE (COPIE AS URLs EXATAS DAQUI PARA EMBASAR OS DADOS REAIS):
 {contexto_google}
 {baseline_ia}
 
 SUA ESTRATÉGIA DE SUPERAÇÃO:
 {analise}
 
-NOME DA SUA MARCA (A ÚNICA QUE PODE SER CITADA): {marca_alvo} (Remova o @ ao escrever no texto final)
+NOME DA SUA MARCA (A ÚNICA QUE PODE SER CITADA NO ESTUDO DE CASO FINAL): {marca_alvo} (Remova o @ ao escrever no texto final)
 Posicionamento da Marca: {marca_info['Posicionamento']}
 Tom: {marca_info['TomDeVoz']}
 Regras Positivas: {marca_info.get('RegrasPositivas', '')}
@@ -426,7 +429,7 @@ NÃO envolva a resposta em markdown (como ```json)."""
         print(f"Erro silencioso ao injetar imagem: {e}")
     
     return artigo_html, dicas_json, contexto_google, baseline_ia
-    
+
 def publicar_wp(titulo, conteudo_html, meta_dict):
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
@@ -490,7 +493,6 @@ with tab1:
                     st.session_state['ia_ctx'] = ia_data
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
-                    st.session_state['imagens_injetadas'] = False 
                     
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
                 except Exception as e:
@@ -553,6 +555,7 @@ with tab3:
     txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=conteudo_para_auditoria)
     kw_auditoria = st.text_input("Palavra-Chave Alvo", value=keyword_para_auditoria)
     
+    # [AQUI ESTÁ A TERCEIRA TRAVA INSERIDA: Auditor ignorando imagens e caçando falhas]
     if st.button("🔎 Analisar com GPT-4o"):
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
@@ -560,17 +563,18 @@ with tab3:
             with st.spinner("Auditando conteúdo e calculando GEO Score..."):
                 sys_audit = """Você é um auditor sênior de SEO e E-E-A-T do Google. Seu padrão é altíssimo.
                 
-                REGRAS DE AUDITORIA (SEJA CARRASCO):
-                1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações externas com outras marcas privadas.
-                2. PENALIZAÇÃO DE ALUCINAÇÃO: Se o texto inventar anos futuros (ex: Censo Escolar 2026) sem prova, ou inventar relatórios numéricos irreais da marca alvo, DESTRUA A NOTA.
-                3. PENALIZAÇÃO DE LINKS CONCORRENTES E FALSOS: Verifique as tags <a href>. Se houver links para marcas privadas concorrentes mascarados como estudos, ou se houver estatísticas sem links para fontes neutras (governos, universidades, ONGs), a nota não pode passar de 60.
-                4. AVALIAÇÃO E-E-A-T: Para tirar uma nota ACIMA DE 90, o texto deve ter backlinks perfeitos para fontes neutras, argumentos de autoridade inquestionáveis, e a marca alvo deve ser citada de forma elegante como estudo de caso, não como propaganda.
+                REGRAS DE AUDITORIA:
+                1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações com marcas do mesmo nicho.
+                2. PENALIZAÇÃO DE ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114% no Censo Escolar") ou alucinar datas irreais, a nota deve ser muito baixa.
+                3. PENALIZAÇÃO DE BACKLINKS: Verifique as tags <a href>. Todos os dados numéricos e estudos do mercado DEVEM ter links para fontes neutras (governos, universidades, grandes portais). Se houver dado sem link, penalize.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca deve ser mencionada com um tom jornalístico e técnico, focando em "como a metodologia funciona". Se a linguagem for panfletária e cheia de adjetivos (ex: "a melhor escolha", "solução perfeita"), puna o E-E-A-T.
+                5. IMAGENS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NÃO tire pontos se a imagem não tiver fonte, avalie apenas a autoridade do TEXTO.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
                   "score": "Um número inteiro de 0 a 100",
-                  "veredito": "Resumo de autoridade e apontamento crítico se houve panfletagem ou links errados",
-                  "critica": "Pontos fracos técnicos (em bullet points, seja duro)",
+                  "veredito": "Resumo de autoridade e apontamento crítico",
+                  "critica": "Pontos fracos técnicos (em bullet points)",
                   "melhoria": "O que adicionar para bater a nota 100 (em bullet points)"
                 }"""
                 
