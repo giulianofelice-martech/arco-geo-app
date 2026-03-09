@@ -125,42 +125,47 @@ WP_READY = bool(WP_URL and WP_USER and WP_PWD)
 # ==========================================
 
 def buscar_contexto_google(palavra_chave):
-    if not SERPAPI_KEY:
-        return "Sem chave SerpApi configurada. Pule o contexto do Google."
+    if not SERPAPI_KEY: 
+        return "Sem chave Serper configurada. Pule o contexto do Google."
         
-    params = {
-        "engine": "google",
+    url = "https://google.serper.dev/search"
+    payload = json.dumps({
         "q": palavra_chave,
-        "hl": "pt-br", # Idioma português
-        "gl": "br",    # Região Brasil
-        "api_key": SERPAPI_KEY
+        "gl": "br", # Região Brasil
+        "hl": "pt-br" # Idioma Português
+    })
+    
+    # A Serper usa headers diferentes da SerpApi
+    headers = {
+        'X-API-KEY': SERPAPI_KEY, # Mantive o nome da variável para você não precisar mudar nos Secrets
+        'Content-Type': 'application/json'
     }
     
     try:
-        response = requests.get("https://serpapi.com/search", params=params)
+        response = requests.request("POST", url, headers=headers, data=payload)
         dados = response.json()
         
         contexto_extraido = []
         
         # 1. Tenta pegar a Resposta Direta (Featured Snippet)
-        if "answer_box" in dados:
-            snippet = dados["answer_box"].get("snippet") or dados["answer_box"].get("answer", "Sem texto")
+        if "answerBox" in dados:
+            snippet = dados["answerBox"].get("snippet") or dados["answerBox"].get("answer", "Sem texto")
             contexto_extraido.append(f"📍 GOOGLE FEATURED SNIPPET ATUAL:\n{snippet}\n")
             
-        # 2. Tenta pegar o AI Overview / Knowledge Graph (se houver)
-        if "knowledge_graph" in dados:
-            desc = dados["knowledge_graph"].get("description", "")
+        # 2. Tenta pegar o Knowledge Graph (se houver)
+        if "knowledgeGraph" in dados:
+            desc = dados["knowledgeGraph"].get("description", "")
             contexto_extraido.append(f"🧠 GOOGLE KNOWLEDGE GRAPH:\n{desc}\n")
             
-        # 3. Pega os 3 primeiros orgânicos para entender o que está ranqueando
-        if "organic_results" in dados:
+        # 3. Pega os 3 primeiros orgânicos
+        if "organic" in dados:
             contexto_extraido.append("📊 TOP 3 RESULTADOS ORGÂNICOS:")
-            for i, res in enumerate(dados["organic_results"][:3]):
+            for i, res in enumerate(dados["organic"][:3]):
                 contexto_extraido.append(f"{i+1}. Título: {res.get('title')}\n   Snippet: {res.get('snippet')}")
                 
         return "\n".join(contexto_extraido)
     except Exception as e:
-        return f"Erro ao coletar dados do Google: {e}"
+        return f"Erro ao coletar dados do Google (Serper): {e}"
         
 # ==========================================
 # 4. FUNÇÕES DO MOTOR GEO & WORDPRESS
@@ -240,7 +245,22 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
     6. TOM E MARCA: Siga o tom exigido. Não use "@" no nome da marca no texto."""
     
-    user_2 = f"Palavra-chave: '{palavra_chave}'\nDiretrizes da Estratégia (Foco em Superação):\n{analise}\n\nMarca ({marca_alvo}):\n- Posicionamento: {marca_info['Posicionamento']}\n- Tom: {marca_info['TomDeVoz']}\n- Regras Positivas: {marca_info.get('RegrasPositivas', '')}\n- Regras Negativas: {marca_info['RegrasNegativas']}\n\nRetorne apenas o código HTML do artigo."
+    user_2 = f"""Palavra-chave: '{palavra_chave}'
+
+    O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
+    {contexto_google}
+    {baseline_ia}
+
+    SUA ESTRATÉGIA DE SUPERAÇÃO:
+    {analise}
+
+    Sua Marca: {marca_info['Posicionamento']}
+    Tom: {marca_info['TomDeVoz']}
+    Regras Positivas: {marca_info.get('RegrasPositivas', '')}
+    Regras Negativas: {marca_info['RegrasNegativas']}
+
+    Retorne apenas o código HTML do artigo."""    
+    
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
     # FASE 3: METADADOS E SCHEMA (CLAUDE 3.7 SONNET)
