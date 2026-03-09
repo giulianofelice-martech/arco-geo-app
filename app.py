@@ -8,7 +8,7 @@ import json
 import re
 import concurrent.futures
 from tenacity import retry, stop_after_attempt, wait_exponential
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -29,11 +29,24 @@ st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas
 # ESTRUTURAS PYDANTIC (MELHORIA 2: SUBSTITUI O REGEX PARA METADADOS)
 # ==========================================
 class MetadadosArtigo(BaseModel):
-    title: str = Field(..., max_length=60, description="Título H1 otimizado (max 60 chars)")
-    meta_description: str = Field(..., max_length=150, description="Meta description persuasiva (max 150 chars)")
+    # Removemos o limite rígido (max_length) do Field para evitar o crash, 
+    # mas mantemos na description para a IA continuar tentando acertar.
+    title: str = Field(..., description="Título H1 otimizado (max 60 chars)")
+    meta_description: str = Field(..., description="Meta description persuasiva (max 150 chars)")
     dicas_imagens: str = Field(..., description="Dicas de Alt Text para 2 imagens")
     schema_faq: dict = Field(..., description="Objeto JSON-LD FAQPage completo e idêntico ao texto")
 
+    # Interceptador Inteligente: Se a IA passar do limite, nós cortamos via código em vez de travar o app.
+    @field_validator('title', mode='before')
+    @classmethod
+    def ajustar_tamanho_titulo(cls, v: str) -> str:
+        return v[:57] + "..." if len(v) > 60 else v
+
+    @field_validator('meta_description', mode='before')
+    @classmethod
+    def ajustar_tamanho_meta(cls, v: str) -> str:
+        return v[:147] + "..." if len(v) > 150 else v
+    
 # ==========================================
 # 2. BRANDBOOK EMBUTIDO (COM REGRAS POSITIVAS)
 # ==========================================
