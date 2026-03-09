@@ -441,19 +441,23 @@ with tab1:
                     html_atual = st.session_state['art_gerado']
                     prompts = meta.get('dicas_imagens', [])
                     
+                    # ANTI-BUG 1: Separamos a URL para o seu editor/chat não transformar em link clicável sem querer
+                    base_url = "https://" + "image.pollinations.ai/prompt/"
+                    
                     if isinstance(prompts, list) and len(prompts) >= 1:
-                        # Imagem 1: Injetada logo antes do Resumo Rápido
-                        p1_codificado = urllib.parse.quote(prompts[0])
-                        img_1 = f'<img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){p1_codificado}?width=800&height=400&nologo=true" alt="{prompts[0]}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        # ANTI-BUG 2: Limpa o prompt caso a IA tenha escrito "Imagem 1:" na frente
+                        clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
+                        p1_codificado = urllib.parse.quote(clean_p1)
+                        img_1 = f'<img src="{base_url}{p1_codificado}?width=800&height=400&nologo=true" alt="{clean_p1}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
                         html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
                     
                     if isinstance(prompts, list) and len(prompts) >= 2:
-                        # Imagem 2: Injetada logo antes do FAQ
-                        p2_codificado = urllib.parse.quote(prompts[1])
-                        img_2 = f'<img src="[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/){p2_codificado}?width=800&height=400&nologo=true" alt="{prompts[1]}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
+                        clean_p2 = str(prompts[1]).replace("Imagem 2:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
+                        p2_codificado = urllib.parse.quote(clean_p2)
+                        img_2 = f'<img src="{base_url}{p2_codificado}?width=800&height=400&nologo=true" alt="{clean_p2}" style="width:100%; border-radius:8px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">'
                         html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
                     
-                    # Salva o HTML modificado de volta na sessão
+                    # Salva o HTML com as imagens de volta na sessão
                     st.session_state['art_gerado'] = html_atual
                     st.session_state['imagens_injetadas'] = True
                 # --- FIM DA INJEÇÃO POLLINATIONS ---
