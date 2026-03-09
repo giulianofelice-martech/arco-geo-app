@@ -103,8 +103,8 @@ with tab1:
         gerar_btn = st.button("🚀 Gerar Artigo Otimizado", use_container_width=True, type="primary")
 
     if gerar_btn:
-        if not openrouter_key:
-            st.error("⚠️ Insira a sua Chave OpenRouter na barra lateral antes de continuar.")
+        if not TOKEN: 
+        st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets do Streamlit.")
         elif not palavra_chave_input:
             st.warning("⚠️ Digite uma palavra-chave.")
         else:
