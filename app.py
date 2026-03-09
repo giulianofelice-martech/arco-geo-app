@@ -236,10 +236,15 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
 5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
-6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ."""
+6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
+7. ATUALIZAÇÃO TEMPORAL: O ano corrente é 2026. Certifique-se de que todas as referências temporais, projeções e títulos utilizem o ano de 2026 ou datas futuras. NUNCA cite 2024 ou 2025 como anos vigentes. """
+
+    import datetime
+    ano_atual = datetime.datetime.now().year
     
     user_2 = f"""Palavra-chave: '{palavra_chave}'
-
+    CONTEXTO TEMPORAL: Hoje é ano de {ano_atual}.
+    
 O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
 {contexto_google}
 {baseline_ia}
