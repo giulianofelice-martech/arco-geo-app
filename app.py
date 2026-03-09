@@ -57,7 +57,18 @@ with st.sidebar:
         st.markdown("""
         O **Claude 3.7** consulta esta matriz antes de escrever qualquer vírgula.
         - **Regras Negativas:** Proíba vícios (ex: *"Nunca use a palavra 'aluno', use 'estudante'"* ou *"Nunca critique o sistema público"*).
-        - **Regras Positivas:** Force formatos
+        - **Regras Positivas:** Force formatos (ex: *"Sempre inicie o texto com uma estatística chocante"*).
+        """)
+        
+    with st.expander("🔍 3. Monitor de GEO", expanded=False):
+        st.markdown("""
+        Um simulador do algoritmo E-E-A-T do Google movido pelo **GPT-4o**.
+        - **O que ele avalia:** Densidade de Entidades, Escaneabilidade e Veracidade de Dados (sem alucinações).
+        - **Dica de Ouro:** Além de testar os textos novos, cole o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor.
+        """)
+        
+    st.divider()
+    st.caption("⚙️ **Stack:** Python | Streamlit | Pydantic\n🧠 **LLMs:** GPT-4o | Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev | Jina AI | Unsplash")
 
 # ==========================================
 # ESTRUTURAS PYDANTIC
