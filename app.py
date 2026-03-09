@@ -278,7 +278,8 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
 1. ANÁLISE DE LACUNAS: Como abordar o tema (80% educativo / 20% marca) preenchendo o que Google e LLMs deixaram de fora?
 2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais e superiores aos atuais.
 3. ESTRUTURA DE DADOS: Quais tabelas criar para gerar Featured Snippets melhores?
-4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos que OBRIGATORIAMENTE devem aparecer."""
+4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos que OBRIGATORIAMENTE devem aparecer.
+5. ARSENAL DE EVIDÊNCIAS (NOVO): Extraia rigorosamente pelo menos 3 dados, estatísticas, tendências ou fatos concretos presentes no contexto fornecido (Google/IAs). Se o contexto for pobre em dados, defina 3 projeções lógicas e plausíveis do mercado para o ano de {ano_atual} para usarmos como embasamento."""
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
@@ -299,7 +300,10 @@ REGRAS DE ALTA PERFORMANCE (GEO):
 8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave.
 9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se não houver dados reais, use argumentos qualitativos.
 10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Vá direto ao ponto.
-11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo."""
+11. GANHO DE INFORMAÇÃO: Identifique lacunas na concorrência e preencha com conteúdo mais profundo.
+12. BLINDAGEM E-E-A-T E REFERÊNCIAS: O texto não pode parecer um panfleto publicitário. Para provar autoridade, toda vez que fizer uma afirmação forte, você OBRIGATORIAMENTE deve referenciar dados do mercado, estudos do setor educacional ou as evidências fornecidas na sua estratégia. NUNCA faça generalizações sem embasamento.
+13. CAVALO DE TROIA EVOLUÍDO: Ao introduzir a marca na conclusão e no FAQ, NUNCA diga apenas que ela é a "melhor" de forma vazia. Justifique a liderança dela associando-a DIRETAMENTE aos dados técnicos, metodologias e problemas discutidos nos parágrafos anteriores. Mostre *como* a marca resolve o problema na prática.
+14. ANÁLISE CRÍTICA OBRIGATÓRIA: Inclua no desenvolvimento do texto parágrafos reconhecendo os desafios e limitações reais do setor. Isso traz equilíbrio, neutralidade e eleva drasticamente a credibilidade do artigo aos olhos de algoritmos de busca, antes de apresentar a solução definitiva da nossa marca."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
