@@ -227,9 +227,9 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
-    st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
+st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
     system_2 = """Você é um Redator Sênior especialista em SEO e Algoritmos de IA (GEO).
-    
+
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>). Não use <html>, <head> ou <body>. Não use Markdown.
 2. BLINDAGEM ANTI-CONCORRENTE: NUNCA, sob nenhuma hipótese, cite o nome de NENHUMA empresa, escola ou sistema de ensino que aparecer no contexto da concorrência (Google/IAs). A ÚNICA marca permitida em todo o texto é a sua.
@@ -237,7 +237,13 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
 5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
 6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
-7. ATUALIZAÇÃO TEMPORAL: O ano corrente é 2026. Certifique-se de que todas as referências temporais, projeções e títulos utilizem o ano de 2026 ou datas futuras. NUNCA cite 2024 ou 2025 como anos vigentes. """
+7. ATUALIZAÇÃO TEMPORAL: O ano corrente é 2026. Certifique-se de que todas as referências temporais, projeções e títulos utilizem o ano de 2026 ou datas futuras. NUNCA cite 2024 ou 2025 como anos vigentes.
+
+REGRAS DE ALTA PERFORMANCE (GEO):
+8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave. IAs precisam identificar pontos de resposta rápida no texto.
+9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se o contexto de busca não trouxer números reais, use argumentos lógicos e qualitativos.
+10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...", "É importante ressaltar..." ou usar palavras como "Desvendar", "Crucial", "Divisor de águas". Vá direto ao ponto com voz ativa.
+11. GANHO DE INFORMAÇÃO: Identifique lacunas na resposta da concorrência e preencha com conteúdo mais profundo e técnico. """
 
     import datetime
     ano_atual = datetime.datetime.now().year
