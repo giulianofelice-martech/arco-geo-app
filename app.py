@@ -94,18 +94,22 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
     # FASE 3: METADADOS E SCHEMA (CLAUDE 3.7 SONNET)
-    system_3 = "Você é especialista em SEO técnico e Schema.org. Retorne APENAS um objeto JSON válido, sem formatação markdown em volta."
-    user_3 = f"""Com base no artigo HTML abaixo, crie um JSON contendo:
+    system_3 = """Você é especialista em SEO técnico e Schema.org. Retorne APENAS um objeto JSON válido, sem formatação markdown em volta.
+    
+    REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE as perguntas (<h3>) e respostas (<p>) que estão fisicamente escritas na seção 'Perguntas Frequentes' do HTML. NUNCA invente perguntas que não existam no texto."""
+    
+    user_3 = f"""Com base no artigo HTML completo abaixo, crie um JSON contendo:
     {{
       "title": "Título H1 otimizado (max 60 chars)",
       "meta_description": "Meta description persuasiva (max 150 chars)",
       "dicas_imagens": "Dicas de Alt Text para 2 imagens",
-      "schema_faq": "Código JSON-LD exato extraído do FAQ do texto"
+      "schema_faq": "Objeto JSON-LD FAQPage completo e idêntico ao texto"
     }}
     
-    HTML:
-    {artigo_html[:2500]}"""
-    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+    HTML COMPLETO:
+    {artigo_html}"""
+    
+    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1)
     
     return artigo_html, dicas_json
 
