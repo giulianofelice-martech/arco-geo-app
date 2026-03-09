@@ -227,7 +227,8 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
     
-st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
+    # FASE 2: REDAÇÃO DO ARTIGO EM HTML (CLAUDE 3.7 SONNET)
+    st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
     system_2 = """Você é um Redator Sênior especialista em SEO e Algoritmos de IA (GEO).
 
 REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
@@ -243,11 +244,8 @@ REGRAS DE ALTA PERFORMANCE (GEO):
 8. ESCANEABILIDADE CRÍTICA: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar termos técnicos e conceitos-chave. IAs precisam identificar pontos de resposta rápida no texto.
 9. PROIBIDO INVENTAR DADOS: Não invente estatísticas. Se o contexto de busca não trouxer números reais, use argumentos lógicos e qualitativos.
 10. BANIMENTO DE CLICHÊS DE IA: Proibido iniciar frases com "Em um mundo...", "No cenário atual...", "É importante ressaltar..." ou usar palavras como "Desvendar", "Crucial", "Divisor de águas". Vá direto ao ponto com voz ativa.
-11. GANHO DE INFORMAÇÃO: Identifique lacunas na resposta da concorrência e preencha com conteúdo mais profundo e técnico. """
+11. GANHO DE INFORMAÇÃO: Identifique lacunas na resposta da concorrência e preencha com conteúdo mais profundo e técnico."""
 
-    import datetime
-    ano_atual = datetime.datetime.now().year
-    
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é ano de {ano_atual}.
     
