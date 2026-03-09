@@ -26,15 +26,79 @@ st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas
 # ==========================================
 if 'brandbook_df' not in st.session_state:
     dados_iniciais = [
-        {"Marca": "@internationalschool", "Posicionamento": "O programa bilíngue mais premiado do Brasil. Pioneira em bilinguismo no país. Prover soluções educacionais consistentes e inovadoras. Transformar vidas por meio da educação bilíngue. Empoderar a comunidade escolar para desenvolver o aluno como ser integral.", "Territorios": "Bilinguismo, educação, integral, viagens", "TomDeVoz": "Especialista, inovador, inspirador, prático.", "PublicoAlvo": "Gestores, diretores e coordenadores de escolas (B2B)  pais e famílias (Foco B2C)", "RegrasNegativas": "Não usar termos genéricos sem contexto, não soar arrogante ou sabe tudo, não inferir que quem aprende inglês é superior ou melhor, não citar palavras em inglês sem tradução entre parênteses depois. Não focar o discurso somente nos pais (lembrar sempre da figura da escola).", "RegrasPositivas": "Sempre trazer dados para embasar afirmações vindos de fontes seguras e confiáveis, sempre citar e linkar a fonte dos dados, preferir fontes de pesquisas, governos e instituições de renome. Podemos usar pesquisas nacionais ou internacionais. Sempre usar construção gramatical focada em clareza : iniciar parágrafos com frases de afirmação, não com conectivos. Sempre conectar com a importância de aprender inglês indo além da gramática: focar na importãncia de aprender com contexto."},
-        {"Marca": "@saseducacao", "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço.", "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas", "TomDeVoz": "Acadêmico, inovador, especialista e inspirador.", "PublicoAlvo": "Estudantes, vestibulandos e pais. (Foco B2C)", "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço.", "RegrasPositivas": ""},
-        {"Marca": "@plataformacoc", "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente.", "Territorios": "Vestibulares, Esportes, Gestão escolar", "TomDeVoz": "Consultivo, parceiro, dinâmico.", "PublicoAlvo": "Mantenedores e coordenadores pedagógicos. (B2B)", "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.", "RegrasPositivas": ""},
-        {"Marca": "@isaaceducacao", "Posicionamento": "Maior solução financeira e de gestão para a educação.", "Territorios": "Gestão financeira, Inovação", "TomDeVoz": "Corporativo, direto, analítico.", "PublicoAlvo": "Diretores financeiros e donos de escolas. (B2B)", "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantilizada.", "RegrasPositivas": ""},
-        {"Marca": "@geekieeducacao", "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar.", "Territorios": "Inovação, IA/Personalização", "TomDeVoz": "Inovador, moderno, ágil.", "PublicoAlvo": "Diretores de inovação e escolas modernas. (B2B)", "RegrasNegativas": "Não parecer sistema engessado, não usar linguagem punitiva.", "RegrasPositivas": ""},
-        {"Marca": "@sistemapositivodeensino", "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil.", "Territorios": "Formação integral, Inclusão, Tradição", "TomDeVoz": "Acolhedor, tradicional, humano.", "PublicoAlvo": "Famílias e diretores de escolas tradicionais.", "RegrasNegativas": "Não parecer frio, não usar jargões técnicos sem contexto acolhedor.", "RegrasPositivas": ""},
-        {"Marca": "@saedigital", "Posicionamento": "Melhor integração físico/digital, hiperatualizada.", "Territorios": "Tecnologia, Inovação Digital", "TomDeVoz": "Prático, tecnológico, dinâmico.", "PublicoAlvo": "Gestores buscando modernização com custo-benefício.", "RegrasNegativas": "Não parecer inacessível, não diminuir a importância do material físico.", "RegrasPositivas": ""},
-        {"Marca": "@solucaoconquista", "Posicionamento": "Solução completa focada na parceria Escola-Família.", "Territorios": "Família, Educação Infantil, Valores", "TomDeVoz": "Familiar, parceiro, simples e didático.", "PublicoAlvo": "Pais e gestores de escolas de educação infantil.", "RegrasNegativas": "Não usar tom corporativo frio, não focar em pressão de vestibular.", "RegrasPositivas": ""}
-    ]
+    {
+        "Marca": "@internationalschool", 
+        "Posicionamento": "O programa bilíngue mais premiado do Brasil. Pioneira em bilinguismo no país. Prover soluções educacionais consistentes e inovadoras. Transformar vidas por meio da educação bilíngue. Empoderar a comunidade escolar para desenvolver o aluno como ser integral.", 
+        "Territorios": "Bilinguismo, educação, integral, viagens", 
+        "TomDeVoz": "Especialista, inovador, inspirador, prático.", 
+        "PublicoAlvo": "Gestores, diretores e coordenadores de escolas (B2B)  pais e famílias (Foco B2C)", 
+        "RegrasNegativas": "Não usar termos genéricos sem contexto, não soar arrogante ou sabe tudo, não inferir que quem aprende inglês é superior ou melhor, não citar palavras em inglês sem tradução entre parênteses depois. Não focar o discurso somente nos pais (lembrar sempre da figura da escola). NUNCA usar a construção 'neste artigo iremos' ou similares.", 
+        "RegrasPositivas": "Focar em estrutura informativa. Sempre trazer dados para embasar afirmações vindos de fontes seguras e confiáveis, sempre citar e linkar a fonte dos dados, preferir fontes de pesquisas, governos e instituições de renome. Sempre começar o primeiro parágrafo com um gancho que instigue a leitura, de preferência acompanhado de dado. Podemos usar pesquisas nacionais ou internacionais. Sempre usar construção gramatical focada em clareza: iniciar parágrafos com frases de afirmação, não com conectivos. Sempre conectar com a importância de aprender inglês indo além da gramática: focar na importância de aprender com contexto."
+    },
+    {
+        "Marca": "@saseducacao", 
+        "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço.", 
+        "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas", 
+        "TomDeVoz": "Acadêmico, inovador, especialista e inspirador.", 
+        "PublicoAlvo": "Estudantes, vestibulandos e pais. (Foco B2C)", 
+        "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@plataformacoc", 
+        "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente.", 
+        "Territorios": "Vestibulares, Esportes, Gestão escolar", 
+        "TomDeVoz": "Consultivo, parceiro, dinâmico.", 
+        "PublicoAlvo": "Mantenedores e coordenadores pedagógicos. (B2B)", 
+        "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@isaaceducacao", 
+        "Posicionamento": "Maior solução financeira e de gestão para a educação.", 
+        "Territorios": "Gestão financeira, Inovação", 
+        "TomDeVoz": "Corporativo, direto, analítico.", 
+        "PublicoAlvo": "Diretores financeiros e donos de escolas. (B2B)", 
+        "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantilizada.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@geekieeducacao", 
+        "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar.", 
+        "Territorios": "Inovação, IA/Personalização", 
+        "TomDeVoz": "Inovador, moderno, ágil.", 
+        "PublicoAlvo": "Diretores de inovação e escolas modernas. (B2B)", 
+        "RegrasNegativas": "Não parecer sistema engessado, não usar linguagem punitiva.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@sistemapositivodeensino", 
+        "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil.", 
+        "Territorios": "Formação integral, Inclusão, Tradição", 
+        "TomDeVoz": "Acolhedor, tradicional, humano.", 
+        "PublicoAlvo": "Famílias e diretores de escolas tradicionais.", 
+        "RegrasNegativas": "Não parecer frio, não usar jargões técnicos sem contexto acolhedor.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@saedigital", 
+        "Posicionamento": "Melhor integração físico/digital, hiperatualizada.", 
+        "Territorios": "Tecnologia, Inovação Digital", 
+        "TomDeVoz": "Prático, tecnológico, dinâmico.", 
+        "PublicoAlvo": "Gestores buscando modernização com custo-benefício.", 
+        "RegrasNegativas": "Não parecer inacessível, não diminuir a importância do material físico.", 
+        "RegrasPositivas": ""
+    },
+    {
+        "Marca": "@solucaoconquista", 
+        "Posicionamento": "Solução completa focada na parceria Escola-Família.", 
+        "Territorios": "Família, Educação Infantil, Valores", 
+        "TomDeVoz": "Familiar, parceiro, simples e didático.", 
+        "PublicoAlvo": "Pais e gestores de escolas de educação infantil.", 
+        "RegrasNegativas": "Não usar tom corporativo frio, não focar em pressão de vestibular.", 
+        "RegrasPositivas": ""
+    }
+]
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
 # ==========================================
