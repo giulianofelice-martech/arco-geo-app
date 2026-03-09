@@ -238,7 +238,7 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
 6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ."""
     
-user_2 = f"""Palavra-chave: '{palavra_chave}'
+    user_2 = f"""Palavra-chave: '{palavra_chave}'
 
 O QUE A CONCORRÊNCIA DIZ HOJE (NÃO REPITA, SUPERE):
 {contexto_google}
@@ -255,7 +255,7 @@ Regras Negativas: {marca_info['RegrasNegativas']}
 
 Retorne apenas o código HTML do artigo."""
 
-    # Esta linha DEVE estar alinhada exatamente com a palavra user_2 lá em cima!
+    # ESTA LINHA ABAIXO PRECISA ESTAR ALINHADA COM O 'user_2' ACIMA
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados...")
