@@ -5,6 +5,7 @@ import time
 import requests
 from requests.auth import HTTPBasicAuth
 import json
+import re
 
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -243,7 +244,7 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     3. CAVALO DE TROIA: Texto imparcial no início, revelando a marca como padrão ouro na conclusão.
     4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" logo após a introdução com uma lista <ul> de 3 itens.
     5. FAQ FÍSICO: Imediatamente antes da conclusão, crie um <h2> chamado "Perguntas Frequentes". Inclua 3 perguntas usando <h3> e responda em <p>.
-    6. TOM E MARCA: Siga o tom exigido. Não use "@" no nome da marca no texto."""
+    6. TOM E MARCA: Siga o tom exigido. Remova o "@" do nome, mas OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ."""
     
     user_2 = f"""Palavra-chave: '{palavra_chave}'
 
@@ -259,7 +260,7 @@ Com base nas respostas atuais (que precisamos superar), crie o briefing:
     Regras Positivas: {marca_info.get('RegrasPositivas', '')}
     Regras Negativas: {marca_info['RegrasNegativas']}
 
-    Retorne apenas o código HTML do artigo."""    
+    Retorne apenas o código HTML do artigo."""
     
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     
@@ -348,11 +349,19 @@ with tab1:
                         
                         # Converte string JSON
                         try:
-                            meta = json.loads(dicas_json.strip('`').replace('json\n',''))
+                            # Procura tudo que está entre a primeira { e a última } usando regex
+                            match = re.search(r'\{.*\}', dicas_json, re.DOTALL)
+                            if match:
+                                string_limpa = match.group(0)
+                                meta = json.loads(string_limpa)
+                            else:
+                                # Fallback para o método antigo caso o regex falhe
+                                meta = json.loads(dicas_json.strip('`').replace('json\n',''))
+                                
                             st.subheader(meta.get("title", "Artigo Gerado"))
-                        except:
+                        except Exception as e:
                             meta = {"title": "Artigo Gerado via Motor GEO"}
-                            st.error("Aviso: O JSON gerado veio mal formatado.")
+                            st.error(f"Aviso: O JSON gerado veio mal formatado. Detalhe: {e}")
                         
                         # Expanders de Auditoria
                         with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
