@@ -31,40 +31,45 @@ st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v3.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima (E-E-A-T).")
+    st.markdown("Bem-vindo à v3.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima.")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
         **O Fluxo da Inteligência Artificial:**
-        1. **Busca (Serper + Jina Reader):** Lê o conteúdo real do Top 3 do Google.
+        1. **Busca (Serper + Jina):** Lê o conteúdo real do Top 3 do Google.
         2. **Auditoria (GPT-4o-mini):** Analisa o que as IAs já respondem hoje.
         3. **Estratégia (GPT-4o):** Identifica lacunas e cria o briefing de superação.
         4. **Redação (Claude 3.7 Sonnet):** Escreve o código HTML blindado.
-        5. **Mídia (Unsplash API):** Injeta fotos corporativas em alta resolução.
+        5. **Mídia (Unsplash API):** Injeta fotos corporativas reais.
         
         ⏱️ *Tempo médio: 45 a 60 segundos.*
 
-        **💡 Como escrever a Palavra-Chave:**
-        Adicione direcionamento (prompt) junto à palavra para resultados cirúrgicos:
-        - ❌ **Fraco:** `inadimplência escolar`
-        - ✅ **Forte:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais)`
+        **💡 Como enriquecer sua Palavra-Chave:**
+        Termos simples funcionam perfeitamente, mas adicionar contexto gera resultados cirúrgicos:
+        - 📝 **Direto:** `inadimplência escolar`
+        - 🎯 **Estratégico:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais de escolas de médio porte)`
         
-        - ❌ **Fraco:** `ensino bilíngue`
-        - ✅ **Forte:** `impactos cognitivos do bilinguismo (usar referências de neurociência e dados de retenção)`
+        - 📝 **Direto:** `ensino bilíngue`
+        - 🎯 **Estratégico:** `impactos cognitivos do bilinguismo (usar referências de neurociência e focar na retenção de matrículas)`
         """)
         
-    with st.expander("📚 2. Brandbook", expanded=False):
+    with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
         st.markdown("""
-        O **Claude 3.7** consulta esta matriz antes de escrever qualquer vírgula.
-        - **Regras Negativas:** Proíba vícios (ex: *"Nunca use a palavra 'aluno', use 'estudante'"* ou *"Nunca critique o sistema público"*).
-        - **Regras Positivas:** Force formatos (ex: *"Sempre inicie o texto com uma estatística chocante"*).
+        O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto:
+        - **Posicionamento:** Atualize sempre que houver uma nova campanha, diferencial de mercado ou lançamento de produto.
+        - **Regras Positivas:** É aqui que você embasa a autoridade. Ex: *"Sempre mencione que usamos a Metodologia X, cite que nossa solução atende 500 escolas e lembre que ganhamos o Prêmio Y em 2025."*
+        - **Regras Negativas:** Proíba vícios ou menções de risco. Ex: *"Nunca use a palavra 'aluno' (use 'estudante'), nunca critique o sistema público de ensino."*
         """)
         
-    with st.expander("🔍 3. Monitor de GEO", expanded=False):
+    with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
         st.markdown("""
-        Um simulador do algoritmo E-E-A-T do Google movido pelo **GPT-4o**.
-        - **O que ele avalia:** Densidade de Entidades, Escaneabilidade e Veracidade de Dados (sem alucinações).
-        - **Dica de Ouro:** Além de testar os textos novos, cole o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor.
+        Um simulador do algoritmo do Google, movido pelo **GPT-4o**.
+        
+        **O que é E-E-A-T?**
+        É a sigla do Google para **Experiência, Especialidade, Autoridade e Confiabilidade**. IAs e motores de busca priorizam textos que provam E-E-A-T (trazendo dados reais, fontes nominais, metodologias validadas e tom especialista), punindo conteúdos genéricos.
+        
+        **Como usar a ferramenta:**
+        Além de auditar os textos recém-gerados, você pode colar o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor sob a ótica do E-E-A-T.
         """)
         
     st.divider()
