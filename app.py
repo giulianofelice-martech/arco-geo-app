@@ -237,7 +237,8 @@ def buscar_baseline_llm(palavra_chave):
     user_prompt = f"O que você sabe sobre: '{palavra_chave}'? Retorne um resumo profundo de como esse tema é respondido atualmente pelas IAs."
     
     try:
-        return chamar_llm(system_prompt, user_prompt, model="perplexity/llama-3.1-sonar-small-128k-online", temperature=0.1)
+        # ATUALIZADO: Tag nova e oficial do modelo Perplexity no OpenRouter
+        return chamar_llm(system_prompt, user_prompt, model="perplexity/sonar", temperature=0.1)
     except Exception as e:
         return f"Erro ao buscar Baseline de IA: {e}"
 
@@ -435,30 +436,27 @@ with tab1:
                 
                 st.subheader(meta.get("title", "Artigo Gerado"))
                 
-                # --- INÍCIO DA INJEÇÃO POLLINATIONS ---
-                if not st.session_state.get('imagens_injetadas'):
-                    html_atual = st.session_state['art_gerado']
-                    prompts = meta.get('dicas_imagens', [])
-                    
-                    # ANTI-BUG 1: Separamos a URL para o seu editor/chat não transformar em link clicável sem querer
-                    base_url = "https://" + "image.pollinations.ai/prompt/"
-                    
-                    if isinstance(prompts, list) and len(prompts) >= 1:
-                        # ANTI-BUG 2: Limpa o prompt caso a IA tenha escrito "Imagem 1:" na frente
-                        clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
-                        p1_codificado = urllib.parse.quote(clean_p1)
-                        img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p1}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                        html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
-                    
-                    if isinstance(prompts, list) and len(prompts) >= 2:
-                        clean_p2 = str(prompts[1]).replace("Imagem 2:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
-                        p2_codificado = urllib.parse.quote(clean_p2)
-                        img_2 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p2_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p2}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                        html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
-                    
-                    # Salva o HTML com as imagens de volta na sessão
-                    st.session_state['art_gerado'] = html_atual
-                    st.session_state['imagens_injetadas'] = True
+                # --- INÍCIO DA INJEÇÃO POLLINATIONS (DESATIVADO TEMPORARIAMENTE) ---
+                # if not st.session_state.get('imagens_injetadas'):
+                #     html_atual = st.session_state['art_gerado']
+                #     prompts = meta.get('dicas_imagens', [])
+                #     
+                #     base_url = "https://" + "image.pollinations.ai/prompt/"
+                #     
+                #     if isinstance(prompts, list) and len(prompts) >= 1:
+                #         clean_p1 = str(prompts[0]).replace("Imagem 1:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
+                #         p1_codificado = urllib.parse.quote(clean_p1)
+                #         img_1 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p1_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p1}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                #         html_atual = html_atual.replace('<h2>Resumo Rápido</h2>', f'{img_1}\n<h2>Resumo Rápido</h2>', 1)
+                #     
+                #     if isinstance(prompts, list) and len(prompts) >= 2:
+                #         clean_p2 = str(prompts[1]).replace("Imagem 2:", "").replace("Alt text:", "").replace("'", "").replace('"', '').strip()
+                #         p2_codificado = urllib.parse.quote(clean_p2)
+                #         img_2 = f'<figure style="margin: 25px 0;"><img src="{base_url}{p2_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_p2}" width="1024" height="512" loading="lazy" style="width:100%; height:auto; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                #         html_atual = html_atual.replace('<h2>Perguntas Frequentes</h2>', f'{img_2}\n<h2>Perguntas Frequentes</h2>', 1)
+                #     
+                #     st.session_state['art_gerado'] = html_atual
+                #     st.session_state['imagens_injetadas'] = True
                 # --- FIM DA INJEÇÃO POLLINATIONS ---
 
             except ValidationError as ve:
