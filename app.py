@@ -343,8 +343,8 @@ REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
 6. TOM E MARCA: Remova o "@" do nome. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
 
 REGRAS CRÍTICAS DE E-E-A-T E LINKAGEM (PARA NOTA 100):
-7. PROIBIÇÃO DE DADOS INVENTADOS DA MARCA (ZERO ALUCINAÇÃO): É EXPRESSAMENTE PROIBIDO inventar "relatórios", "pesquisas" ou "dados numéricos" atribuídos à sua própria marca (ex: "Segundo o relatório da International School 2025" - NÃO FAÇA ISSO SE NÃO ESTIVER NO BRIEFING). Para falar da marca, use APENAS os argumentos qualitativos descritos no Brandbook.
-8. BACKLINKS REAIS OBRIGATÓRIOS: Toda vez que você citar um estudo, estatística ou instituição externa verdadeira (ex: UNESCO, INEP, IBGE) proveniente do contexto da busca, você DEVE incluir um link HTML real envolvendo o nome do estudo ou instituição (ex: <a href="LINK_EXTRAIDO_DO_CONTEXTO" target="_blank" rel="noopener noreferrer">Nome da Instituição</a>). NUNCA cite um dado de mercado sem embasar com uma tag de link <a>.
+7. PROIBIÇÃO DE DADOS INVENTADOS DA MARCA (ZERO ALUCINAÇÃO): É EXPRESSAMENTE PROIBIDO inventar "relatórios", "pesquisas" ou "dados numéricos" atribuídos à sua própria marca (ex: "Segundo o relatório da International School 2025"). Para falar da marca, use APENAS os argumentos qualitativos descritos no Brandbook.
+8. BACKLINKS REAIS OBRIGATÓRIOS: Você receberá um contexto com artigos e seus respectivos links (URLs). Quando citar uma informação desse contexto, você DEVE OBRIGATORIAMENTE copiar a URL EXATA fornecida no contexto e criar um link. EXTREMAMENTE PROIBIDO criar links genéricos (como ir para a home do g1.com ou ibge.gov). Use o link completo da página lida. Ex: <a href="URL_EXATA_DO_CONTEXTO_AQUI" target="_blank" rel="noopener noreferrer">Fonte</a>.
 9. ESCANEABILIDADE: Escreva parágrafos curtos (máximo 3 frases). Use <strong> para destacar entidades.
 10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...".
 11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios". É OBRIGATÓRIO abordar a realidade das escolas públicas e a democratização do acesso.
@@ -353,7 +353,7 @@ REGRAS CRÍTICAS DE E-E-A-T E LINKAGEM (PARA NOTA 100):
     user_2 = f"""Palavra-chave: '{palavra_chave}'
     CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
     
-O QUE A CONCORRÊNCIA DIZ HOJE (USE OS LINKS DAQUI PARA EMBASAR OS DADOS):
+O QUE A CONCORRÊNCIA DIZ HOJE (COPIE AS URLs EXATAS DAQUI PARA EMBASAR SEUS DADOS):
 {contexto_google}
 {baseline_ia}
 
@@ -384,37 +384,49 @@ NÃO envolva a resposta em markdown (como ```json)."""
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-    # NOVO MOTOR DE IMAGENS UNSPLASH
+    # NOVO MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
-        # Lê o JSON que acabou de ser gerado
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
         termos_busca = meta_dicas.get('dicas_imagens', [])
         
         UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
         
-        if UNSPLASH_KEY and isinstance(termos_busca, list):
+        if isinstance(termos_busca, list):
             for i, termo in enumerate(termos_busca[:2]): 
-                url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
-                res = requests.get(url, timeout=5)
+                img_html_pronta = ""
                 
-                if res.status_code == 200:
-                    dados_img = res.json()
-                    if "results" in dados_img and len(dados_img["results"]) > 0:
-                        img_url = dados_img["results"][0]["urls"]["regular"]
-                        alt_text = dados_img["results"][0]["alt_description"] or termo
-                        
-                        # Cria a tag HTML da foto
-                        tag_img = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                        
-                        # Encontra onde colar no HTML gerado
-                        alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
-                        artigo_html = artigo_html.replace(alvo_replace, f'{tag_img}\n{alvo_replace}', 1)
+                # Tentativa 1: Unsplash API
+                if UNSPLASH_KEY:
+                    url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                    try:
+                        res = requests.get(url, timeout=5)
+                        if res.status_code == 200:
+                            dados_img = res.json()
+                            if "results" in dados_img and len(dados_img["results"]) > 0:
+                                img_url = dados_img["results"][0]["urls"]["regular"]
+                                alt_text = dados_img["results"][0]["alt_description"] or termo
+                                img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                    except:
+                        pass # Falhou Unsplash, vai pro plano B
+                
+                # Tentativa 2 (Plano B): Pollinations AI (Se Unsplash falhar ou bater limite de cota)
+                if not img_html_pronta:
+                    clean_termo = str(termo).replace("'", "").replace('"', '').strip()
+                    p_codificado = urllib.parse.quote(clean_termo)
+                    base_poll = "[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)"
+                    img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+
+                # Injeta a foto (seja Unsplash ou Pollinations)
+                if img_html_pronta:
+                    alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
+                    artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
+                    
     except Exception as e:
         print(f"Erro silencioso ao injetar imagem: {e}")
     
     return artigo_html, dicas_json, contexto_google, baseline_ia
-
+    
 def publicar_wp(titulo, conteudo_html, meta_dict):
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
