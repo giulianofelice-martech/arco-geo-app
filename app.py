@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
 
 st.markdown("""
-    st.markdown("""
+    
     <style>
     /* Importando as fontes do site da Arco */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
