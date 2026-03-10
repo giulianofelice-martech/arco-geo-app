@@ -391,8 +391,9 @@ ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
 C) MAPA DE EVIDÊNCIAS: liste no máximo 6 bullets com pares (afirmação → URL). Inclua apenas fontes neutras e confiáveis. Se não existirem, escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.
-D) DENSIDADE SEMÂNTICA: 12 termos técnicos obrigatórios (curtos, específicos, ex.: “neuroplasticidade”, “taxa de retenção”, “currículo em espiral”). Sem definições, apenas a lista.
-E) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como “Estudo de Aplicação Metodológica” (tom jornalístico, técnico, sem adjetivos de venda).
+D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 12 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
+E) REGRA CRÍTICA DE BRAND SAFETY: Filtre e exclua sumariamente qualquer termo que viole as "Regras Negativas" da marca alvo ou que não faça sentido com o núcleo da palavra-chave. Oriente o redator a integrar essas palavras de forma orgânica e contextualizada ao longo do texto, priorizando a naturalidade (não é obrigatório usar todas se o contexto rejeitar).
+F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como “Estudo de Aplicação Metodológica” (tom jornalístico, técnico, sem adjetivos de venda).
 """
 
     user_1 = f"""
@@ -640,12 +641,9 @@ with tab1:
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
 # ==========================================
-# ==========================================
-# 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
-# ==========================================
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
-    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights de Prompt Engineering para os Devs.")
+    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais de Prompt Engineering.")
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -657,36 +655,35 @@ with tab3:
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
-            with st.spinner("Auditando conteúdo, calculando GEO Score e criando Guardrails..."):
-                # NOVO PROMPT: AGORA COM ENGENHARIA DE PROMPT REVERSA
+            with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
+                # NOVO PROMPT: AUDITOR INTELIGENTE E SENSÍVEL AO CONTEXTO
                 sys_audit = """
-Você é um Auditor Sênior de SEO (E-E-A-T) e também um Especialista em Engenharia de Prompt (AI Dev).
-Sua missão é avaliar o HTML fornecido e, além de criticar o texto atual, sugerir melhorias de GUARDRAILS para o sistema gerador.
+Você é um Auditor Sênior de SEO (E-E-A-T) e um Especialista em Engenharia de Prompt.
+Sua missão é auditar o HTML gerado com PROFUNDIDADE E CONTEXTO, fugindo de análises genéricas, engessadas ou robóticas. Avalie a real intenção e o nicho do texto.
 
-REGRAS DE AUDITORIA (GUARDRAILS PARA O TEXTO):
-1) JUSTIÇA CONTEXTUAL: Só exija links para afirmações estatísticas concretas. Textos puramente metodológicos não são penalizados por falta de links.
-2) DETECÇÃO DE ALUCINAÇÃO E VÍCIOS: Penalize fortemente clichês textuais de IA (ex: "No cenário atual", "Em resumo", "Vale ressaltar").
-3) INTEGRAÇÃO DA MARCA: A marca deve ser citada de forma técnica. Penalize panfletagem promocional.
+REGRAS DE AUDITORIA (ANÁLISE CRÍTICA):
+1) SENSIBILIDADE AO CONTEXTO (Clichês vs. Termos de Nicho):
+   - Saiba diferenciar um "vício de IA" (ex: "Em resumo", "Uma teia de inovações", "A dança das tecnologias") de um termo normal do nicho. Expressões como "contexto educacional", "metodologia ativa", "cenário econômico" ou "processo cognitivo" SÃO BEM-VINDAS no meio técnico e NÃO devem ser penalizadas.
+2) INTEGRAÇÃO DA MARCA ALVO (Justiça e Proporcionalidade Agnóstica):
+   - Você avaliará a integração da empresa informada no campo "Marca Alvo". 
+   - Lembre-se: descrever as metodologias, plataformas, soluções ou diferenciais técnicos dessa marca de forma séria, jornalística e descritiva NÃO É PANFLETAGEM. Isso é considerado um excelente "Estudo de Caso" e deve ser elogiado.
+   - SÓ PENALIZE a menção da marca se houver um tom agressivo de vendas ou uso excessivo de adjetivos superlativos vazios (ex: "compre agora", "somos a melhor do mundo", "nossa solução fantástica e perfeita").
+3) VERIFICAÇÃO DE FONTES (Rigor Lógico):
+   - Exija links APENAS quando o texto trouxer porcentagens, números absolutos ou citar estudos específicos (ex: "43% da população"). Afirmações conceituais ou metodológicas não precisam de links obrigatórios.
 4) HIGIENE HTML: Verifique a presença literal dos marcadores `<br>Resumo Rápido<br>` e `<br>Perguntas Frequentes<br>`.
 
-REGRAS DE FEEDBACK PARA DESENVOLVEDORES (META-PROMPTING):
-- Atue como um Engenheiro de Prompt. Ao notar uma falha recorrente no texto atual, crie 1 ou 2 sugestões de NOVAS REGRAS DE PROMPT.
-- Estas regras DEVEM SER AGNÓSTICAS: não mencione a palavra-chave atual nem a marca atual. A regra deve servir para o "System Prompt" geral do agente (ex: "Adicione uma instrução proibindo o LLM de usar transições com gerúndio no início dos parágrafos").
+REGRAS DE FEEDBACK PARA DEVS (META-PROMPTING AVANÇADO):
+- PROIBIDO sugerir regras do tipo "bana a expressão X". Isso não é escalável.
+- Suas sugestões devem ser ESTRUTURAIS e COMPORTAMENTAIS. Exemplo de bom insight: "O modelo está estendendo muito as respostas do FAQ; adicione uma regra para limitar as respostas a um máximo de 3 frases focadas na dor do usuário." ou "Oriente o modelo a usar voz ativa nas passagens que descrevem metodologias para soar mais assertivo."
+- Se o texto estiver excelente e não houver falhas estruturais, retorne uma lista VAZIA `[]` na chave "sugestoes_dev". Não invente regras desnecessárias ou repetitivas.
 
 RETORNO ESTRITAMENTE EM JSON PURO:
 {
-  "score": 85,
-  "veredito": "Resumo de 2 linhas sobre o texto.",
-  "critica": [
-    "O parágrafo X usa o clichê 'no cenário atual'."
-  ],
-  "melhoria": [
-    "Substituir clichês por afirmações diretas na voz ativa."
-  ],
-  "sugestoes_dev": [
-    "ADICIONAR AO PROMPT DO REDATOR: 'É terminantemente proibido o uso da expressão [inserir clichê encontrado].'",
-    "NOVO GUARDRAIL: 'Sempre que apresentar uma lista <ul>, certifique-se de não usar ponto final nos <li> caso sejam frases curtas.'"
-  ]
+  "score": 0-100,
+  "veredito": "Uma análise de 2 linhas focada nas peculiaridades EXATAS deste artigo, citando pontos reais lidos no texto.",
+  "critica": ["Crítica real 1", "Crítica real 2"],
+  "melhoria": ["Solução prática 1"],
+  "sugestoes_dev": [] 
 }
 """
 
@@ -695,7 +692,7 @@ Palavra-chave: {kw_auditoria}
 Texto HTML: {txt_auditoria}
 Marca Alvo: {marca_para_auditoria}
 
-Analise friamente e retorne APENAS o JSON válido com as sugestões para os DEVs.
+Avalie as nuances DESSA palavra-chave e marca específicas. Retorne APENAS o JSON válido.
 """
                 try:
                     relatorio_bruto = chamar_llm(
@@ -736,7 +733,7 @@ Analise friamente e retorne APENAS o JSON válido com as sugestões para os DEVs
                                 for c in criticas:
                                     st.markdown(f"- {c}")
                             else:
-                                st.markdown("Nenhuma crítica identificada.")
+                                st.markdown("Nenhuma crítica identificada. Texto cirúrgico!")
                                 
                     with col_melhoria:
                         with st.expander("🛠️ Correções para este Artigo", expanded=True):
@@ -745,19 +742,19 @@ Analise friamente e retorne APENAS o JSON válido com as sugestões para os DEVs
                                 for m in melhorias:
                                     st.markdown(f"- {m}")
                             else:
-                                st.markdown("Sem sugestões de melhoria.")
+                                st.markdown("Sem sugestões de melhoria pendentes.")
 
-                    # NOVA SEÇÃO: FEEDBACK PARA OS DEVS
+                    # NOVA SEÇÃO: FEEDBACK PARA OS DEVS (TRATAMENTO DE ARRAY VAZIO)
                     st.markdown("---")
                     st.markdown("### ⚙️ Engenharia de Prompt (Melhoria Contínua)")
-                    with st.expander("💡 Sugestões de Novos Guardrails para o Sistema", expanded=True):
+                    with st.expander("💡 Sugestões de Novos Guardrails Estruturais", expanded=True):
                         sugestoes_dev = dados_audit.get('sugestoes_dev', [])
-                        if isinstance(sugestoes_dev, list) and sugestoes_dev:
+                        if isinstance(sugestoes_dev, list) and len(sugestoes_dev) > 0:
                             for s in sugestoes_dev:
                                 st.info(f"🤖 **Insight para o Prompt:** {s}")
                             st.caption("Dica: Copie os insights acima que fizerem sentido e cole no `system_2` (prompt do Claude) no código principal.")
                         else:
-                            st.success("O prompt atual parece robusto. Nenhuma sugestão estrutural gerada neste ciclo.")
+                            st.success("✨ O prompt atual está performando de forma excelente para este nicho. Nenhuma sugestão estrutural gerada neste ciclo.")
 
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
