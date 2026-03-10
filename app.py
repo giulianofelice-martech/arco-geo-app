@@ -579,6 +579,7 @@ REGRAS HTML E E-E-A-T (CRÍTICAS):
 12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística.
 13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Authority Graph ao longo do texto para aumentar a cobertura semântica.
+15) VETO ABSOLUTO A CONCORRENTES (RISCO DE FALHA CRÍTICA): É EXPRESSAMENTE PROIBIDO citar, listar ou fazer referência a qualquer empresa, escola ou sistema de ensino (exemplos: Poliedro, Bernoulli, Anglo, Objetivo, Maple Bear, etc). Se o contexto do Google os mencionar, APAGUE-OS da sua memória. A ÚNICA marca comercial permitida em todo o texto é a Marca Alvo.
 """
 
     user_2 = f"""
@@ -885,17 +886,17 @@ with tab3:
                 sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas justo e contextual.
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
-                1. CONCORRENTES: A regra de negócio PROÍBE citar concorrentes. Nunca penalize o texto por falta de comparações externas com outras marcas do mesmo nicho.
+                1. VETO A CONCORRENTES (FALHA CRÍTICA): O texto é ESTRITAMENTE PROIBIDO de citar marcas, escolas ou sistemas (exemplos: Poliedro, Bernoulli, Anglo, Maple Bear, Objetivo, etc). Se o texto contiver o nome de QUALQUER outra marca privada educacional que não seja a marca alvo, REDUZA A NOTA PARA 50 imediatamente e critique isso duramente. (Nota: não penalize o texto pela "falta" de comparações externas).
                 2. ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114%") ou alucinar datas futuras irreais, DESTRUA a nota.
                 3. CONDICIONAL DE BACKLINKS VS. TEXTO CONCEITUAL: 
                    - Se o texto citar DADOS NUMÉRICOS EXATOS ou ESTUDOS NOMINAIS, eles DEVEM obrigatoriamente ter um link (<a href>). Penalize fortemente se faltar.
-                   - PORÉM, se o texto NÃO tiver números exatos e for puramente CONCEITUAL/FILOSÓFICO, É ESTRITAMENTE PROIBIDO penalizá-lo por "falta de links", "falta de dados externos" ou "falta de embasamento". Avalie apenas a coerência, a lógica e a densidade teórica.
-                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas" ou "comparações objetivas" adicionais. Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores (ex: "a melhor escolha", "solução perfeita").
+                   - PORÉM, se o texto NÃO tiver números exatos e for puramente CONCEITUAL/FILOSÓFICO, É ESTRITAMENTE PROIBIDO penalizá-lo por "falta de links" ou "falta de dados". Avalie apenas a coerência, a lógica e a densidade teórica.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas". Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA tire pontos se a imagem não tiver fonte ou parecer genérica.
                 6. EXTENSÃO E CLICHÊS: Textos densos e extensos são o objetivo. SÓ penalize se houver jargões robóticos de IA ("Em resumo", "É inegável que", "No cenário atual").
                 
                 DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
-                - PERMISSÃO DE NOTA MÁXIMA: Se o texto seguiu as regras, não alucinou, fez uma integração técnica da marca e respeitou sua natureza (com ou sem dados), VOCÊ DEVE DAR NOTA 100.
+                - PERMISSÃO DE NOTA MÁXIMA: Se o texto seguiu as regras, NÃO CITOU CONCORRENTES, não alucinou e fez uma integração técnica da marca, VOCÊ DEVE DAR NOTA 100.
                 - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev". Não invente defeitos genéricos só para dar nota 90.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
