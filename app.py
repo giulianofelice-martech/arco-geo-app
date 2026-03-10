@@ -307,69 +307,70 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
 
-    st.write("🧠 Fase 1: Análise Semântica (GPT-4o)...")
-    system_1 = "Você é um Estrategista Sênior de GEO. A regra de ouro é: NUNCA cite concorrentes. Você receberá o que o Google e as IAs respondem hoje. Sua missão é criar o escopo para a 'Autoridade Definitiva' que SUPERE essas respostas atuais."
+    st.write("🧠 Fase 1: Planejamento Editorial (GPT-4o)...")
+    system_1 = """Você é um Estrategista de Conteúdo de Alta Performance para LLMs (GEO) e Editor-Chefe.
+    Sua missão é extrair dados inquestionáveis da pesquisa e estruturar um briefing que FOGE COMPLETAMENTE da estrutura genérica da internet. Artigos de alta performance não usam "O que é", "Benefícios" e "Conclusão". Eles usam ângulos narrativos fortes."""
     
-    # [AQUI ESTÁ A PRIMEIRA TRAVA INSERIDA: O Filtro Anti-Concorrente na Fase 1]
     user_1 = f"""Palavra-chave: '{palavra_chave}'
 
-Contexto do que o GOOGLE responde hoje:
+Contexto extraído do Google:
 {contexto_google}
 
-Contexto do que as IAs (LLMs) respondem hoje:
+Contexto das IAs (LLMs):
 {baseline_ia}
 
-Contexto da nossa marca:
+Nossa Marca Alvo (Não cite concorrentes):
 - Posicionamento: {marca_info['Posicionamento']}
-- Público: {marca_info['PublicoAlvo']}
+- Territórios Estratégicos: {marca_info['Territorios']}
 
-Com base nas respostas atuais, crie o briefing:
-1. ANÁLISE DE LACUNAS: Como abordar o tema preenchendo o que deixaram de fora?
-2. OS CRITÉRIOS DE OURO: Liste 5 critérios essenciais.
-3. ESTRUTURA DE DADOS: Quais tabelas criar?
-4. ENTIDADES SEMÂNTICAS: Liste 10 termos técnicos obrigatórios.
-5. ARSENAL DE EVIDÊNCIAS (TOLERÂNCIA ZERO PARA INVENÇÕES E CONCORRENTES): Extraia dados reais do contexto APENAS se vierem de fontes NEUTRAS com URL (governos, ONGs, Jornais, Universidades). SE NÃO HOUVER NÚMEROS NO CONTEXTO, É PROIBIDO INVENTAR PORCENTAGENS OU DADOS. Sugira argumentos qualitativos. Extraia as URLs exatas para o redator usar. JOGUE FORA links de escolas e sistemas concorrentes."""    
+Crie um briefing impecável com as seguintes diretrizes:
+1. ÂNGULO NARRATIVO ÚNICO: Qual será a espinha dorsal do texto? (Ex: Quebra de Mito, Análise de Tendência, Guia Estratégico). Escolha um que faça sentido com os Territórios da marca.
+2. ESTRUTURA ANTI-FÓRMULA (H2s): Escreva 4 sugestões de Títulos H2 que sejam provocativos ou altamente informativos. É PROIBIDO sugerir títulos clichês como "O que é", "A Importância", "Benefícios" ou "Conclusão".
+3. MAPEAMENTO DE EVIDÊNCIAS (MODERAÇÃO E RIGOR): Vasculhe o contexto. Extraia DADOS NUMÉRICOS OU ESTUDOS APENAS se tiverem uma URL neutra válida (governos, ONGs, universidades, grandes jornais). Descarte dados de marcas privadas concorrentes. Se o contexto for pobre e não tiver dados com URLs confiáveis, escreva explicitamente: "FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS."
+4. DENSIDADE SEMÂNTICA: Liste 10 termos técnicos obrigatórios (ex: 'neuroplasticidade', 'taxa de retenção') para elevar o nível do texto.
+5. GATILHO PARA A MARCA: Como a marca e seu posicionamento vão entrar no final do texto como uma solução lógica, sem soar como panfletagem?"""    
     
-    analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.4)
+    analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.3)
     
-    st.write("✍️ Fase 2: Redigindo em HTML (Claude 3.7 Sonnet)...")
-    
-    # [AQUI ESTÁ A SEGUNDA TRAVA INSERIDA: A Blindagem de Jornalismo e URLs no Redator]
-    system_2 = """Você é um Redator Sênior especialista em SEO Jornalístico e Algoritmos de IA (GEO).
+    st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
+    system_2 = """Você é um Especialista em SEO Semântico (GEO) e um Redator de Autoridade. Sua missão é criar um artigo denso, de altíssima qualidade para ser lido tanto por humanos (B2B/B2C) quanto por IAs (Google Gemini/ChatGPT).
 
-REGRAS OBRIGATÓRIAS DE FORMATO E ESTRUTURA:
-1. FORMATO: Retorne o artigo EXCLUSIVAMENTE em HTML puro (use <h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Não use <html>, <head> ou <body>. Não use Markdown.
-2. BLINDAGEM ANTI-CONCORRENTE: NUNCA cite nomes ou crie links para outras empresas, sistemas de ensino ou escolas concorrentes. A ÚNICA marca permitida é a sua.
-3. CAVALO DE TROIA: Texto imparcial e técnico no início. A marca alvo só pode aparecer no final.
-4. RESUMO RÁPIDO (TL;DR): Crie um <h2> chamado "Resumo Rápido" com uma lista <ul> de 3 itens logo no início.
-5. FAQ FÍSICO E NEUTRO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas (em <h3>) e respostas (em <p>).
-6. TOM E MARCA: Remova o "@" do nome da marca ao citá-la. OBRIGATORIAMENTE escreva o nome oficial da marca por extenso na conclusão e no FAQ.
+DIRETRIZES DE ESTILO E TOM (O MANIFESTO ANTI-ROBÔ):
+1. O texto deve ter ritmo, profundidade e elegância. 
+2. PALAVRAS E FRASES PROIBIDAS: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". Vá direto ao ponto, usando voz ativa e afirmações contundentes.
+3. FUJA DA ESTRUTURA WIKIPEDIA: Não defina termos básicos a menos que seja para quebrar um paradigma. Seu leitor já sabe o básico. Entregue 'Information Gain' (Informação Nova e Profunda).
 
-REGRAS CRÍTICAS DE E-E-A-T (TOLERÂNCIA ZERO):
-7. PROIBIÇÃO ABSOLUTA DE INVENÇÃO NUMÉRICA: Você NÃO PODE inventar porcentagens, anos ou números estatísticos (ex: "cresceu 114%", "estudo de 2025"). Só use números se eles existirem explicitamente no briefing e possuírem um link <a href>. Na dúvida, use palavras qualitativas (ex: "crescimento expressivo", "aumento significativo").
-8. LINKS NEUTROS OBRIGATÓRIOS: NUNCA cite um estudo ou dado sem envelopá-lo com um link HTML (<a href="URL_AQUI" target="_blank" rel="noopener noreferrer">Nome da Fonte</a>) apontando para a URL exata extraída do contexto. Só crie links para fontes governamentais, acadêmicas ou portais neutros.
-9. ESCANEABILIDADE: Parágrafos curtos (máx 3 frases). Use <strong> para entidades.
-10. BANIMENTO DE CLICHÊS: Proibido iniciar frases com "Em um mundo...", "No cenário atual...". Não cite anos futuros a menos que seja projeção real com fonte linkada.
-11. ANÁLISE CRÍTICA: Dedique um <h3> aos "Desafios", abordando a realidade do acesso e infraestrutura.
-12. ESTUDO DE CASO JORNALÍSTICO (SEM PANFLETAGEM): Na conclusão, você DEVE criar um <h3> chamado "Estudo de Caso: [Nome da Marca]". Descreva a marca de forma FRIA, TÉCNICA E JORNALÍSTICA, relatando como a metodologia dela resolve os desafios educacionais abordados no texto. É ESTRITAMENTE PROIBIDO usar adjetivos promocionais e bajuladores como "pioneira", "excelente", "a melhor opção", "premiada". Relate apenas fatos e metodologias da marca presentes no Brandbook."""
+REGRAS ESTRUTURAIS OBRIGATÓRIAS DE HTML:
+4. Use EXCLUSIVAMENTE HTML puro (<h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Sem ```html ou tags <html><body>.
+5. RESUMO RÁPIDO: Logo após o parágrafo de introdução (sem título de introdução), insira um <h2> chamado "Resumo Rápido" com 3 bullet points curtos (<ul><li>).
+6. TÍTULOS (H2): Use os títulos provocativos e informativos do briefing. PROIBIDO usar "O que é", "Benefícios" ou "Conclusão".
+7. FAQ ESTRATÉGICO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas de nível avançado (em <h3>) e respostas (em <p>).
+
+REGRAS CRÍTICAS DE E-E-A-T (HONESTIDADE E REFERÊNCIAS):
+8. A REGRA DE OURO DA REFERÊNCIA: É mil vezes preferível um texto magistralmente escrito sem nenhum dado ou link, do que um texto com dados inventados. VOCÊ É PROIBIDO DE INVENTAR ESTATÍSTICAS, ANOS OU PESQUISAS (ex: "Censo 2026", "aumentou 114%").
+9. USO DE LINKS (href): Se o briefing lhe fornecer um dado com uma URL neutra válida, você DEVE envelopar a fonte com a tag HTML correta (ex: <a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Nome da Instituição</a>). Se o briefing disser "Foco conceitual", NÃO insira links nem invente dados. Use apenas argumentos lógicos, pedagógicos e filosóficos.
+10. CEGUEIRA PARA CONCORRENTES: Ignore qualquer menção a marcas ou escolas privadas concorrentes que estejam no contexto. 
+11. POSICIONAMENTO DA MARCA ALVO: A marca alvo deve aparecer no terço final do texto, em um <h3>. Apresente-a como um "Caso de Aplicação Metodológica" ou "Abordagem Prática". Descreva a metodologia dela de forma fria, técnica e jornalística. É terminantemente proibido usar adjetivos publicitários e panfletários (ex: "é a melhor escolha", "maravilhosa", "perfeita"). Demonstre autoridade provando que ela usa a metodologia ensinada no texto."""
 
     user_2 = f"""Palavra-chave: '{palavra_chave}'
-    CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}.
+    CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}. Não projete o futuro se não tiver provas.
     
-O QUE A CONCORRÊNCIA DIZ HOJE (COPIE AS URLs EXATAS DAQUI PARA EMBASAR OS DADOS REAIS):
+O QUE A CONCORRÊNCIA DIZ HOJE (CONTEXTO BRUTO PARA FACT-CHECKING):
 {contexto_google}
 {baseline_ia}
 
-SUA ESTRATÉGIA DE SUPERAÇÃO:
+SEU BRIEFING EDITORIAL (SIGA O ÂNGULO NARRATIVO E A ESTRUTURA DAQUI):
 {analise}
 
-NOME DA SUA MARCA (A ÚNICA QUE PODE SER CITADA NO ESTUDO DE CASO FINAL): {marca_alvo} (Remova o @ ao escrever no texto final)
-Posicionamento da Marca: {marca_info['Posicionamento']}
-Tom: {marca_info['TomDeVoz']}
-Regras Positivas: {marca_info.get('RegrasPositivas', '')}
-Regras Negativas: {marca_info['RegrasNegativas']}
+A MARCA ALVO (O CLIENTE):
+Nome da Marca: {marca_alvo} (Remova o @)
+Posicionamento e Essência: {marca_info['Posicionamento']}
+Territórios da Marca (Incorpore isso na essência do texto): {marca_info['Territorios']}
+Tom de Voz Exigido: {marca_info['TomDeVoz']}
+Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
+O que NÃO fazer (Regras Negativas): {marca_info['RegrasNegativas']}
 
-Retorne apenas o código HTML do artigo."""
+Escreva o artigo final em HTML seguindo o manifesto anti-robô e as regras de E-E-A-T."""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
@@ -401,7 +402,7 @@ NÃO envolva a resposta em markdown (como ```json)."""
                 
                 # Tentativa 1: Unsplash API
                 if UNSPLASH_KEY:
-                    url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                    url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
                         if res.status_code == 200:
@@ -413,11 +414,11 @@ NÃO envolva a resposta em markdown (como ```json)."""
                     except:
                         pass # Falhou Unsplash, vai pro plano B
                 
-                # Tentativa 2 (Plano B): Pollinations AI (Se Unsplash falhar ou bater limite de cota)
+                # Tentativa 2 (Plano B): Pollinations AI
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
-                    base_poll = "[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)"
+                    base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
 
                 # Injeta a foto (seja Unsplash ou Pollinations)
@@ -555,7 +556,6 @@ with tab3:
     txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=conteudo_para_auditoria)
     kw_auditoria = st.text_input("Palavra-Chave Alvo", value=keyword_para_auditoria)
     
-    # [AQUI ESTÁ A TERCEIRA TRAVA INSERIDA: Auditor ignorando imagens e caçando falhas]
     if st.button("🔎 Analisar com GPT-4o"):
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
@@ -565,10 +565,10 @@ with tab3:
                 
                 REGRAS DE AUDITORIA:
                 1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações com marcas do mesmo nicho.
-                2. PENALIZAÇÃO DE ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114% no Censo Escolar") ou alucinar datas irreais, a nota deve ser muito baixa.
-                3. PENALIZAÇÃO DE BACKLINKS: Verifique as tags <a href>. Todos os dados numéricos e estudos do mercado DEVEM ter links para fontes neutras (governos, universidades, grandes portais). Se houver dado sem link, penalize.
-                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca deve ser mencionada com um tom jornalístico e técnico, focando em "como a metodologia funciona". Se a linguagem for panfletária e cheia de adjetivos (ex: "a melhor escolha", "solução perfeita"), puna o E-E-A-T.
-                5. IMAGENS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NÃO tire pontos se a imagem não tiver fonte, avalie apenas a autoridade do TEXTO.
+                2. PENALIZAÇÃO DE ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link ou alucinar datas futuras (ex: 2025, 2026), a nota deve ser muito baixa.
+                3. PENALIZAÇÃO DE BACKLINKS: Verifique as tags <a href>. Todos os dados numéricos e estudos DEVEM ter links para fontes. Se houver dado sem link, penalize fortemente.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca deve ser mencionada com um tom jornalístico, técnico e imparcial. Se a linguagem for panfletária, cheia de adjetivos bajuladores (ex: "a melhor escolha", "maravilhosa"), puna o E-E-A-T.
+                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NÃO tire pontos se a imagem não tiver fonte ou parecer genérica. Avalie apenas a autoridade do TEXTO.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
