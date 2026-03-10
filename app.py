@@ -24,7 +24,22 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.title("🤖 Arco Martech | Motor GEO v6.0 (AI Search Native)")
-st.caption("Pipeline Ultimate: Search -> Reverse Query -> Entity Graph -> Writer -> Schema -> Coverage -> RAG Simulation -> Hijacking Defense")
+
+# SUBSTITUIÇÃO DO ST.CAPTION PELO HTML COM TOOLTIPS
+pipeline_html = """
+<div style="font-size: 0.9em; color: #6c757d; margin-bottom: 1.5rem;">
+    <strong>Pipeline Ultimate:</strong> 
+    <span title="Busca dados reais no Google e IAs concorrentes. (Tech: Serper.dev, Jina AI, GPT-4o-mini)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Search</span> ➔ 
+    <span title="Descobre as perguntas exatas que as IAs fazem nos bastidores. (Tech: GPT-4o-mini)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Reverse Query</span> ➔ 
+    <span title="Mapeia palavras e conceitos de autoridade para o nicho. (Tech: GPT-4o)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Entity Graph</span> ➔ 
+    <span title="Redação estratégica focada em retenção e E-E-A-T. (Tech: Claude 3.7 Sonnet)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Writer</span> ➔ 
+    <span title="Criação do código oculto (JSON-LD) que o Google adora. (Tech: Claude 3.7 Sonnet)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Schema</span> ➔ 
+    <span title="Mede se o texto cobriu todos os tópicos exigidos pelo buscador." style="cursor: help; border-bottom: 1px dotted #6c757d;">Coverage</span> ➔ 
+    <span title="Simula se IAs como Perplexity e SearchGPT usariam seu texto como fonte oficial." style="cursor: help; border-bottom: 1px dotted #6c757d;">RAG Simulation</span> ➔ 
+    <span title="Blinda o texto para garantir que a IA cite a sua marca, e não a concorrência." style="cursor: help; border-bottom: 1px dotted #6c757d;">Hijacking Defense</span>
+</div>
+"""
+st.markdown(pipeline_html, unsafe_allow_html=True)
 
 # ==========================================
 # MENU LATERAL (GUIA DO USUÁRIO)
@@ -35,7 +50,7 @@ with st.sidebar:
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
-        **O Pipeline Completo (13/10):**
+        **O Pipeline Completo:**
         1. **Search:** Lê Google (Serper + Jina) e Baseline LLM.
         2. **Reverse Query:** Gera perguntas que as IAs fazem internamente.
         3. **Entity Gap & Strategy:** Descobre buracos semânticos e monta o Entity Authority Graph.
@@ -53,6 +68,15 @@ with st.sidebar:
     with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
         st.markdown("""
         Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Avalia a densidade de entidades e a veracidade de dados.
+        """)
+
+    with st.expander("📖 Dicionário: O que nossa IA faz?", expanded=False):
+        st.markdown("""
+        * **GEO (Generative Engine Optimization):** Otimização para buscadores com IA (como ChatGPT e Perplexity).
+        * **E-E-A-T:** Sigla do Google para Experiência, Especialidade, Autoridade e Confiabilidade.
+        * **Entity Graph:** Mapeamento inteligente de palavras e conceitos para provar que você domina o assunto.
+        * **RAG Simulation:** Simulamos se uma IA usaria seu texto como fonte oficial.
+        * **Hijacking Defense:** Defesa contra "roubo de citação", garantindo que a IA cite sua marca e não um concorrente.
         """)
         
     st.divider()
