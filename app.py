@@ -656,33 +656,31 @@ with tab3:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
             with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
-                # NOVO PROMPT: AUDITOR INTELIGENTE E SENSÍVEL AO CONTEXTO
+                
+               # NOVO PROMPT: VETOS ABSOLUTOS E PERMISSÃO PARA NOTA 100
                 sys_audit = """
 Você é um Auditor Sênior de SEO (E-E-A-T) e um Especialista em Engenharia de Prompt.
-Sua missão é auditar o HTML gerado com PROFUNDIDADE E CONTEXTO, fugindo de análises genéricas, engessadas ou robóticas. Avalie a real intenção e o nicho do texto.
+Sua missão é auditar o HTML gerado com PROFUNDIDADE E CONTEXTO. 
 
-REGRAS DE AUDITORIA (ANÁLISE CRÍTICA):
-1) SENSIBILIDADE AO CONTEXTO (Clichês vs. Termos de Nicho):
-   - Saiba diferenciar um "vício de IA" (ex: "Em resumo", "Uma teia de inovações", "A dança das tecnologias") de um termo normal do nicho. Expressões como "contexto educacional", "metodologia ativa", "cenário econômico" ou "processo cognitivo" SÃO BEM-VINDAS no meio técnico e NÃO devem ser penalizadas.
-2) INTEGRAÇÃO DA MARCA ALVO (Justiça e Proporcionalidade Agnóstica):
-   - Você avaliará a integração da empresa informada no campo "Marca Alvo". 
-   - Lembre-se: descrever as metodologias, plataformas, soluções ou diferenciais técnicos dessa marca de forma séria, jornalística e descritiva NÃO É PANFLETAGEM. Isso é considerado um excelente "Estudo de Caso" e deve ser elogiado.
-   - SÓ PENALIZE a menção da marca se houver um tom agressivo de vendas ou uso excessivo de adjetivos superlativos vazios (ex: "compre agora", "somos a melhor do mundo", "nossa solução fantástica e perfeita").
-3) VERIFICAÇÃO DE FONTES (Rigor Lógico):
-   - Exija links APENAS quando o texto trouxer porcentagens, números absolutos ou citar estudos específicos (ex: "43% da população"). Afirmações conceituais ou metodológicas não precisam de links obrigatórios.
-4) HIGIENE HTML: Verifique a presença literal dos marcadores `<br>Resumo Rápido<br>` e `<br>Perguntas Frequentes<br>`.
+REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS - PENALIDADE SE DESCUMPRIR):
+1) CEGUEIRA PARA IMAGENS (VETO): É ESTRITAMENTE PROIBIDO mencionar, avaliar, criticar ou sugerir melhorias para as tags <img>, seus atributos 'alt' ou sua relevância. Ignore-as 100%.
+2) EXTENSÃO E DENSIDADE: Textos longos, densos (1000+ palavras) e aprofundados são o OBJETIVO deste sistema para SEO E-E-A-T. NUNCA critique o texto por ser "extenso", "denso" ou sugira que seja "mais conciso".
+3) RESUMO RÁPIDO: Se o marcador exato `<br>Resumo Rápido<br>` estiver no HTML seguido de uma lista `<ul>`, a exigência de resumo inicial está 100% CUMPRIDA. Não peça para "adicionar um resumo".
+4) SENSIBILIDADE AO CONTEXTO: Termos técnicos do nicho educacional (ex: "contexto educacional", "metodologia", "processo") são adequados. SÓ critique clichês robóticos reais de IA (ex: "Em resumo", "É inegável que").
+5) INTEGRAÇÃO DA MARCA ALVO: Avalie a integração da marca informada. Descrever metodologias ou diferenciais dela de forma descritiva e técnica É EXCELENTE (Estudo de Caso). Só penalize se houver tom agressivo de venda ("compre agora", "somos a melhor").
+6) VERIFICAÇÃO DE FONTES: Exija links `<a href>` APENAS se o texto citar uma estatística exata (ex: "43% das pessoas"). Textos puramente conceituais NÃO precisam de links.
 
-REGRAS DE FEEDBACK PARA DEVS (META-PROMPTING AVANÇADO):
-- PROIBIDO sugerir regras do tipo "bana a expressão X". Isso não é escalável.
-- Suas sugestões devem ser ESTRUTURAIS e COMPORTAMENTAIS. Exemplo de bom insight: "O modelo está estendendo muito as respostas do FAQ; adicione uma regra para limitar as respostas a um máximo de 3 frases focadas na dor do usuário." ou "Oriente o modelo a usar voz ativa nas passagens que descrevem metodologias para soar mais assertivo."
-- Se o texto estiver excelente e não houver falhas estruturais, retorne uma lista VAZIA `[]` na chave "sugestoes_dev". Não invente regras desnecessárias ou repetitivas.
+DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
+- PERMISSÃO DE NOTA MÁXIMA: Se o texto cumpriu os H2, tem os marcadores literais (Resumo e FAQ), não tem clichês robóticos e fez a integração técnica da marca corretamente, VOCÊ DEVE DAR NOTA 100.
+- Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev". Não invente defeitos genéricos.
+- Se houver erro real, aponte. Sugestões de DEV devem ser comportamentais ("Mude o tom de voz em X"), NUNCA mandando "banir a palavra Y".
 
 RETORNO ESTRITAMENTE EM JSON PURO:
 {
   "score": 0-100,
-  "veredito": "Uma análise de 2 linhas focada nas peculiaridades EXATAS deste artigo, citando pontos reais lidos no texto.",
-  "critica": ["Crítica real 1", "Crítica real 2"],
-  "melhoria": ["Solução prática 1"],
+  "veredito": "Análise de 2 linhas focada nas peculiaridades reais deste artigo.",
+  "critica": [],
+  "melhoria": [],
   "sugestoes_dev": [] 
 }
 """
@@ -692,7 +690,7 @@ Palavra-chave: {kw_auditoria}
 Texto HTML: {txt_auditoria}
 Marca Alvo: {marca_para_auditoria}
 
-Avalie as nuances DESSA palavra-chave e marca específicas. Retorne APENAS o JSON válido.
+Avalie as nuances DESSA palavra-chave e marca específicas. Se o texto estiver perfeito tecnicamente, dê nota 100 e retorne as listas vazias. Retorne APENAS o JSON.
 """
                 try:
                     relatorio_bruto = chamar_llm(
@@ -733,7 +731,7 @@ Avalie as nuances DESSA palavra-chave e marca específicas. Retorne APENAS o JSO
                                 for c in criticas:
                                     st.markdown(f"- {c}")
                             else:
-                                st.markdown("Nenhuma crítica identificada. Texto cirúrgico!")
+                                st.markdown("✅ **Nenhuma crítica identificada. Texto cirúrgico!**")
                                 
                     with col_melhoria:
                         with st.expander("🛠️ Correções para este Artigo", expanded=True):
@@ -742,7 +740,7 @@ Avalie as nuances DESSA palavra-chave e marca específicas. Retorne APENAS o JSO
                                 for m in melhorias:
                                     st.markdown(f"- {m}")
                             else:
-                                st.markdown("Sem sugestões de melhoria pendentes.")
+                                st.markdown("✅ **Sem sugestões de melhoria pendentes.**")
 
                     # NOVA SEÇÃO: FEEDBACK PARA OS DEVS (TRATAMENTO DE ARRAY VAZIO)
                     st.markdown("---")
@@ -754,7 +752,7 @@ Avalie as nuances DESSA palavra-chave e marca específicas. Retorne APENAS o JSO
                                 st.info(f"🤖 **Insight para o Prompt:** {s}")
                             st.caption("Dica: Copie os insights acima que fizerem sentido e cole no `system_2` (prompt do Claude) no código principal.")
                         else:
-                            st.success("✨ O prompt atual está performando de forma excelente para este nicho. Nenhuma sugestão estrutural gerada neste ciclo.")
+                            st.success("✨ **O prompt atual está performando de forma excelente para este nicho. Nenhuma sugestão estrutural gerada neste ciclo.**")
 
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
