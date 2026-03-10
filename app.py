@@ -23,26 +23,26 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🤖 Arco Martech | Motor GEO v5.0 (Enterprise GEO)")
-st.caption("Pipeline Avançado: Search -> Reverse Query -> Entity Gap -> Strategy -> Writer -> Schema -> QA/Cluster")
+st.title("🤖 Arco Martech | Motor GEO v6.0 (AI Search Native)")
+st.caption("Pipeline Ultimate: Search -> Reverse Query -> Entity Graph -> Writer -> Schema -> Coverage -> RAG Simulation -> Hijacking Defense")
 
 # ==========================================
 # MENU LATERAL (GUIA DO USUÁRIO)
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v5.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização para Motores Gerativos (GEO).")
+    st.markdown("Bem-vindo à v6.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização nativa para Motores Gerativos (Perplexity, SearchGPT).")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
-        **O Pipeline Completo (12/10):**
+        **O Pipeline Completo (13/10):**
         1. **Search:** Lê Google (Serper + Jina) e Baseline LLM.
         2. **Reverse Query:** Gera perguntas que as IAs fazem internamente.
-        3. **Entity Gap:** Descobre buracos semânticos nos concorrentes.
-        4. **Strategy:** Monta briefing com Entity Authority Graph.
-        5. **Writer:** Redige com Answer Anchors e Blocos de Definição.
-        6. **Media:** Injeta imagens (Unsplash ou Pollinations).
-        7. **QA & Cluster:** Calcula o Citation Score e sugere próximos artigos.
+        3. **Entity Gap & Strategy:** Descobre buracos semânticos e monta o Entity Authority Graph.
+        4. **Writer:** Redige com Answer Anchors e Entity Saturation.
+        5. **Media:** Injeta imagens em HQ.
+        6. **Scoring Avançado:** Calcula Entity Coverage e o Score Global GEO.
+        7. **RAG Simulation:** Simula se a IA te escolheria como fonte e detecta Hijacking.
         """)
         
     with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
@@ -336,7 +336,7 @@ def buscar_baseline_llm(palavra_chave):
         return f"Erro ao buscar Baseline de IA: {e}"
 
 # ==========================================================
-# NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO
+# NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO (v5 e v6)
 # ==========================================================
 
 def gerar_reverse_queries(palavra_chave):
@@ -402,6 +402,80 @@ def calcular_citation_score(artigo_html):
     if "Perguntas Frequentes" in artigo_html: score += 1
     return f"{score}/5"
 
+def calcular_entity_coverage(artigo_html, entity_gap_text):
+    system = """
+    Você é um analisador de SEO semântico.
+    Compare:
+    1) ENTIDADES importantes sugeridas (Entity Gap)
+    2) ENTIDADES presentes no artigo
+    Retorne um JSON:
+    {
+      "entity_coverage_score": "0-100",
+      "entities_present": [],
+      "entities_missing": []
+    }
+    """
+    user = f"ENTIDADES RECOMENDADAS:\n{entity_gap_text}\n\nARTIGO:\n{artigo_html}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
+
+def calcular_geo_score(citation_score, originalidade, citabilidade):
+    system = """
+    Combine os indicadores em um GEO SCORE de 0 a 100.
+    Considere: Citation Score, Originalidade, e Probabilidade de Citabilidade por LLM.
+    Retorne JSON:
+    {
+      "geo_score": "0-100",
+      "veredito": "curta explicação"
+    }
+    """
+    user = f"Citation Score: {citation_score}\nOriginalidade: {originalidade}\nCitabilidade LLM: {citabilidade}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
+
+def simular_llm_retrieval(keyword, artigo_html):
+    system = """
+    Você simula o processo de recuperação de fontes usado por motores de busca baseados em LLM.
+    Dada uma pergunta do usuário e um artigo, avalie se o conteúdo seria selecionado como fonte.
+    Considere: clareza, estrutura citável, entidades confiáveis, completude, neutralidade.
+    Retorne JSON:
+    {
+      "retrieval_score": "0-100",
+      "chance_de_ser_usado_como_fonte": "baixa | média | alta",
+      "motivo": "explicação curta"
+    }
+    """
+    user = f"PERGUNTA DO USUÁRIO:\n{keyword}\n\nARTIGO:\n{artigo_html}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
+
+def detectar_citation_hijacking(artigo_html):
+    system = """
+    Analise o artigo e identifique vulnerabilidade a AI Citation Hijacking.
+    Citation Hijacking acontece quando outro conteúdo concorrente pode responder melhor ou mais direto à mesma pergunta.
+    Avalie: ausência de resposta direta, falta de definição clara, falta de estrutura citável, excesso de narrativa.
+    Retorne JSON:
+    {
+      "risco_hijacking": "baixo | médio | alto",
+      "pontos_fracos": [],
+      "melhorias_recomendadas": []
+    }
+    """
+    user = f"ARTIGO:\n{artigo_html}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
+
+def simular_resposta_ai(keyword, artigo_html):
+    system = """
+    Simule como um motor de busca baseado em IA (SGE/Perplexity) responderia a uma pergunta do usuário usando o artigo fornecido APENAS como fonte.
+    Produza a resposta final que o usuário veria.
+    Depois avalie: clareza, completude, necessidade de outras fontes.
+    Retorne JSON:
+    {
+      "resposta_simulada": "...",
+      "qualidade_resposta": "0-100",
+      "precisaria_de_outras_fontes": true | false
+    }
+    """
+    user = f"PERGUNTA:\n{keyword}\n\nFONTE:\n{artigo_html}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.2, response_format={"type":"json_object"})
+
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
@@ -415,7 +489,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
-        futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave) # NOVO MÓDULO EM PARALELO
+        futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
         
         try:
             contexto_google = futuro_google.result(timeout=45)
@@ -504,13 +578,14 @@ REGRAS HTML E E-E-A-T (CRÍTICAS):
 11) **FAQ INTELIGENTE**: No terço final, insira **exatamente** a linha `<br>Perguntas Frequentes<br>`. Use as perguntas geradas pelo Reverse Query Engine fornecidas no briefing para criar a seção FAQ (escolha as 3 mais relevantes).
 12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística.
 13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Authority Graph ao longo do texto para aumentar a cobertura semântica.
 """
 
     user_2 = f"""
 Palavra-chave: '{palavra_chave}'
 
 CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-O QUE A CONCORRÊNCIA DIZ HOJE (para fact-checking e contraste):
+O QUE A CONCORRência DIZ HOJE (para fact-checking e contraste):
 {contexto_google}
 
 SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
@@ -594,15 +669,28 @@ ANTI-CLOAKING E VALIDAÇÃO:
     except Exception as e:
         print(f"Erro silencioso ao injetar imagem: {e}")
 
-    # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO E SCORE GEO
+    # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
     st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
     score_originalidade = avaliar_originalidade(artigo_html, contexto_google)
     citabilidade = prever_citabilidade_llm(artigo_html, palavra_chave)
     cluster = gerar_cluster(palavra_chave)
     citation_score = calcular_citation_score(artigo_html)
 
-    return (artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, score_originalidade, citabilidade, cluster, reverse_queries, citation_score)
+    st.write("🧪 Fase 5: Calculando Entity Coverage & GEO Score Global...")
+    entity_coverage = calcular_entity_coverage(artigo_html, entity_gap)
+    geo_score = calcular_geo_score(citation_score, score_originalidade, citabilidade)
 
+    st.write("🔬 Fase 6: Simulação de RAG e Citation Hijacking (Motores LLM)...")
+    retrieval_simulation = simular_llm_retrieval(palavra_chave, artigo_html)
+    hijacking_risk = detectar_citation_hijacking(artigo_html)
+    ai_simulation = simular_resposta_ai(palavra_chave, artigo_html)
+
+    return (
+        artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, 
+        score_originalidade, citabilidade, cluster, reverse_queries, 
+        citation_score, entity_coverage, geo_score, retrieval_simulation, 
+        hijacking_risk, ai_simulation
+    )
 
 def publicar_wp(titulo, conteudo_html, meta_dict):
     seo_title = meta_dict.get("title", titulo)
@@ -651,7 +739,7 @@ with tab1:
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            with st.status("🤖 Processando Motor GEO v5...", expanded=True) as status:
+            with st.status("🤖 Processando Motor GEO v6...", expanded=True) as status:
                 try:
                     (
                         artigo_html, 
@@ -663,7 +751,12 @@ with tab1:
                         citabilidade, 
                         cluster,
                         reverse_queries,
-                        citation_score
+                        citation_score,
+                        entity_coverage,
+                        geo_score,
+                        retrieval_simulation,
+                        hijacking_risk,
+                        ai_simulation
                     ) = executar_geracao_completa(palavra_chave_input, marca_selecionada)
                     
                     st.session_state['art_gerado'] = artigo_html
@@ -676,6 +769,12 @@ with tab1:
                     st.session_state['cluster'] = cluster
                     st.session_state['reverse_queries'] = reverse_queries
                     st.session_state['citation_score'] = citation_score
+                    st.session_state['entity_coverage'] = entity_coverage
+                    st.session_state['geo_score'] = geo_score
+                    st.session_state['retrieval_simulation'] = retrieval_simulation
+                    st.session_state['hijacking_risk'] = hijacking_risk
+                    st.session_state['ai_simulation'] = ai_simulation
+                    
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
@@ -703,7 +802,22 @@ with tab1:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
 
-            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4/V5 COM GET SEGURO)
+            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V6 COM GET SEGURO)
+            with st.expander("🚀 GEO Score Global", expanded=True):
+                st.json(st.session_state.get('geo_score', '{}'))
+                
+            with st.expander("🧠 Entity Coverage (Topical Authority)", expanded=False):
+                st.json(st.session_state.get('entity_coverage', '{}'))
+                
+            with st.expander("🔎 LLM Retrieval Simulation", expanded=False):
+                st.json(st.session_state.get('retrieval_simulation', '{}'))
+                
+            with st.expander("⚠️ AI Citation Hijacking Risk", expanded=False):
+                st.json(st.session_state.get('hijacking_risk', '{}'))
+                
+            with st.expander("🤖 AI Search Result Simulator", expanded=False):
+                st.json(st.session_state.get('ai_simulation', '{}'))
+
             with st.expander("🔄 Reverse Query Engine (Search Intent)", expanded=False):
                 st.json(st.session_state.get('reverse_queries', '{}'))
                 
