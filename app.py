@@ -627,24 +627,24 @@ with tab1:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
 
-            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4)
+            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4 COM GET SEGURO)
             with st.expander("🧩 Entity Gap Analysis (Oportunidades Semânticas)", expanded=False):
-                st.markdown(st.session_state['entity_gap'])
+                st.markdown(st.session_state.get('entity_gap', '⚠️ Dados de Entity Gap não encontrados. Por favor, gere um novo artigo.'))
             
             with st.expander("🧠 Previsão de Citabilidade por IAs (LLMs)", expanded=False):
-                st.markdown(st.session_state['citabilidade'])
+                st.markdown(st.session_state.get('citabilidade', '⚠️ Dados de Citabilidade não encontrados. Por favor, gere um novo artigo.'))
                 
             with st.expander("🥇 Originalidade do Artigo (vs Concorrentes)", expanded=False):
-                st.markdown(st.session_state['score_originalidade'])
+                st.markdown(st.session_state.get('score_originalidade', '⚠️ Dados de Originalidade não encontrados. Por favor, gere um novo artigo.'))
                 
             with st.expander("🗺️ Sugestão de Content Cluster (Topical Authority)", expanded=False):
-                st.markdown(st.session_state['cluster'])
+                st.markdown(st.session_state.get('cluster', '⚠️ Dados de Cluster não encontrados. Por favor, gere um novo artigo.'))
 
             with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?", expanded=False):
                 st.markdown("**Google (Serper + Jina Reader):**")
-                st.info(st.session_state['google_ctx'])
+                st.info(st.session_state.get('google_ctx', 'Sem dados.'))
                 st.markdown("**IA (Perplexity Baseline):**")
-                st.info(st.session_state['ia_ctx'])
+                st.info(st.session_state.get('ia_ctx', 'Sem dados.'))
 
             with st.expander("👁️ Pré-visualização do HTML", expanded=False):
                 st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
