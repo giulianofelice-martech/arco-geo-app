@@ -95,26 +95,163 @@ class MetadadosArtigo(BaseModel):
         return v[:147] + "..." if len(v) > 150 else v
 
 # ==========================================
-# 2. BRANDBOOK EMBUTIDO (COM REGRAS POSITIVAS)
+# 2. BRANDBOOK EMBUTIDO (CONSOLIDADO E ENRIQUECIDO COM O ARQUIVO CSV)
 # ==========================================
 if 'brandbook_df' not in st.session_state:
     dados_iniciais = [
         {
-            "Marca": "@internationalschool",
-            "Posicionamento": "O programa bilíngue mais premiado do Brasil. Pioneira em bilinguismo no país. Prover soluções educacionais consistentes e inovadoras. Transformar vidas por meio da educação bilíngue. Empoderar a comunidade escolar para desenvolver o aluno como ser integral.",
-            "Territorios": "Bilinguismo, educação, integral, viagens",
-            "TomDeVoz": "Especialista, inovador, inspirador, prático.",
-            "PublicoAlvo": "Gestores, diretores e coordenadores de escolas (B2B) pais e famílias (Foco B2C)",
-            "RegrasNegativas": "Não usar termos genéricos sem contexto, não soar arrogante ou sabe tudo, não inferir que quem aprende inglês é superior ou melhor, não citar palavras em inglês sem tradução entre parênteses depois. Não focar o discurso somente nos pais (lembrar sempre da figura da escola). NUNCA usar a construção 'neste artigo iremos' ou similares.",
-            "RegrasPositivas": "Focar em estrutura informativa. Sempre trazer dados para embasar afirmações vindos de fontes seguras e confiáveis, sempre citar e linkar a fonte dos dados, preferir fontes de pesquisas, governos e instituições de renome. Sempre começar o primeiro parágrafo com um gancho que instigue a leitura, de preferência acompanhado de dado. Podemos usar pesquisas nacionais ou internacionais. Sempre usar construção gramatical focada em clareza: iniciar parágrafos com frases de afirmação, não com conectivos. Sempre conectar com a importância de aprender inglês indo além da gramática: focar na importância de aprender com contexto."
+            "Marca": "@saseducacao",
+            "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço. | Protagonistas na evolução da forma de ensinar e aprender. Abordagem com diagnósticos e embasamentos profundos, superamos as expectativas de parceiros. Somos alta performance e transformamos complexidade em oportunidades. | Promessa: Educação de excelência com foco em resultados acadêmicos, suporte pedagógico próximo e uso de dados para aprendizado.",
+            "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas",
+            "TomDeVoz": "Acadêmico, inovador, especialista e inspirador. Visionário, colaborativo",
+            "PublicoAlvo": "Estudantes, vestibulandos e pais. (Foco B2C) Mantenedores de escolas médias e grandes, com alto rigor acadêmico e foco em resultados no ENEM.",
+            "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço.",
+            "RegrasPositivas": "Destaque os diferenciais: - Líder nacional em aprovação no SiSU 2025, - Maior sistema de ensino do Brasil, - +1.300 escolas parceiras, - 97% de fidelização. Propósito da marca: Moldar, com coragem e embasamento, a educação do futuro ao lado das escolas."
         },
-        {"Marca": "@saseducacao", "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço.", "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas", "TomDeVoz": "Acadêmico, inovador, especialista e inspirador.", "PublicoAlvo": "Estudantes, vestibulandos e pais. (Foco B2C)", "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço.", "RegrasPositivas": ""},
-        {"Marca": "@plataformacoc", "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente.", "Territorios": "Vestibulares, Esportes, Gestão escolar", "TomDeVoz": "Consultivo, parceiro, dinâmico.", "PublicoAlvo": "Mantenedores e coordenadores pedagógicos. (B2B)", "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.", "RegrasPositivas": ""},
-        {"Marca": "@isaaceducacao", "Posicionamento": "Maior solução financeira e de gestão para a educação.", "Territorios": "Gestão financeira, Inovação", "TomDeVoz": "Corporativo, direto, analítico.", "PublicoAlvo": "Diretores financeiros e donos de escolas. (B2B)", "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantilizada.", "RegrasPositivas": ""},
-        {"Marca": "@geekieeducacao", "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar.", "Territorios": "Inovação, IA/Personalização", "TomDeVoz": "Inovador, moderno, ágil.", "PublicoAlvo": "Diretores de inovação e escolas modernas. (B2B)", "RegrasNegativas": "Não parecer sistema engessado, não usar linguagem punitiva.", "RegrasPositivas": ""},
-        {"Marca": "@sistemapositivodeensino", "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil.", "Territorios": "Formação integral, Inclusão, Tradição", "TomDeVoz": "Acolhedor, tradicional, humano.", "PublicoAlvo": "Famílias e diretores de escolas tradicionais.", "RegrasNegativas": "Não parecer frio, não usar jargões técnicos sem contexto acolhedor.", "RegrasPositivas": ""},
-        {"Marca": "@saedigital", "Posicionamento": "Melhor integração físico/digital, hiperatualizada.", "Territorios": "Tecnologia, Inovação Digital", "TomDeVoz": "Prático, tecnológico, dinâmico.", "PublicoAlvo": "Gestores buscando modernização com custo-benefício.", "RegrasNegativas": "Não parecer inacessível, não diminuir a importância do material físico.", "RegrasPositivas": ""},
-        {"Marca": "@solucaoconquista", "Posicionamento": "Solução completa focada na parceria Escola-Família.", "Territorios": "Família, Educação Infantil, Valores", "TomDeVoz": "Familiar, parceiro, simples e didático.", "PublicoAlvo": "Pais e gestores de escolas de educação infantil.", "RegrasNegativas": "Não usar tom corporativo frio, não focar em pressão de vestibular.", "RegrasPositivas": ""}
+        {
+            "Marca": "@geekieeducacao",
+            "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar. | Material didático inteligente que apoia práticas ativas e que possibilita a personalização da aprendizagem por meio de dados. | Promessa: Aprendizado personalizado, engajante e baseado em dados.",
+            "Territorios": "Inovação, IA/Personalização, Tecnologia, Dados",
+            "TomDeVoz": "Inovador, moderno, ágil. Transformador, visionário, experimental, adaptável e inspirador",
+            "PublicoAlvo": "Diretores de inovação e escolas modernas. (B2B)",
+            "RegrasNegativas": "Não parecer sistema engessado, não usar linguagem punitiva.",
+            "RegrasPositivas": "Destaque os diferenciais: - A primeira plataforma de educação baseada em dados, - Mais de 12 milhões de estudantes impactados, - Melhor solução de IA premiada no Top Educação. Propósito da marca: Transformar a educação para que cada estudante seja tratado como único."
+        },
+        {
+            "Marca": "@plataformacoc",
+            "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente. | Promover transformação de alto impacto, através de resultados de crescimento para a gestão da escola e ao longo de toda a trajetória do aluno | Promessa: Resultados de crescimento para a gestão da escola e ao longo de toda a trajetória do aluno.",
+            "Territorios": "Vestibulares, Esportes, Gestão escolar, Crescimento",
+            "TomDeVoz": "Consultivo, parceiro, dinâmico. Viva, ponta firme, sagaz, aberta, contemporânea",
+            "PublicoAlvo": "Mantenedores e coordenadores pedagógicos. (B2B)",
+            "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.",
+            "RegrasPositivas": "Destaque os diferenciais: - Mais de 60 anos, - Melhor consultoria do Brasil 2x premiada no Top Educação. Propósito: Impulsionar escolas rumo a uma educação contemporânea de excelência."
+        },
+        {
+            "Marca": "@sistemapositivodeensino",
+            "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil. | Com uma abordagem inspiradora e humana, somos referência em soluções que guiam nossas escolas parceiras a evoluírem na missão de ensinar, transformando positivamente a vida dos brasileiros.",
+            "Territorios": "Formação integral, Inclusão, Tradição",
+            "TomDeVoz": "Acolhedor, tradicional, humano. Experiente, criativa, inovadora e segura",
+            "PublicoAlvo": "Famílias e diretores de escolas tradicionais.",
+            "RegrasNegativas": "Não parecer frio, não usar jargões técnicos sem contexto acolhedor.",
+            "RegrasPositivas": "Destaque os diferenciais: - Mais de 45 anos de atuação. Propósito: Inspirar e fortalecer escolas para que evoluam a educação brasileira com humanidade."
+        },
+        {
+            "Marca": "@saedigital",
+            "Posicionamento": "Melhor integração físico/digital, hiperatualizada. | Nos consolidamos como o sistema de ensino atualizado, que melhor integra o físico com o digital para potencializar o resultado dos alunos e dos nossos parceiros.",
+            "Territorios": "Tecnologia, Inovação Digital",
+            "TomDeVoz": "Prático, tecnológico, dinâmico. Jovem, amigável, antenado, parceiro",
+            "PublicoAlvo": "Gestores buscando modernização com custo-benefício.",
+            "RegrasNegativas": "Não parecer inacessível, não diminuir a importância do material físico.",
+            "RegrasPositivas": "Propósito: Desbravar o caminho para uma educação excelente e acessível, que permita a cada aluno e educador escolher e concretizar seus sonhos."
+        },
+        {
+            "Marca": "@solucaoconquista",
+            "Posicionamento": "Solução completa focada na parceria Escola-Família. | Desenvolvimento integral e acessível, a partir de 4 pilares: educação financeira, empreendedorismo, educação socioemocional e família.",
+            "Territorios": "Família, Educação Infantil, Valores, Comunidade, Empreendedorismo, Socioemocional",
+            "TomDeVoz": "Familiar, parceiro, simples e didático. Integradora, descomplicada",
+            "PublicoAlvo": "Pais e gestores de escolas de educação infantil.",
+            "RegrasNegativas": "Não usar tom corporativo frio, não focar em pressão de vestibular.",
+            "RegrasPositivas": "Propósito: Colaborar com escolas para formar alunos protagonistas que constroem seu próprio caminho."
+        },
+        {
+            "Marca": "@escoladainteligencia",
+            "Posicionamento": "Um ecossistema de educação que transforma alunos, professores, escolas e famílias pelo desenvolvimento da inteligência socioemocional.",
+            "Territorios": "Comunidade, Socioemocional, habilidades e competências",
+            "TomDeVoz": "Madura, especialista, profunda, humana, acessível, sentimental, suave, estável.",
+            "PublicoAlvo": "Mantenedores de escolas médias, tradicionais que desejam qualidade e são movidos por um senso de propósito (Ticket alto).",
+            "RegrasNegativas": "Evitar linguagem robótica, sem focar excessivamente na competição e em pressões externas.",
+            "RegrasPositivas": "Destaque: Primeira solução socioemocional do mercado Brasileiro, presente desde 2010. Tricampeões invictos do Top Educação. Citar ferramentas 'Pulso', 'Mapa Socioemocional' e 'Indicadores Multifocais'. 1.2 milhões de pessoas impactadas."
+        },
+        {
+            "Marca": "@pesenglish",
+            "Posicionamento": "O maior programa de inglês integrado às escolas, facilitador do ensino de qualidade, com resultados que mudam vidas. | Promessa: Educação acessível, integrada e descomplicada.",
+            "Territorios": "Bilíngue, crescimento, tecnologia",
+            "TomDeVoz": "Especialista, humano, dinâmico, acessível, suave",
+            "PublicoAlvo": "Gestores de escolas que visam escala na educação linguística com custo-benefício para famílias.",
+            "RegrasNegativas": "Não prometer fluência irreal em curto prazo, não utilizar termos em inglês soltos sem conexão com o currículo.",
+            "RegrasPositivas": "Destaque: 91% de aprovação nos exames de Cambridge, parcerias com Cambridge e Pearson, sistema 'Level Up'. Programa curricular flexível. Mais de 800 escolas, custando 10x menos que curso de idiomas avulso."
+        },
+        {
+            "Marca": "@naveavela",
+            "Posicionamento": "Referência em educação tecnológica para formar estudantes protagonistas na resolução de problemas reais com tecnologia e criatividade por meio de experiências práticas.",
+            "Territorios": "Inovação, tecnologia, criatividade",
+            "TomDeVoz": "Especialista, espontâneo, racional, dinâmico",
+            "PublicoAlvo": "Escolas modernas que valorizam cultura Maker e letramento tecnológico.",
+            "RegrasNegativas": "Não desmerecer o ensino tradicional. O foco deve ser a integração complementar.",
+            "RegrasPositivas": "Destaque: Abordagem STEAM, 4Cs (criatividade, pensamento crítico, colaboração e comunicação), foco em Inteligência Artificial ética. 4x ganhadores no Top Educação em Educação Tecnológica."
+        },
+        {
+            "Marca": "@programapleno",
+            "Posicionamento": "O Pleno transforma o convívio escolar através da educação socioemocional interdisciplinar e com rigor científico, trabalhando saúde mental, física e relações interpessoais.",
+            "Territorios": "Projetos, socioemocional, habilidades e competências, bem estar",
+            "TomDeVoz": "Coletivo, jovem, dinâmico, espontâneo, sofisticado, humano, especialista",
+            "PublicoAlvo": "Gestores buscando metodologias baseadas em projetos com comprovação científica.",
+            "RegrasNegativas": "Não atrelar as soluções como um serviço clínico. É um desenvolvimento escolar de convivência.",
+            "RegrasPositivas": "Destaque: Baseado no modelo internacional CASEL, abordagem SAFER, aprendizado baseado em projetos, Guia de trabalho nos espaços públicos e alinhamento à BNCC."
+        },
+        {
+            "Marca": "@geniodasfinancas",
+            "Posicionamento": "Através da educação financeira comportamental, unimos escolas, alunos e famílias para cultivar autonomia, consciência e equilíbrio nas decisões financeiras, fortalecendo projetos de vida mais saudáveis.",
+            "Territorios": "Educação financeira comportamental, habilidades e competências",
+            "TomDeVoz": "Dinâmico, especialista, acessível, humano, estável",
+            "PublicoAlvo": "Escolas focadas em habilidades para a vida do aluno do ensino básico.",
+            "RegrasNegativas": "Não usar termos como ficar rico ou fórmulas mágicas. O foco é 'comportamental e equilíbrio', nunca promessas milagrosas.",
+            "RegrasPositivas": "Destaque: Educação financeira com propósito, ensinando finanças sem julgamentos e com foco no bem-estar emocional."
+        },
+        {
+            "Marca": "@maraltoedicoes",
+            "Posicionamento": "A Maralto assume a sua responsabilidade no processo de construção de um país leitor e apresenta o Programa de Formação Leitora Maralto com o desejo de promover diálogos em torno do livro, da leitura e dos leitores.",
+            "Territorios": "Literatura, associação pedagógica",
+            "TomDeVoz": "Coletiva, especialista, sofisticada, humana, profunda, formal",
+            "PublicoAlvo": "Educadores que apreciam bibliotecas robustas e incentivo literário profundo.",
+            "RegrasNegativas": "Não resumir a literatura a apenas materiais didáticos conteudistas. A chave é 'leitura por prazer e diálogo'.",
+            "RegrasPositivas": "Destaque: Investimento autoral em conteúdo literário e visual. Propósito: Formar um país de leitores."
+        },
+        {
+            "Marca": "@internationalschoolsoficial",
+            "Posicionamento": "O programa bilíngue mais premiado do Brasil. Pioneira em bilinguismo no país. Prover soluções educacionais consistentes e inovadoras. Transformar vidas por meio da educação bilíngue. Empoderar a comunidade escolar para desenvolver o aluno como ser integral. | Promessa: Resultados concretos no aprendizado.",
+            "Territorios": "Bilinguismo, educação, integral, viagens, inovação, pioneirismo",
+            "TomDeVoz": "Especialista, inovador, inspirador, prático, pioneiro, parceiro",
+            "PublicoAlvo": "Gestores, diretores e coordenadores de escolas (B2B) pais e famílias (Foco B2C). Escolas privadas de ticket alto e famílias de classes A, B e C.",
+            "RegrasNegativas": "Não usar termos genéricos sem contexto, não soar arrogante ou sabe-tudo. Não inferir que quem aprende inglês é superior ou melhor. Não citar palavras em inglês sem tradução entre parênteses depois. Não focar o discurso somente nos pais (lembrar sempre da figura da escola). NUNCA usar a construção 'neste artigo iremos' ou similares.",
+            "RegrasPositivas": "Focar em estrutura informativa. Sempre trazer dados para embasar afirmações vindos de fontes seguras e confiáveis, sempre citar e linkar a fonte dos dados, preferir fontes de pesquisas, governos e instituições de renome. Sempre começar o primeiro parágrafo com um gancho que instigue a leitura, de preferência acompanhado de dado. Podemos usar pesquisas nacionais ou internacionais. Sempre usar construção gramatical focada em clareza: iniciar parágrafos com frases de afirmação, não com conectivos. Sempre conectar com a importância de aprender inglês indo além da gramática: focar na importância de aprender com contexto. Destaque os diferenciais (CSV): Utilização da metodologia CLIL de forma integral. Aborde vivências internacionais reais (KSCIA, Cambridge, Minecraft, Ubisoft, Leo) e a integração do inglês à rotina escolar."
+        },
+        {
+            "Marca": "@isaaceducacao",
+            "Posicionamento": "A maior plataforma financeira e de gestão para a educação. | Promessa: Mensalidades em dia, sem dor de cabeça.",
+            "Territorios": "Gestão financeira, Inovação, dados, tecnologia",
+            "TomDeVoz": "Corporativo, direto, analítico. Simples (acessível) e parceiro, especialista em gestão financeira.",
+            "PublicoAlvo": "Mantenedores, gestores e diretores financeiros de escolas, faculdades e confessionais.",
+            "RegrasNegativas": "Não parecer banco engessado, não usar linguagem infantilizada ou agressiva contra a família devedora.",
+            "RegrasPositivas": "Destaque: Diminuição real da inadimplência, 2x premiada no Top educação, excelência técnica, comprometimento e resultados tangíveis."
+        },
+        {
+            "Marca": "@classapp",
+            "Posicionamento": "A agenda escolar online melhor avaliada do Brasil | Promessa: Mais que funcionalidades, soluções definitivas para os desafios reais da escola.",
+            "Territorios": "Comunicação escolar, gestão, inovação",
+            "TomDeVoz": "Autoridade acessível (sabe e explica como faz), empática e humana.",
+            "PublicoAlvo": "Mantenedores, gestores, diretores, coordenadores, TI e marketing de escolas e confessionais.",
+            "RegrasNegativas": "Não falar mal do uso do papel de forma grosseira, sempre usar como avanço de modernização.",
+            "RegrasPositivas": "Destaque: Adesão de 95% e leitura de 85%, segurança, única vencedora do Top Educação na categoria e mais de 260 mil avaliações com nota 4.8."
+        },
+        {
+            "Marca": "@activesoft",
+            "Posicionamento": "Gestão escolar mais simples e eficiente com a Activesoft: tudo o que sua escola precisa para otimizar processos, ganhar eficiência e alcançar melhores resultados.",
+            "Territorios": "Gestão escolar, dados, gestão acadêmica, gestão financeira, administrativa",
+            "TomDeVoz": "Simples, acessível, clara e amigável.",
+            "PublicoAlvo": "Mantenedores, gestores, diretores e TI de escolas e confessionais.",
+            "RegrasNegativas": "Não usar terminologia muito rebuscada para TI.",
+            "RegrasPositivas": "Destaque: Plataforma 100% online (ao contrário de desktops), 25 anos de mercado, atendimento em chat em até 2 minutos (90% de satisfação). Mais de 3 milhões de usuários."
+        },
+        {
+            "Marca": "@arcoeducacao",
+            "Posicionamento": "A plataforma integrada de soluções educacionais da Arco Educação. Ponto de encontro de soluções que simplificam a rotina. +12.000 escolas parceiras e +4 milhões de alunos. | Promessa: Tudo que a educação precisa, em um só lugar.",
+            "Territorios": "Conexão e tecnologia, foco no elo entre gestão e família (herança isaac/ClassApp).",
+            "TomDeVoz": "Confiável, estratégica: torna o complicado mais simples, conecta o que estava separado.",
+            "PublicoAlvo": "Mantenedores/gestores/diretores, professores, famílias e alunos.",
+            "RegrasNegativas": "Não apresentar como um simples repositório, mas como um ecossistema.",
+            "RegrasPositivas": "Destaque: Apenas uma marca com o tamanho e história da Arco conseguiria reunir o melhor de pedagógico, gestão e tecnologia em um só lugar."
+        }
     ]
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
