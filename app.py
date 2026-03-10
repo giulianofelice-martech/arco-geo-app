@@ -239,9 +239,6 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
 
     st.write("🧠 Fase 1: Planejamento Editorial (GPT-4o)...")
 
-    # ---------------------
-    # GUARDRAILS ATUALIZADOS — system_1 / user_1
-    # ---------------------
     system_1 = """
 Você é um Estrategista de Conteúdo GEO (LLM + Search) e Editor-Chefe orientado por E‑E‑A‑T.
 Objetivo: produzir um briefing que entregue GANHO DE INFORMAÇÃO e fuja de estruturas genéricas.
@@ -283,9 +280,6 @@ Instruções:
 
     st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
 
-    # ---------------------
-    # GUARDRAILS ATUALIZADOS — system_2 / user_2
-    # ---------------------
     system_2 = """
 Você é Especialista em SEO Semântico (GEO) e Redator de Autoridade E‑E‑A‑T.
 Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
@@ -348,9 +342,7 @@ Escreva o ARTIGO FINAL em HTML conforme as regras, preservando exatamente os mar
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
 
-    # ---------------------
-    # GUARDRAILS ATUALIZADOS — system_3 (mantém user_3 original)
-    # ---------------------
+    # NOTA: Aqui está a correção vital do {{}}
     system_3 = f"""
 Você é especialista em SEO técnico e Schema.org.
 Retorne EXCLUSIVAMENTE **um JSON** puro, válido e COMPATÍVEL com este schema Pydantic:
@@ -363,7 +355,7 @@ REGRAS CRÍTICAS:
 4) 'dicas_imagens': exatamente 2 strings em inglês, descritivas e específicas (ex.: "bilingual classroom observation, natural light, candid, corporate", "school finance dashboard, clean ui, overhead"). Apenas substantivos/estilos; sem marcas.
 5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
-   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}.
+   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
 ANTI-CLOAKING E VALIDAÇÃO:
 - Proibido inventar perguntas/respostas que não existam no HTML.
@@ -375,7 +367,6 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-    # NOVO MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
@@ -384,7 +375,6 @@ ANTI-CLOAKING E VALIDAÇÃO:
         if isinstance(termos_busca, list):
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
-                # Tentativa 1: Unsplash API
                 if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
@@ -397,13 +387,11 @@ ANTI-CLOAKING E VALIDAÇÃO:
                                 img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" loading="lazy" decoding="async" />'
                     except Exception:
                         pass
-                # Plano B: Pollinations AI
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}" alt="{clean_termo}" loading="lazy" decoding="async" />'
-                # Injeta a foto (seja Unsplash ou Pollinations)
                 if img_html_pronta:
                     alvo_replace = '<br>Resumo Rápido<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
@@ -512,11 +500,11 @@ with tab1:
                                 st.error(f"❌ Falha ao enviar: {res.text}")
 
 # ==========================================
-# 6. MONITOR DE GEO (GAMIFICAÇÃO)
+# 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
 # ==========================================
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
-    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto.")
+    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto com alta precisão contextual.")
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -529,47 +517,46 @@ with tab3:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
             with st.spinner("Auditando conteúdo e calculando GEO Score..."):
+                # NOVO PROMPT: MAIS INTELIGENTE, CONTEXTUAL E ANTI-ALUCINAÇÃO
                 sys_audit = """
-Você é Auditor Sênior de SEO e E‑E‑A‑T (Google + LLMs). Padrão altíssimo.
+Você é um Auditor Sênior de SEO, especialista em E-E-A-T e Search Generative Experience (SGE).
+Sua missão é avaliar o HTML fornecido com extremo rigor técnico, mas com JUSTIÇA CONTEXTUAL.
 
-REGRAS DE AUDITORIA (rigorosas):
-1) NEGÓCIO: Não exija citação de concorrentes. Não penalize a falta de comparação direta com marcas privadas.
-2) ANTI-ALUCINAÇÃO (FALHA CRÍTICA):
-   - Dados numéricos/anos sem link confiável (ex.: .gov .edu .org ou organismos internacionais) → penalização severa.
-   - Projeções futuras não suportadas → penalização.
-3) LINKS E FONTES:
-   - Todo número/estudo citado no texto deve ter <a href=""> para fonte neutra. Se houver número sem link, penalize fortemente.
-   - Links para domínios frágeis, blogs comerciais ou tracking excessivo → penalização moderada.
-4) MARCA (ESTUDO DE CASO):
-   - A marca deve aparecer no terço final, tom jornalístico/técnico, sem adjetivos promocionais (“melhor”, “perfeita”, etc.). Caso ocorra panfletagem → penalize.
-5) ESTRUTURA/SELETORES:
-   - Verifique a presença literal dos marcadores: <br>Resumo Rápido<br> e <br>Perguntas Frequentes<br>. Ausência → penalização.
-   - Cheque variedade de H2 (sem “O que é / Benefícios / Conclusão”). Títulos genéricos → penalização.
-6) QUALIDADE (INFORMATION GAIN):
-   - Penalize conteúdo enciclopédico superficial. Recompense comparações, frameworks, processos, exemplos operacionais.
-7) LINGUAGEM E CLAREZA:
-   - Penalize vícios e clichês proibidos (ex.: “No cenário atual”, “Cada vez mais”, etc.) e uso de ```/Markdown.
-8) IMAGENS:
-   - IGNORE completamente <img> e ausência de fonte de imagem (não pontue isso).
-9) CONSISTÊNCIA TÉCNICA:
-   - Penalize HTML inválido, excesso de marcação, ou ausência de <a> quando o texto cita um número/estudo.
-   - Penalize se o FAQ do HTML não estiver coerente com o conteúdo.
+REGRAS DE AUDITORIA (GUARDRAILS):
+1) JUSTIÇA CONTEXTUAL (Falsos Positivos):
+   - Nem todo texto precisa de dados. Se o texto for puramente metodológico, instrucional ou conceitual, NÃO penalize a ausência de links ou estatísticas.
+   - Só exija links (`<a href="...">`) se o texto fizer afirmações estatísticas explícitas, citar estudos de mercado ou dados concretos.
+2) DETECÇÃO DE ALUCINAÇÃO E VÍCIOS DE IA:
+   - Penalize fortemente o uso de clichês textuais que denunciam uso de IA (ex: "No cenário atual", "Cada vez mais", "É importante ressaltar", "Em resumo").
+   - Penalize afirmações grandiosas ou projeções futuras exageradas e sem lastro ("Isso vai revolucionar o amanhã").
+3) INTEGRAÇÃO DA MARCA (ESTUDO DE CASO):
+   - A marca deve ser citada de forma consultiva e metodológica. Penalize caso a citação pareça um panfleto publicitário ou venda agressiva.
+4) HIGIENE TÉCNICA E ESTRUTURA:
+   - Verifique a presença exata dos marcadores obrigatórios: `<br>Resumo Rápido<br>` e `<br>Perguntas Frequentes<br>`.
+   - Recompense a quebra de leitura com listas e citações (`<blockquote>`).
+5) IMAGENS:
+   - Ignore completamente o uso ou ausência de tags `<img>`. Não pontue nem critique isso.
 
 CÁLCULO DA NOTA (0–100):
-- Evidências e fontes (40 pts)
-- Ganho de informação e profundidade (20 pts)
-- Estrutura e legibilidade (10 pts)
-- Integração correta da marca (10 pts)
-- Sinais de confiança (transparência temporal, método, limitações) (10 pts)
-- Higiene técnica de SEO On-Page (links, marcadores, proibições) (10 pts)
-- Penalizações severas: dados sem fonte, alucinações, clichês proibidos, ausência de marcadores.
+- Precisão/Evidências contextuais (35 pts)
+- Ganho de informação real (sem superficialidade) (25 pts)
+- Higiene Técnica e Marcadores HTML (20 pts)
+- Integração natural da marca (10 pts)
+- Zero vícios de IA e clichês (10 pts)
 
-RETORNO (JSON PURO):
+RETORNO ESTRITAMENTE EM JSON PURO:
+Gere as chaves "critica" e "melhoria" obrigatóriamente como ARRAYS (listas de strings), nunca como uma string única. Exemplo de estrutura exigida:
 {
-  "score": "inteiro 0-100",
-  "veredito": "síntese franca do nível de autoridade",
-  "critica": "bullet points dos principais problemas",
-  "melhoria": "bullet points do que fazer para chegar a 100"
+  "score": 85,
+  "veredito": "Resumo de 2 linhas sobre o texto.",
+  "critica": [
+    "O parágrafo X usa o clichê 'no cenário atual'.",
+    "Faltou o marcador literal <br>Perguntas Frequentes<br>."
+  ],
+  "melhoria": [
+    "Substituir clichês por afirmações diretas na voz ativa.",
+    "Inserir os marcadores de SEO exatamente como solicitado."
+  ]
 }
 """
 
@@ -577,7 +564,8 @@ RETORNO (JSON PURO):
 Palavra-chave: {kw_auditoria}
 Texto HTML: {txt_auditoria}
 Marca Alvo: {marca_para_auditoria}
-Audite e retorne APENAS o JSON.
+
+Analise friamente e retorne APENAS o JSON válido.
 """
                 try:
                     relatorio_bruto = chamar_llm(
@@ -610,12 +598,26 @@ Audite e retorne APENAS o JSON.
 
                     st.markdown("#### Análise Profunda")
                     col_critica, col_melhoria = st.columns(2)
+                    
+                    # LOGICA DE RENDERIZAÇÃO ATUALIZADA (Arrays em vez de strings raw)
                     with col_critica:
                         with st.expander("🚨 Críticas Técnicas", expanded=True):
-                            st.markdown(dados_audit.get('critica'))
+                            criticas = dados_audit.get('critica', [])
+                            if isinstance(criticas, list):
+                                for c in criticas:
+                                    st.markdown(f"- {c}")
+                            else:
+                                st.markdown(criticas)
+                                
                     with col_melhoria:
                         with st.expander("🛠️ Plano de Melhoria", expanded=True):
-                            st.markdown(dados_audit.get('melhoria'))
+                            melhorias = dados_audit.get('melhoria', [])
+                            if isinstance(melhorias, list):
+                                for m in melhorias:
+                                    st.markdown(f"- {m}")
+                            else:
+                                st.markdown(melhorias)
+                                
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
                     with st.expander("Ver resposta bruta da IA"):
