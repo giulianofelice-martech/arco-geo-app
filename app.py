@@ -23,25 +23,26 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🤖 Arco Martech | Motor GEO v4.0 (Enterprise)")
-st.caption("Pipeline Avançado: Search -> Entity Gap -> Strategy -> Writer -> Schema -> Injector -> QA/Cluster")
+st.title("🤖 Arco Martech | Motor GEO v5.0 (Enterprise GEO)")
+st.caption("Pipeline Avançado: Search -> Reverse Query -> Entity Gap -> Strategy -> Writer -> Schema -> QA/Cluster")
 
 # ==========================================
 # MENU LATERAL (GUIA DO USUÁRIO)
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v4.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima.")
+    st.markdown("Bem-vindo à v5.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização para Motores Gerativos (GEO).")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
-        **O Pipeline Completo:**
+        **O Pipeline Completo (12/10):**
         1. **Search:** Lê Google (Serper + Jina) e Baseline LLM.
-        2. **Entity Gap:** Descobre buracos semânticos nos concorrentes.
-        3. **Strategy:** Monta briefing blindado contra alucinações.
-        4. **Writer:** Redige em HTML (com manifesto anti-robô).
-        5. **Media:** Injeta imagens (Unsplash ou Pollinations).
-        6. **QA & Cluster:** Mede originalidade, citabilidade e sugere próximos artigos.
+        2. **Reverse Query:** Gera perguntas que as IAs fazem internamente.
+        3. **Entity Gap:** Descobre buracos semânticos nos concorrentes.
+        4. **Strategy:** Monta briefing com Entity Authority Graph.
+        5. **Writer:** Redige com Answer Anchors e Blocos de Definição.
+        6. **Media:** Injeta imagens (Unsplash ou Pollinations).
+        7. **QA & Cluster:** Calcula o Citation Score e sugere próximos artigos.
         """)
         
     with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
@@ -335,8 +336,24 @@ def buscar_baseline_llm(palavra_chave):
         return f"Erro ao buscar Baseline de IA: {e}"
 
 # ==========================================================
-# NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ (PIPELINE GEO)
+# NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO
 # ==========================================================
+
+def gerar_reverse_queries(palavra_chave):
+    system = """
+    Você é um analista de comportamento de LLMs e SearchGPT.
+    Dada uma keyword principal, gere perguntas que mecanismos de IA provavelmente fazem internamente para construir respostas (Search Intent).
+    Retorne APENAS um JSON estrito:
+    {
+     "user_questions": ["pergunta1", "pergunta2"],
+     "llm_reasoning_questions": ["pergunta1", "pergunta2"],
+     "semantic_depth_questions": ["pergunta1", "pergunta2"]
+    }
+    """
+    try:
+        return chamar_llm(system, f"Keyword principal: {palavra_chave}", "openai/gpt-4o-mini", 0.1, response_format={"type": "json_object"})
+    except Exception as e:
+        return "{}"
 
 def analisar_entity_gap(contexto_google, palavra_chave):
     system = """
@@ -376,6 +393,15 @@ def gerar_cluster(palavra_chave):
     """
     return chamar_llm(system, f"Palavra-chave: {palavra_chave}", "openai/gpt-4o-mini", 0.3)
 
+def calcular_citation_score(artigo_html):
+    score = 0
+    if "<strong>Definição:" in artigo_html or "<strong>Definição" in artigo_html: score += 1
+    if "<strong>Resposta direta:" in artigo_html or "<strong>Resposta direta" in artigo_html: score += 1
+    if "Resumo Estratégico" in artigo_html or "Resumo estratégico" in artigo_html: score += 1
+    if "Segundo especialistas" in artigo_html or "Especialistas" in artigo_html: score += 1
+    if "Perguntas Frequentes" in artigo_html: score += 1
+    return f"{score}/5"
+
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
@@ -389,6 +415,8 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
+        futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave) # NOVO MÓDULO EM PARALELO
+        
         try:
             contexto_google = futuro_google.result(timeout=45)
         except concurrent.futures.TimeoutError:
@@ -397,81 +425,109 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
             baseline_ia = futuro_ia.result(timeout=45)
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
+        try:
+            reverse_queries = futuro_reverse.result(timeout=20)
+        except:
+            reverse_queries = "{}"
 
     st.write("🔍 Fase 0.5: Analisando Entity Gap e Oportunidades Semânticas...")
     entity_gap = analisar_entity_gap(contexto_google, palavra_chave)
 
     st.write("🧠 Fase 1: Planejamento Editorial (GPT-4o)...")
 
-    # MANTIDO O PROMPT ROBUSTO E ADICIONADO O ENTITY GAP NO BRIEFING
-    system_1 = """Você é um Estrategista de Conteúdo de Alta Performance para LLMs (GEO) e Editor-Chefe.
-    Sua missão é extrair dados inquestionáveis da pesquisa e estruturar um briefing que FOGE COMPLETAMENTE da estrutura genérica da internet. Artigos de alta performance não usam "O que é", "Benefícios" e "Conclusão". Eles usam ângulos narrativos fortes."""
-    
-    user_1 = f"""Palavra-chave: '{palavra_chave}'
+    system_1 = """
+Você é um Estrategista de Conteúdo GEO (LLM + Search) e Editor-Chefe orientado por E‑E‑A‑T.
+Objetivo: produzir um briefing que entregue GANHO DE INFORMAÇÃO e fuja de estruturas genéricas.
 
-Contexto extraído do Google:
+REGRAS-MESTRAS (obrigatórias):
+1) Nada de “definições básicas” ou “o que é”. O leitor já domina fundamentos. Busque ângulos originais e comparativos.
+2) Zero jargão vazio. Frases curtas, voz ativa, tom assertivo.
+3) Anti-alucinação total: só liste dados/estudos se houver URL pública verificável (preferência: domínios .gov .edu .org e organismos internacionais). Se não houver, declare explicitamente FOCO CONCEITUAL/METODOLÓGICO.
+4) Neutralidade competitiva: ignore marcas privadas concorrentes presentes no contexto bruto.
+5) Saída sempre em pt-BR.
+
+ENTREGÁVEIS DO BRIEFING:
+A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
+B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
+C) MAPA DE EVIDÊNCIAS: liste no máximo 6 bullets com pares (afirmação → URL). Inclua apenas fontes neutras e confiáveis. Se não existirem, escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.
+D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 12 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
+E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema (Ex: universidades, organizações internacionais, órgãos governamentais, centros de pesquisa, fundações educacionais). Essas entidades devem ser integradas naturalmente ao texto para reforçar autoridade semântica.
+F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como “Estudo de Aplicação Metodológica” (tom jornalístico, técnico, sem adjetivos de venda).
+"""
+
+    user_1 = f"""
+Palavra-chave: '{palavra_chave}'
+
+Contexto extraído do Google (Serper + Jina):
 {contexto_google}
 
-Contexto das IAs (LLMs):
+Baseline de IAs (consenso atual):
 {baseline_ia}
 
-GAP DE ENTIDADES (Inclua essas entidades no briefing para gerar Topical Authority):
-{entity_gap}
+Reverse Queries (Perguntas de LLMs para estruturar o texto e FAQ):
+{reverse_queries}
 
-Nossa Marca Alvo (Não cite concorrentes):
+Marca Alvo:
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios Estratégicos: {marca_info['Territorios']}
 
-Crie um briefing impecável com as seguintes diretrizes:
-1. ÂNGULO NARRATIVO ÚNICO: Qual será a espinha dorsal do texto? (Ex: Quebra de Mito, Análise de Tendência, Guia Estratégico). Escolha um que faça sentido com os Territórios da marca.
-2. ESTRUTURA ANTI-FÓRMULA (H2s): Escreva 4 sugestões de Títulos H2 que sejam provocativos ou altamente informativos. É PROIBIDO sugerir títulos clichês como "O que é", "A Importância", "Benefícios" ou "Conclusão".
-3. MAPEAMENTO DE EVIDÊNCIAS (MODERAÇÃO E RIGOR): Vasculhe o contexto. Extraia DADOS NUMÉRICOS OU ESTUDOS APENAS se tiverem uma URL neutra válida (governos, ONGs, universidades, grandes jornais). Descarte dados de marcas privadas concorrentes. Se o contexto for pobre e não tiver dados com URLs confiáveis, escreva explicitamente: "FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS."
-4. DENSIDADE SEMÂNTICA: Liste 10 termos técnicos obrigatórios baseados no Entity Gap para elevar o nível do texto.
-5. GATILHO PARA A MARCA: Como a marca e seu posicionamento vão entrar no final do texto como uma solução lógica, sem soar como panfletagem?"""
+Instruções:
+- Construa o briefing completo seguindo as REGRAS-MESTRAS e ENTREGÁVEIS.
+- Use as Reverse Queries para entender a intenção de busca profunda da IA.
+- Se o contexto carecer de dados confiáveis com URL, declare FOCO CONCEITUAL (sem inventar números).
+"""
 
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.3)
 
     st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
-    
-    # MANTIDA A TRAVA DE TITÂNIO E O MANIFESTO ANTI-ROBÔ
-    system_2 = """Você é um Especialista em SEO Semântico (GEO) e um Redator de Autoridade. Sua missão é criar um artigo denso, de altíssima qualidade para ser lido tanto por humanos (B2B/B2C) quanto por IAs (Google Gemini/ChatGPT).
 
-DIRETRIZES DE ESTILO E TOM (O MANIFESTO ANTI-ROBÔ):
-1. O texto deve ter ritmo, profundidade e elegância. 
-2. PALAVRAS E FRASES PROIBIDAS: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". Vá direto ao ponto, usando voz ativa e afirmações contundentes.
-3. FUJA DA ESTRUTURA WIKIPEDIA: Não defina termos básicos a menos que seja para quebrar um paradigma. Seu leitor já sabe o básico. Entregue 'Information Gain' (Informação Nova e Profunda).
+    system_2 = """
+Você é Especialista em SEO Semântico (GEO) e Redator de Autoridade E‑E‑A‑T.
+Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
 
-REGRAS ESTRUTURAIS OBRIGATÓRIAS DE HTML:
-4. Use EXCLUSIVAMENTE HTML puro (<h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Sem ```html ou tags <html><body>.
-5. RESUMO RÁPIDO: Logo após o parágrafo de introdução (sem título de introdução), insira um <h2> chamado "Resumo Rápido" com 3 bullet points curtos (<ul><li>).
-6. TÍTULOS (H2): Use os títulos provocativos e informativos do briefing. PROIBIDO usar "O que é", "Benefícios" ou "Conclusão".
-7. FAQ ESTRATÉGICO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas de nível avançado (em <h3>) e respostas (em <p>).
+MANIFESTO ANTI-ROBÔ E ESTILO:
+1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
+2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos/iremos", "Em resumo", "Por fim", "Pesquisas recentes revelam", "Vale ressaltar".
+3) Não explique o óbvio; entregue leitura avançada com aplicações práticas e comparações.
 
-REGRAS CRÍTICAS DE E-E-A-T (HONESTIDADE E REFERÊNCIAS):
-8. A REGRA DE OURO DA REFERÊNCIA: É mil vezes preferível um texto magistralmente escrito sem nenhum dado ou link, do que um texto com dados inventados. VOCÊ É PROIBIDO DE INVENTAR ESTATÍSTICAS, ANOS OU PESQUISAS (ex: "Censo 2026", "aumentou 114%").
-9. USO DE LINKS (href): Se o briefing lhe fornecer um dado com uma URL neutra válida, você DEVE envelopar a fonte com a tag HTML correta (ex: <a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Nome da Instituição</a>). Se o briefing disser "Foco conceitual", NÃO insira links nem invente dados. Use apenas argumentos lógicos, pedagógicos e filosóficos. Toda afirmação estatística no corpo do texto exige obrigatoriamente um link real.
-10. CEGUEIRA PARA CONCORRENTES: Ignore qualquer menção a marcas ou escolas privadas concorrentes que estejam no contexto. 
-11. POSICIONAMENTO DA MARCA ALVO: A marca alvo deve aparecer no terço final do texto, em um <h3>. Apresente-a como um "Caso de Aplicação Metodológica" ou "Abordagem Prática". Descreva a metodologia dela de forma fria, técnica e jornalística. É terminantemente proibido usar adjetivos publicitários e panfletários (ex: "é a melhor escolha", "maravilhosa", "perfeita"). Demonstre autoridade provando que ela usa a metodologia ensinada no texto."""
+GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS (MAXIMIZAR CITABILIDADE DA IA):
+O artigo deve maximizar a citabilidade por motores de IA. Inclua obrigatoriamente:
+4) BLOCO DE DEFINIÇÃO: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>
+5) ANSWER ANCHOR E RESPOSTA DIRETA: Logo após a introdução, crie um bloco: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>
+6) RESUMO ESTRATÉGICO: Insira **exatamente** a linha de marcador `<br>Resumo Estratégico<br>` e crie um <ul> com 3 insights centrais do artigo.
+7) FRAMEWORK ESTRUTURADO: Transforme uma das seções em um Framework prático. Ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>
+8) MICRO BLOCO DE CITAÇÃO E AUTORIDADE: Sempre inclua pelo menos um bloco usando frases de autoridade (Ex: <p><strong>Segundo especialistas:</strong> ...</p> ou "Estudos pedagógicos demonstram que...").
 
-    user_2 = f"""Palavra-chave: '{palavra_chave}'
-    CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}. Não projete o futuro se não tiver provas.
-    
-O QUE A CONCORRÊNCIA DIZ HOJE (CONTEXTO BRUTO PARA FACT-CHECKING):
+REGRAS HTML E E-E-A-T (CRÍTICAS):
+9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Não use Markdown nem ```. Não insira <img>.
+10) Links (Evidências): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva o nome da instituição com <a href="URL_EXATA">Nome da Instituição</a>. Proibido inventar números ou anos futuros.
+11) **FAQ INTELIGENTE**: No terço final, insira **exatamente** a linha `<br>Perguntas Frequentes<br>`. Use as perguntas geradas pelo Reverse Query Engine fornecidas no briefing para criar a seção FAQ (escolha as 3 mais relevantes).
+12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística.
+13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+"""
+
+    user_2 = f"""
+Palavra-chave: '{palavra_chave}'
+
+CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
+O QUE A CONCORRÊNCIA DIZ HOJE (para fact-checking e contraste):
 {contexto_google}
-{baseline_ia}
 
-SEU BRIEFING EDITORIAL (SIGA O ÂNGULO NARRATIVO E A ESTRUTURA DAQUI E CUBRA O ENTITY GAP):
+SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 {analise}
 
-A MARCA ALVO (O CLIENTE):
-Nome da Marca: {marca_alvo} (Remova o @)
-Posicionamento e Essência: {marca_info['Posicionamento']}
-Territórios da Marca (Incorpore isso na essência do texto): {marca_info['Territorios']}
-Tom de Voz Exigido: {marca_info['TomDeVoz']}
-Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
-O que NÃO fazer (Regras Negativas): {marca_info['RegrasNegativas']}
+MARCA ALVO (Cliente):
+- Nome: {marca_alvo} (remova o '@' no texto)
+- Posicionamento: {marca_info['Posicionamento']}
+- Territórios: {marca_info['Territorios']}
+- Tom de Voz: {marca_info['TomDeVoz']}
+- Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
+- O que NÃO fazer: {marca_info['RegrasNegativas']}
 
-Escreva o artigo final em HTML seguindo o manifesto anti-robô e as regras de E-E-A-T."""
+Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
+<br>Resumo Estratégico<br>
+<br>Perguntas Frequentes<br>
+"""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
@@ -479,14 +535,28 @@ Escreva o artigo final em HTML seguindo o manifesto anti-robô e as regras de E-
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
 
-    system_3 = f"""Você é especialista em SEO técnico e Schema.org. 
-Você DEVE retornar APENAS UM JSON puro, válido e compatível com este schema:
+    system_3 = f"""
+Você é especialista em SEO técnico e Schema.org.
+Retorne EXCLUSIVAMENTE **um JSON** puro, válido e COMPATÍVEL com este schema Pydantic:
 {json.dumps(schema_gerado, ensure_ascii=False)}
 
-REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE as perguntas (<h3>) e respostas (<p>) que estão fisicamente escritas na seção 'Perguntas Frequentes' do HTML. NUNCA invente perguntas que não existam no texto.
-NÃO envolva a resposta em markdown (como ```json)."""
-    
+REGRAS CRÍTICAS:
+1) NUNCA inclua markdown, comentários, ```json ou campos extras.
+2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
+3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
+4) 'dicas_imagens': exatamente 2 strings em inglês, descritivas e específicas (ex.: "bilingual classroom observation, natural light, candid, corporate", "school finance dashboard, clean ui, overhead"). Apenas substantivos/estilos; sem marcas.
+5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+   - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
+   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
+
+ANTI-CLOAKING E VALIDAÇÃO:
+- Proibido inventar perguntas/respostas que não existam no HTML.
+- Proibido inventar dados/anos/links no JSON.
+- Saída deve conter apenas as chaves: title, meta_description, dicas_imagens, schema_faq.
+"""
+
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
+
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
     # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
@@ -494,13 +564,11 @@ NÃO envolva a resposta em markdown (como ```json)."""
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
         termos_busca = meta_dicas.get('dicas_imagens', [])
-        
         UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
         
         if isinstance(termos_busca, list):
-            for i, termo in enumerate(termos_busca[:2]): 
+            for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
-                
                 if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
@@ -510,30 +578,30 @@ NÃO envolva a resposta em markdown (como ```json)."""
                             if "results" in dados_img and len(dados_img["results"]) > 0:
                                 img_url = dados_img["results"][0]["urls"]["regular"]
                                 alt_text = dados_img["results"][0]["alt_description"] or termo
-                                img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-                    except:
-                        pass 
+                                img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+                    except Exception:
+                        pass
                 
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
-                    img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
-
+                    img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+                
                 if img_html_pronta:
-                    alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
+                    alvo_replace = '<br>Resumo Estratégico<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
-                    
     except Exception as e:
         print(f"Erro silencioso ao injetar imagem: {e}")
 
-    # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (ORIGINALIDADE, CITABILIDADE E CLUSTER)
-    st.write("📊 Fase 4: Calculando Originalidade, Citabilidade e Cluster...")
+    # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO E SCORE GEO
+    st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
     score_originalidade = avaliar_originalidade(artigo_html, contexto_google)
     citabilidade = prever_citabilidade_llm(artigo_html, palavra_chave)
     cluster = gerar_cluster(palavra_chave)
+    citation_score = calcular_citation_score(artigo_html)
 
-    return (artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, score_originalidade, citabilidade, cluster)
+    return (artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, score_originalidade, citabilidade, cluster, reverse_queries, citation_score)
 
 
 def publicar_wp(titulo, conteudo_html, meta_dict):
@@ -558,7 +626,6 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
-
 tab1, tab2, tab3 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO"])
 
 with tab2:
@@ -584,7 +651,7 @@ with tab1:
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            with st.status("🤖 Processando Motor GEO v4...", expanded=True) as status:
+            with st.status("🤖 Processando Motor GEO v5...", expanded=True) as status:
                 try:
                     (
                         artigo_html, 
@@ -594,7 +661,9 @@ with tab1:
                         entity_gap, 
                         score_originalidade, 
                         citabilidade, 
-                        cluster
+                        cluster,
+                        reverse_queries,
+                        citation_score
                     ) = executar_geracao_completa(palavra_chave_input, marca_selecionada)
                     
                     st.session_state['art_gerado'] = artigo_html
@@ -605,6 +674,8 @@ with tab1:
                     st.session_state['score_originalidade'] = score_originalidade
                     st.session_state['citabilidade'] = citabilidade
                     st.session_state['cluster'] = cluster
+                    st.session_state['reverse_queries'] = reverse_queries
+                    st.session_state['citation_score'] = citation_score
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
@@ -615,6 +686,11 @@ with tab1:
     if 'art_gerado' in st.session_state:
         with col2:
             st.success("Tudo pronto! Seu código HTML está preparado para o WordPress.")
+            
+            kpi_c1, kpi_c2 = st.columns(2)
+            with kpi_c1:
+                st.metric("🎯 LLM Citation Score", st.session_state.get('citation_score', 'N/A'), help="Mede a presença de blocos GEO (Definição, Resposta Direta, FAQ, Autoridade e Resumo)")
+                
             try:
                 string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
                 meta_validada = MetadadosArtigo.model_validate_json(string_json_limpa)
@@ -627,18 +703,21 @@ with tab1:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
 
-            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4 COM GET SEGURO)
+            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4/V5 COM GET SEGURO)
+            with st.expander("🔄 Reverse Query Engine (Search Intent)", expanded=False):
+                st.json(st.session_state.get('reverse_queries', '{}'))
+                
             with st.expander("🧩 Entity Gap Analysis (Oportunidades Semânticas)", expanded=False):
-                st.markdown(st.session_state.get('entity_gap', '⚠️ Dados de Entity Gap não encontrados. Por favor, gere um novo artigo.'))
+                st.markdown(st.session_state.get('entity_gap', '⚠️ Dados não encontrados.'))
             
             with st.expander("🧠 Previsão de Citabilidade por IAs (LLMs)", expanded=False):
-                st.markdown(st.session_state.get('citabilidade', '⚠️ Dados de Citabilidade não encontrados. Por favor, gere um novo artigo.'))
+                st.markdown(st.session_state.get('citabilidade', '⚠️ Dados não encontrados.'))
                 
             with st.expander("🥇 Originalidade do Artigo (vs Concorrentes)", expanded=False):
-                st.markdown(st.session_state.get('score_originalidade', '⚠️ Dados de Originalidade não encontrados. Por favor, gere um novo artigo.'))
+                st.markdown(st.session_state.get('score_originalidade', '⚠️ Dados não encontrados.'))
                 
             with st.expander("🗺️ Sugestão de Content Cluster (Topical Authority)", expanded=False):
-                st.markdown(st.session_state.get('cluster', '⚠️ Dados de Cluster não encontrados. Por favor, gere um novo artigo.'))
+                st.markdown(st.session_state.get('cluster', '⚠️ Dados não encontrados.'))
 
             with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?", expanded=False):
                 st.markdown("**Google (Serper + Jina Reader):**")
@@ -669,6 +748,7 @@ with tab1:
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
     st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais.")
+    
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -715,43 +795,68 @@ with tab3:
                 
                 try:
                     relatorio_bruto = chamar_llm(
-                        sys_audit,
-                        usr_audit,
-                        model="openai/gpt-4o",
-                        temperature=0.1,
+                        sys_audit, 
+                        usr_audit, 
+                        model="openai/gpt-4o", 
+                        temperature=0.1, 
                         response_format={"type": "json_object"}
                     )
+                    
                     relatorio_limpo = relatorio_bruto.strip().removeprefix('```json').removesuffix('```').strip()
                     dados_audit = json.loads(relatorio_limpo)
+                    
                     score = int(dados_audit.get("score", 0))
-
+                    
                     st.markdown("---")
                     st.markdown("### 📊 Relatório de Performance GEO")
                     kpi1, kpi2 = st.columns([1, 3])
+                    
                     with kpi1:
                         cor_delta = "normal" if score >= 80 else "inverse"
                         st.metric("🎯 GEO Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
+                    
                     with kpi2:
                         st.markdown("**Progresso E-E-A-T:**")
                         st.progress(score / 100)
-
-                    if score >= 90:
-                        st.success(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
-                    elif score >= 75:
-                        st.info(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
-                    else:
-                        st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        
+                        if score >= 90:
+                            st.success(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        elif score >= 75:
+                            st.info(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        else:
+                            st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
 
                     st.markdown("#### Análise do Conteúdo Gerado")
                     col_critica, col_melhoria = st.columns(2)
                     
                     with col_critica:
                         with st.expander("🚨 Críticas Técnicas ao Texto", expanded=True):
-                            st.markdown(dados_audit.get('critica', 'Sem críticas.'))
-                            
+                            criticas = dados_audit.get('critica', [])
+                            if isinstance(criticas, list) and criticas:
+                                for c in criticas:
+                                    st.markdown(f"- {c}")
+                            else:
+                                st.markdown("✅ **Nenhuma crítica identificada. Texto cirúrgico!**")
+                                
                     with col_melhoria:
                         with st.expander("🛠️ Correções para este Artigo", expanded=True):
-                            st.markdown(dados_audit.get('melhoria', 'Sem melhorias.'))
+                            melhorias = dados_audit.get('melhoria', [])
+                            if isinstance(melhorias, list) and melhorias:
+                                for m in melhorias:
+                                    st.markdown(f"- {m}")
+                            else:
+                                st.markdown("✅ **Sem sugestões de melhoria pendentes.**")
+
+                    st.markdown("---")
+                    st.markdown("### ⚙️ Engenharia de Prompt (Melhoria Contínua)")
+                    with st.expander("💡 Sugestões de Novos Guardrails Estruturais", expanded=True):
+                        sugestoes_dev = dados_audit.get('sugestoes_dev', [])
+                        if isinstance(sugestoes_dev, list) and len(sugestoes_dev) > 0:
+                            for s in sugestoes_dev:
+                                st.info(f"🤖 **Insight para o Prompt:** {s}")
+                            st.caption("Dica: Copie os insights acima que fizerem sentido e cole no prompt do Claude no código principal.")
+                        else:
+                            st.success("✨ **O prompt atual está performando de forma excelente para este nicho. Nenhuma sugestão gerada.**")
 
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
