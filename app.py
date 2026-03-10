@@ -359,7 +359,7 @@ REGRAS CRÍTICAS:
 4) 'dicas_imagens': exatamente 2 strings em inglês, descritivas e específicas (ex.: "bilingual classroom observation, natural light, candid, corporate", "school finance dashboard, clean ui, overhead"). Apenas substantivos/estilos; sem marcas.
 5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
-   - Se não houver FAQ no HTML, retorne 'schema_faq': {}.
+   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}.
 
 ANTI-CLOAKING E VALIDAÇÃO:
 - Proibido inventar perguntas/respostas que não existam no HTML.
