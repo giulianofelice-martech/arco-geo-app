@@ -14,9 +14,16 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
-st.set_page_config(page_title="Arco Martech  Motor GEO", page_icon="🚀", layout="wide")
-st.markdown(""" """, unsafe_allow_html=True)
-st.title("🤖 Arco Martech  Motor GEO v3.0 (Integração WP)")
+st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
+
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #007bff; color: white; font-weight: bold; }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🤖 Arco Martech | Motor GEO v3.0 (Integração WP)")
 st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas de LLMs e Google.")
 
 # ==========================================
@@ -25,51 +32,48 @@ st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
     st.markdown("Bem-vindo à v3.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima.")
+    
+    with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
+        st.markdown("""
+        **O Fluxo da Inteligência Artificial:**
+        1. **Busca (Serper + Jina):** Lê o conteúdo real do Top 3 do Google.
+        2. **Auditoria (GPT-4o-mini):** Analisa o que as IAs já respondem hoje.
+        3. **Estratégia (GPT-4o):** Identifica lacunas e cria o briefing de superação.
+        4. **Redação (Claude 3.7 Sonnet):** Escreve o código HTML blindado.
+        5. **Mídia (Unsplash API):** Injeta fotos corporativas reais.
+        
+        ⏱️ *Tempo médio: 45 a 60 segundos.*
 
-with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
-    st.markdown(
-        r"""
-**O Fluxo da Inteligência Artificial:**
-1. **Busca (Serper + Jina):** Lê o conteúdo real do Top 3 do Google.
-2. **Auditoria (GPT-4o-mini):** Analisa o que as IAs já respondem hoje.
-3. **Estratégia (GPT-4o):** Identifica lacunas e cria o briefing de superação.
-4. **Redação (Claude 3.7 Sonnet):** Escreve o código HTML blindado.
-5. **Mídia (Unsplash API):** Injeta fotos corporativas reais.
-
-⏱️ *Tempo médio: 45 a 60 segundos.*
-
-**💡 Como enriquecer sua Palavra-Chave:**
-Termos simples funcionam perfeitamente, mas adicionar contexto gera resultados cirúrgicos:
-- 📝 **Direto:** `inadimplência escolar`
-- 🎯 **Estratégico:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais de escolas de médio porte)`
-- 📝 **Direto:** `ensino bilíngue`
-- 🎯 **Estratégico:** `impactos cognitivos do bilinguismo (usar referências de neurociência e focar na retenção de matrículas)`
-"""
-    )
-
-with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
-    st.markdown(
-        r"""
-O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto:
-- **Posicionamento:** Atualize sempre que houver uma nova campanha, diferencial de mercado ou lançamento de produto.
-- **Regras Positivas:** É aqui que você embasa a autoridade. Ex: *"Sempre mencione que usamos a Metodologia X, cite que nossa solução atende 500 escolas e lembre que ganhamos o Prêmio Y em 2025."*
-- **Regras Negativas:** Proíba vícios ou menções de risco. Ex: *"Nunca use a palavra 'aluno' (use 'estudante'), nunca critique o sistema público de ensino."*
-"""
-    )
-
-with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
-    st.markdown(
-        r"""
-Um simulador do algoritmo do Google, movido pelo **GPT-4o**.
-
-**O que é E-E-A-T?** É a sigla do Google para **Experiência, Especialidade, Autoridade e Confiabilidade**. IAs e motores de busca priorizam textos que provam E-E-A-T (trazendo dados reais, fontes nominais, metodologias validadas e tom especialista), punindo conteúdos genéricos.
-
-**Como usar a ferramenta:** Além de auditar os textos recém-gerados, você pode colar o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor sob a ótica do E-E-A-T.
-"""
-    )
-
-st.divider()
-st.caption("⚙️ **Stack:** Python  Streamlit  Pydantic\n🧠 **LLMs:** GPT-4o  Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev  Jina AI  Unsplash")
+        **💡 Como enriquecer sua Palavra-Chave:**
+        Termos simples funcionam perfeitamente, mas adicionar contexto gera resultados cirúrgicos:
+        - 📝 **Direto:** `inadimplência escolar`
+        - 🎯 **Estratégico:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais de escolas de médio porte)`
+        
+        - 📝 **Direto:** `ensino bilíngue`
+        - 🎯 **Estratégico:** `impactos cognitivos do bilinguismo (usar referências de neurociência e focar na retenção de matrículas)`
+        """)
+        
+    with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
+        st.markdown("""
+        O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto:
+        - **Posicionamento:** Atualize sempre que houver uma nova campanha, diferencial de mercado ou lançamento de produto.
+        - **Regras Positivas:** É aqui que você embasa a autoridade. Ex: *"Sempre mencione que usamos a Metodologia X, cite que nossa solução atende 500 escolas e lembre que ganhamos o Prêmio Y em 2025."*
+        - **Regras Negativas:** Proíba vícios ou menções de risco. Ex: *"Nunca use a palavra 'aluno' (use 'estudante'), nunca critique o sistema público de ensino."*
+        """)
+        
+    with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
+        st.markdown("""
+        Um simulador do algoritmo do Google, movido pelo **GPT-4o**.
+        
+        **O que é E-E-A-T?**
+        É a sigla do Google para **Experiência, Especialidade, Autoridade e Confiabilidade**. IAs e motores de busca priorizam textos que provam E-E-A-T (trazendo dados reais, fontes nominais, metodologias validadas e tom especialista), punindo conteúdos genéricos.
+        
+        **Como usar a ferramenta:**
+        Além de auditar os textos recém-gerados, você pode colar o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor sob a ótica do E-E-A-T.
+        """)
+        
+    st.divider()
+    st.caption("⚙️ **Stack:** Python | Streamlit | Pydantic\n🧠 **LLMs:** GPT-4o | Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev | Jina AI | Unsplash")
 
 # ==========================================
 # ESTRUTURAS PYDANTIC
