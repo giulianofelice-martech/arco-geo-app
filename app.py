@@ -526,7 +526,7 @@ B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e comp
 C) MAPA DE EVIDÊNCIAS: liste no máximo 6 bullets com pares (afirmação → URL). Inclua apenas fontes neutras e confiáveis. Se não existirem, escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.
 D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 12 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema (Ex: universidades, organizações internacionais, órgãos governamentais, centros de pesquisa, fundações educacionais). Essas entidades devem ser integradas naturalmente ao texto para reforçar autoridade semântica.
-F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como “Estudo de Aplicação Metodológica” (tom jornalístico, técnico, sem adjetivos de venda).
+F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático” (focando na sua solução específica, seja ela pedagógica, financeira, tecnológica ou de gestão, de forma descritiva e sem adjetivos de venda).
 """
 
     user_1 = f"""
@@ -570,16 +570,16 @@ O artigo deve maximizar a citabilidade por motores de IA. Inclua obrigatoriament
 5) ANSWER ANCHOR E RESPOSTA DIRETA: Logo após a introdução, crie um bloco: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>
 6) RESUMO ESTRATÉGICO: Insira **exatamente** a linha de marcador `<br>Resumo Estratégico<br>` e crie um <ul> com 3 insights centrais do artigo.
 7) FRAMEWORK ESTRUTURADO: Transforme uma das seções em um Framework prático. Ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>
-8) MICRO BLOCO DE CITAÇÃO E AUTORIDADE: Sempre inclua pelo menos um bloco usando frases de autoridade (Ex: <p><strong>Segundo especialistas:</strong> ...</p> ou "Estudos pedagógicos demonstram que...").
+8) MICRO BLOCO DE CITAÇÃO E AUTORIDADE: Sempre inclua pelo menos um bloco usando frases de autoridade (Ex: <p><strong>Segundo especialistas:</strong> ...</p> ou "Estudos do setor demonstram que...").
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Não use Markdown nem ```. Não insira <img>.
 10) Links (Evidências): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva o nome da instituição com <a href="URL_EXATA">Nome da Instituição</a>. Proibido inventar números ou anos futuros.
 11) **FAQ INTELIGENTE**: No terço final, insira **exatamente** a linha `<br>Perguntas Frequentes<br>`. Use as perguntas geradas pelo Reverse Query Engine fornecidas no briefing para criar a seção FAQ (escolha as 3 mais relevantes).
-12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística.
+12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução, tecnologia ou metodologia da marca de forma técnica e jornalística.
 13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Authority Graph ao longo do texto para aumentar a cobertura semântica.
-15) VETO ABSOLUTO A CONCORRENTES (RISCO DE FALHA CRÍTICA): É EXPRESSAMENTE PROIBIDO citar, listar ou fazer referência a qualquer empresa, escola ou sistema de ensino (exemplos: Poliedro, Bernoulli, Anglo, Objetivo, Maple Bear, etc). Se o contexto do Google os mencionar, APAGUE-OS da sua memória. A ÚNICA marca comercial permitida em todo o texto é a Marca Alvo.
+15) VETO ABSOLUTO A CONCORRENTES (RISCO DE FALHA CRÍTICA): É EXPRESSAMENTE PROIBIDO citar, listar ou fazer referência a qualquer empresa, produto ou solução concorrente do mesmo nicho da marca alvo (seja nicho pedagógico, financeiro, literário ou software). Se o contexto do Google mencionar concorrentes diretos ou indiretos, APAGUE-OS da sua memória. A ÚNICA marca comercial permitida em todo o texto é a Marca Alvo.
 """
 
     user_2 = f"""
@@ -886,12 +886,12 @@ with tab3:
                 sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas justo e contextual.
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
-                1. VETO A CONCORRENTES (FALHA CRÍTICA): O texto é ESTRITAMENTE PROIBIDO de citar marcas, escolas ou sistemas (exemplos: Poliedro, Bernoulli, Anglo, Maple Bear, Objetivo, etc). Se o texto contiver o nome de QUALQUER outra marca privada educacional que não seja a marca alvo, REDUZA A NOTA PARA 50 imediatamente e critique isso duramente. (Nota: não penalize o texto pela "falta" de comparações externas).
+                1. VETO A CONCORRENTES (FALHA CRÍTICA): O texto é ESTRITAMENTE PROIBIDO de citar marcas, produtos ou empresas concorrentes do mesmo segmento da marca alvo. Se o texto contiver o nome de QUALQUER outra marca privada concorrente que não seja a marca alvo, REDUZA A NOTA PARA 50 imediatamente e critique isso duramente. (Nota: não penalize o texto pela "falta" de comparações externas).
                 2. ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114%") ou alucinar datas futuras irreais, DESTRUA a nota.
                 3. CONDICIONAL DE BACKLINKS VS. TEXTO CONCEITUAL: 
                    - Se o texto citar DADOS NUMÉRICOS EXATOS ou ESTUDOS NOMINAIS, eles DEVEM obrigatoriamente ter um link (<a href>). Penalize fortemente se faltar.
                    - PORÉM, se o texto NÃO tiver números exatos e for puramente CONCEITUAL/FILOSÓFICO, É ESTRITAMENTE PROIBIDO penalizá-lo por "falta de links" ou "falta de dados". Avalie apenas a coerência, a lógica e a densidade teórica.
-                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas". Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua solução, tecnologia, produto ou metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas". Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA tire pontos se a imagem não tiver fonte ou parecer genérica.
                 6. EXTENSÃO E CLICHÊS: Textos densos e extensos são o objetivo. SÓ penalize se houver jargões robóticos de IA ("Em resumo", "É inegável que", "No cenário atual").
                 
