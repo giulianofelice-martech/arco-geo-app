@@ -682,22 +682,29 @@ with tab3:
         else:
             with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
                 
-                # MANTIDO O PROMPT RESTRITIVO E PERFEITO QUE VOCÊ APROVOU PARA O MONITOR
-                sys_audit = """Você é um auditor sênior de SEO e E-E-A-T do Google. Seu padrão é altíssimo.
+                sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas justo e contextual.
                 
-                REGRAS DE AUDITORIA:
-                1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações com marcas do mesmo nicho.
-                2. PENALIZAÇÃO DE ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link ou alucinar datas futuras, a nota deve ser muito baixa.
-                3. PENALIZAÇÃO DE BACKLINKS: Verifique as tags <a href>. Todos os dados numéricos e estudos DEVEM ter links para fontes. Se houver dado sem link, penalize fortemente.
-                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca deve ser mencionada com um tom jornalístico, técnico e imparcial. Se a linguagem for panfletária, cheia de adjetivos bajuladores (ex: "a melhor escolha", "maravilhosa"), puna o E-E-A-T.
-                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NÃO tire pontos se a imagem não tiver fonte ou parecer genérica. Avalie apenas a autoridade do TEXTO.
+                REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
+                1. CONCORRENTES: A regra de negócio PROÍBE citar concorrentes. Nunca penalize o texto por falta de comparações externas com outras marcas do mesmo nicho.
+                2. ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114%") ou alucinar datas futuras irreais, DESTRUA a nota.
+                3. CONDICIONAL DE BACKLINKS VS. TEXTO CONCEITUAL: 
+                   - Se o texto citar DADOS NUMÉRICOS EXATOS ou ESTUDOS NOMINAIS, eles DEVEM obrigatoriamente ter um link (<a href>). Penalize fortemente se faltar.
+                   - PORÉM, se o texto NÃO tiver números exatos e for puramente CONCEITUAL/FILOSÓFICO, É ESTRITAMENTE PROIBIDO penalizá-lo por "falta de links", "falta de dados externos" ou "falta de embasamento". Avalie apenas a coerência, a lógica e a densidade teórica.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas" ou "comparações objetivas" adicionais. Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores (ex: "a melhor escolha", "solução perfeita").
+                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA tire pontos se a imagem não tiver fonte ou parecer genérica.
+                6. EXTENSÃO E CLICHÊS: Textos densos e extensos são o objetivo. SÓ penalize se houver jargões robóticos de IA ("Em resumo", "É inegável que", "No cenário atual").
+                
+                DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
+                - PERMISSÃO DE NOTA MÁXIMA: Se o texto seguiu as regras, não alucinou, fez uma integração técnica da marca e respeitou sua natureza (com ou sem dados), VOCÊ DEVE DAR NOTA 100.
+                - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev". Não invente defeitos genéricos só para dar nota 90.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
                   "score": "Um número inteiro de 0 a 100",
-                  "veredito": "Resumo de autoridade e apontamento crítico",
-                  "critica": "Pontos fracos técnicos (em bullet points)",
-                  "melhoria": "O que adicionar para bater a nota 100 (em bullet points)"
+                  "veredito": "Resumo de autoridade e apontamento crítico. Direto ao ponto.",
+                  "critica": ["Ponto fraco 1", "Ponto fraco 2"],
+                  "melhoria": ["Como arrumar 1", "Como arrumar 2"],
+                  "sugestoes_dev": ["Insight para o prompt do Redator (se houver falha de padrão)"]
                 }"""
                 
                 usr_audit = f"""Palavra-chave: {kw_auditoria}
