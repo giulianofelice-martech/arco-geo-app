@@ -1,5 +1,9 @@
 # .streamlit/config.toml
 [theme]
+
+# Trava o tema base sempre no modo claro
+base = "light"
+
 # A cor principal da Arco (pode ser o Laranja ou Azul deles. Aqui usei o Laranja de destaque)
 primaryColor = "#F05D23" 
 
