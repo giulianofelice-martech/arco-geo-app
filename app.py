@@ -636,16 +636,17 @@ Objetivo: produzir um briefing que entregue GANHO DE INFORMAÇÃO e fuja de estr
 REGRAS-MESTRAS (obrigatórias):
 1) Nada de “definições básicas” ou “o que é”. O leitor já domina fundamentos. Busque ângulos originais e comparativos.
 2) Zero jargão vazio. Frases curtas, voz ativa, tom assertivo.
-3) Anti-alucinação total: só liste dados/estudos se houver URL pública verificável (preferência: domínios .gov .edu .org e organismos internacionais). Se não houver, declare explicitamente FOCO CONCEITUAL/METODOLÓGICO.
+3) Anti-alucinação total: só liste dados/estudos se houver URL pública verificável.
 4) Neutralidade competitiva: ignore marcas privadas concorrentes presentes no contexto bruto.
 5) Saída sempre em pt-BR.
 
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz-2026). É ESTRITAMENTE PROIBIDO usar URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto só tiver homepages genéricas ou falta de fontes claras, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 8 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
-E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema (Ex: universidades, organizações internacionais, órgãos governamentais, centros de pesquisa, fundações educacionais). Essas entidades devem ser integradas naturalmente ao texto para reforçar autoridade semântica.
-F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático” (focando na sua solução específica, seja ela pedagógica, financeira, tecnológica ou de gestão, de forma descritiva e sem adjetivos de venda).
+C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz). É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto só tiver homepages genéricas, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS.
+D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 10 "entidades" (jargões, metodologias) de alto valor presentes no Top 3. 
+E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
+F) GATILHO DE MARCA: descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático” (focando na sua solução específica, de forma descritiva e sem adjetivos de venda).
 """
 
     user_1 = f"""
@@ -680,25 +681,24 @@ Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
 
 MANIFESTO ANTI-ROBÔ E ESTILO:
 1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
-2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos/iremos", "Em resumo", "Por fim", "Pesquisas recentes revelam", "Vale ressaltar".
-3) Não explique o óbvio; entregue leitura avançada com aplicações práticas e comparações.
+2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Em resumo", "Por fim". 
+3) Não explique o óbvio; entregue leitura avançada.
 
-GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS (MAXIMIZAR CITABILIDADE DA IA):
-O artigo deve maximizar a citabilidade por motores de IA. Inclua obrigatoriamente:
+GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS:
 4) BLOCO DE DEFINIÇÃO: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>
-5) ANSWER ANCHOR E RESPOSTA DIRETA: Logo após a introdução, crie um bloco: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>
-6) RESUMO ESTRATÉGICO: Insira **exatamente** a linha de marcador `<br>Resumo Estratégico<br>` e crie um <ul> com 3 insights centrais do artigo.
-7) FRAMEWORK ESTRUTURADO: Transforme uma das seções em um Framework prático. Ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>
-8) MICRO BLOCO DE CITAÇÃO E AUTORIDADE: Sempre inclua pelo menos um bloco usando frases de autoridade (Ex: <p><strong>Segundo especialistas:</strong> ...</p> ou "Estudos do setor demonstram que...").
+5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>
+6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 insights centrais.
+7) FRAMEWORK ESTRUTURADO: Transforme uma seção em Framework. Ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>
+8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p>
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
-9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Não use Markdown nem ```. Não insira <img>.
-10) LINKS (EVIDÊNCIAS DE ALTA QUALIDADE): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva a fonte com <a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Nome do Estudo/Instituição</a>. MODERAÇÃO: Use no MÁXIMO 2 a 3 links no texto inteiro. É terminantemente PROIBIDO linkar para homepages genéricas (ex: site.com.br/ ou .org/). Se a URL recebida for uma homepage genérica, NÃO FAÇA O LINK. Use apenas Deep Links (links profundos para artigos específicos). Proibido inventar números.
-11) **FAQ INTELIGENTE**: No terço final, insira **exatamente** a linha `<br>Perguntas Frequentes<br>`. Use as perguntas geradas pelo Reverse Query Engine fornecidas no briefing para criar a seção FAQ (escolha as 3 mais relevantes).
-12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução, tecnologia ou metodologia da marca de forma técnica e jornalística.
-13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
-14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Authority Graph ao longo do texto para aumentar a cobertura semântica.
-15) VETO ABSOLUTO A CONCORRENTES (RISCO DE FALHA CRÍTICA): É EXPRESSAMENTE PROIBIDO citar, listar ou fazer referência a qualquer empresa, produto ou solução concorrente do mesmo nicho da marca alvo (seja nicho pedagógico, financeiro, literário ou software). Se o contexto do Google mencionar concorrentes diretos ou indiretos, APAGUE-OS da sua memória. A ÚNICA marca comercial permitida em todo o texto é a Marca Alvo.
+9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
+10) LINKS EVIDENCIAIS (MODERAÇÃO EXTREMA): Use no MÁXIMO 2 a 3 links no texto inteiro. É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas (ex: .gov/ ou .org/). Se a URL recebida no briefing for uma homepage genérica, NÃO CRIE O LINK e NÃO USE O DADO NUMÉRICO. Só crie a tag <a> se for um Deep Link (artigo exato). 
+11) **FAQ INTELIGENTE**: No terço final, insira `<br>Perguntas Frequentes<br>`. Use as Reverse Queries do briefing (escolha as 3 mais relevantes).
+12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica.
+13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Graph.
+15) VETO ABSOLUTO A CONCORRENTES: É EXPRESSAMENTE PROIBIDO citar qualquer empresa/sistema concorrente do mesmo nicho da marca alvo.
 """
 
     user_2 = f"""
