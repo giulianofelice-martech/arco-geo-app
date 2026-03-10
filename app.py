@@ -23,53 +23,35 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🤖 Arco Martech | Motor GEO v3.0 (Integração WP)")
-st.caption("Crie artigos técnicos em HTML estruturado para dominar as respostas de LLMs e Google.")
+st.title("🤖 Arco Martech | Motor GEO v4.0 (Enterprise)")
+st.caption("Pipeline Avançado: Search -> Entity Gap -> Strategy -> Writer -> Schema -> Injector -> QA/Cluster")
 
 # ==========================================
 # MENU LATERAL (GUIA DO USUÁRIO)
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v3.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima.")
+    st.markdown("Bem-vindo à v4.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima.")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
-        **O Fluxo da Inteligência Artificial:**
-        1. **Busca (Serper + Jina):** Lê o conteúdo real do Top 3 do Google.
-        2. **Auditoria (GPT-4o-mini):** Analisa o que as IAs já respondem hoje.
-        3. **Estratégia (GPT-4o):** Identifica lacunas e cria o briefing de superação.
-        4. **Redação (Claude 3.7 Sonnet):** Escreve o código HTML blindado.
-        5. **Mídia (Unsplash API):** Injeta fotos corporativas reais.
-        
-        ⏱️ *Tempo médio: 45 a 60 segundos.*
-
-        **💡 Como enriquecer sua Palavra-Chave:**
-        Termos simples funcionam perfeitamente, mas adicionar contexto gera resultados cirúrgicos:
-        - 📝 **Direto:** `inadimplência escolar`
-        - 🎯 **Estratégico:** `como reduzir a inadimplência escolar (focar em soluções amigáveis para renegociação com os pais de escolas de médio porte)`
-        
-        - 📝 **Direto:** `ensino bilíngue`
-        - 🎯 **Estratégico:** `impactos cognitivos do bilinguismo (usar referências de neurociência e focar na retenção de matrículas)`
+        **O Pipeline Completo:**
+        1. **Search:** Lê Google (Serper + Jina) e Baseline LLM.
+        2. **Entity Gap:** Descobre buracos semânticos nos concorrentes.
+        3. **Strategy:** Monta briefing blindado contra alucinações.
+        4. **Writer:** Redige em HTML (com manifesto anti-robô).
+        5. **Media:** Injeta imagens (Unsplash ou Pollinations).
+        6. **QA & Cluster:** Mede originalidade, citabilidade e sugere próximos artigos.
         """)
         
     with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
         st.markdown("""
-        O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto:
-        - **Posicionamento:** Atualize sempre que houver uma nova campanha, diferencial de mercado ou lançamento de produto.
-        - **Regras Positivas:** É aqui que você embasa a autoridade. Ex: *"Sempre mencione que usamos a Metodologia X, cite que nossa solução atende 500 escolas e lembre que ganhamos o Prêmio Y em 2025."*
-        - **Regras Negativas:** Proíba vícios ou menções de risco. Ex: *"Nunca use a palavra 'aluno' (use 'estudante'), nunca critique o sistema público de ensino."*
+        O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto.
         """)
         
     with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
         st.markdown("""
-        Um simulador do algoritmo do Google, movido pelo **GPT-4o**.
-        
-        **O que é E-E-A-T?**
-        É a sigla do Google para **Experiência, Especialidade, Autoridade e Confiabilidade**. IAs e motores de busca priorizam textos que provam E-E-A-T (trazendo dados reais, fontes nominais, metodologias validadas e tom especialista), punindo conteúdos genéricos.
-        
-        **Como usar a ferramenta:**
-        Além de auditar os textos recém-gerados, você pode colar o HTML de artigos antigos do seu blog aqui para descobrir exatamente o que falta para eles ranquearem melhor sob a ótica do E-E-A-T.
+        Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Avalia a densidade de entidades e a veracidade de dados.
         """)
         
     st.divider()
@@ -95,7 +77,7 @@ class MetadadosArtigo(BaseModel):
         return v[:147] + "..." if len(v) > 150 else v
 
 # ==========================================
-# 2. BRANDBOOK EMBUTIDO (CONSOLIDADO E ENRIQUECIDO COM O ARQUIVO CSV)
+# 2. BRANDBOOK EMBUTIDO 
 # ==========================================
 if 'brandbook_df' not in st.session_state:
     dados_iniciais = [
@@ -128,7 +110,7 @@ if 'brandbook_df' not in st.session_state:
         },
         {
             "Marca": "@sistemapositivodeensino",
-            "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil. | Com uma abordagem inspiradora e humana, somos referência em soluções que guiam nossas escolas parceiras a evoluírem na missão de ensinar, transformando positivamente a vida dos brasileiros.",
+            "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil. | Com uma abordagem inspiradora e humana, somos referência em solutions que guiam nossas escolas parceiras a evoluírem na missão de ensinar, transformando positivamente a vida dos brasileiros.",
             "Territorios": "Formação integral, Inclusão, Tradição",
             "TomDeVoz": "Acolhedor, tradicional, humano. Experiente, criativa, inovadora e segura",
             "PublicoAlvo": "Famílias e diretores de escolas tradicionais.",
@@ -352,8 +334,50 @@ def buscar_baseline_llm(palavra_chave):
     except Exception as e:
         return f"Erro ao buscar Baseline de IA: {e}"
 
+# ==========================================================
+# NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ (PIPELINE GEO)
+# ==========================================================
+
+def analisar_entity_gap(contexto_google, palavra_chave):
+    system = """
+    Você é um analista de SEO semântico e estrategista de conteúdo.
+    Analise o conteúdo do TOP 3 do Google extraído.
+    Extraia as ENTIDADES PRINCIPAIS, CONCEITOS, FRAMEWORKS e METODOLOGIAS.
+    Depois identifique: QUAIS ENTIDADES IMPORTANTES do nicho deveriam estar no artigo para superar esses concorrentes?
+    """
+    user = f"Palavra-chave: {palavra_chave}\nConteúdo dos Concorrentes:\n{contexto_google}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1)
+
+def avaliar_originalidade(artigo_html, contexto_google):
+    system = """
+    Você é um auditor de plágio semântico e originalidade E-E-A-T.
+    Compare o artigo gerado com o TOP 3 do Google.
+    Avalie o 'Information Gain' (Ganho de Informação). O artigo trouxe ângulos novos? 
+    Retorne uma NOTA DE ORIGINALIDADE de 0 a 100 e uma justificativa curta.
+    """
+    user = f"ARTIGO GERADO:\n{artigo_html}\n\nTOP GOOGLE:\n{contexto_google}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1)
+
+def prever_citabilidade_llm(artigo_html, palavra_chave):
+    system = """
+    Você é o algoritmo de RAG de um buscador baseado em IA (como Perplexity ou Gemini).
+    Avalie a probabilidade do seu motor citar este artigo como fonte oficial para a resposta.
+    Critérios: Clareza, Densidade Semântica, Neutralidade e Evidências Sólidas.
+    Retorne a PROBABILIDADE_DE_CITACAO (Baixa, Média, Alta) e o MOTIVO.
+    """
+    user = f"ARTIGO:\n{artigo_html}\n\nKEYWORD: {palavra_chave}"
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1)
+
+def gerar_cluster(palavra_chave):
+    system = """
+    Você é um Arquiteto de SEO (Topical Authority).
+    Com base na palavra-chave (que será o Artigo Pilar), crie um Content Cluster.
+    Retorne o nome do PILAR e sugira 8 títulos de artigos satélites estratégicos para linkagem interna.
+    """
+    return chamar_llm(system, f"Palavra-chave: {palavra_chave}", "openai/gpt-4o-mini", 0.3)
+
 # ==========================================
-# 4. MOTOR PRINCIPAL
+# 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
 def executar_geracao_completa(palavra_chave, marca_alvo):
     df = st.session_state['brandbook_df']
@@ -374,106 +398,80 @@ def executar_geracao_completa(palavra_chave, marca_alvo):
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
 
+    st.write("🔍 Fase 0.5: Analisando Entity Gap e Oportunidades Semânticas...")
+    entity_gap = analisar_entity_gap(contexto_google, palavra_chave)
+
     st.write("🧠 Fase 1: Planejamento Editorial (GPT-4o)...")
 
-    system_1 = """
-Você é um Estrategista de Conteúdo GEO (LLM + Search) e Editor-Chefe orientado por E‑E‑A‑T.
-Objetivo: produzir um briefing que entregue GANHO DE INFORMAÇÃO e fuja de estruturas genéricas.
+    # MANTIDO O PROMPT ROBUSTO E ADICIONADO O ENTITY GAP NO BRIEFING
+    system_1 = """Você é um Estrategista de Conteúdo de Alta Performance para LLMs (GEO) e Editor-Chefe.
+    Sua missão é extrair dados inquestionáveis da pesquisa e estruturar um briefing que FOGE COMPLETAMENTE da estrutura genérica da internet. Artigos de alta performance não usam "O que é", "Benefícios" e "Conclusão". Eles usam ângulos narrativos fortes."""
+    
+    user_1 = f"""Palavra-chave: '{palavra_chave}'
 
-REGRAS-MESTRAS (obrigatórias):
-1) Nada de “definições básicas” ou “o que é”. O leitor já domina fundamentos. Busque ângulos originais e comparativos.
-2) Zero jargão vazio. Frases curtas, voz ativa, tom assertivo.
-3) Anti-alucinação total: só liste dados/estudos se houver URL pública verificável (preferência: domínios .gov .edu .org e organismos internacionais). Se não houver, declare explicitamente FOCO CONCEITUAL/METODOLÓGICO.
-4) Neutralidade competitiva: ignore marcas privadas concorrentes presentes no contexto bruto.
-5) Saída sempre em pt-BR.
-
-ENTREGÁVEIS DO BRIEFING:
-A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
-B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS: liste no máximo 6 bullets com pares (afirmação → URL). Inclua apenas fontes neutras e confiáveis. Se não existirem, escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.
-D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 12 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
-E) REGRA CRÍTICA DE BRAND SAFETY: Filtre e exclua sumariamente qualquer termo que viole as "Regras Negativas" da marca alvo ou que não faça sentido com o núcleo da palavra-chave. Oriente o redator a integrar essas palavras de forma orgânica e contextualizada ao longo do texto, priorizando a naturalidade (não é obrigatório usar todas se o contexto rejeitar).
-F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como “Estudo de Aplicação Metodológica” (tom jornalístico, técnico, sem adjetivos de venda).
-"""
-
-    user_1 = f"""
-Palavra-chave: '{palavra_chave}'
-
-Contexto extraído do Google (Serper + Jina):
+Contexto extraído do Google:
 {contexto_google}
 
-Baseline de IAs (consenso atual):
+Contexto das IAs (LLMs):
 {baseline_ia}
 
-Marca Alvo:
+GAP DE ENTIDADES (Inclua essas entidades no briefing para gerar Topical Authority):
+{entity_gap}
+
+Nossa Marca Alvo (Não cite concorrentes):
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios Estratégicos: {marca_info['Territorios']}
 
-Instruções:
-- Construa o briefing completo seguindo as REGRAS-MESTRAS e ENTREGÁVEIS.
-- Se o contexto carecer de dados confiáveis com URL, declare FOCO CONCEITUAL (sem inventar números).
-"""
+Crie um briefing impecável com as seguintes diretrizes:
+1. ÂNGULO NARRATIVO ÚNICO: Qual será a espinha dorsal do texto? (Ex: Quebra de Mito, Análise de Tendência, Guia Estratégico). Escolha um que faça sentido com os Territórios da marca.
+2. ESTRUTURA ANTI-FÓRMULA (H2s): Escreva 4 sugestões de Títulos H2 que sejam provocativos ou altamente informativos. É PROIBIDO sugerir títulos clichês como "O que é", "A Importância", "Benefícios" ou "Conclusão".
+3. MAPEAMENTO DE EVIDÊNCIAS (MODERAÇÃO E RIGOR): Vasculhe o contexto. Extraia DADOS NUMÉRICOS OU ESTUDOS APENAS se tiverem uma URL neutra válida (governos, ONGs, universidades, grandes jornais). Descarte dados de marcas privadas concorrentes. Se o contexto for pobre e não tiver dados com URLs confiáveis, escreva explicitamente: "FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS."
+4. DENSIDADE SEMÂNTICA: Liste 10 termos técnicos obrigatórios baseados no Entity Gap para elevar o nível do texto.
+5. GATILHO PARA A MARCA: Como a marca e seu posicionamento vão entrar no final do texto como uma solução lógica, sem soar como panfletagem?"""
 
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.3)
 
     st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
+    
+    # MANTIDA A TRAVA DE TITÂNIO E O MANIFESTO ANTI-ROBÔ
+    system_2 = """Você é um Especialista em SEO Semântico (GEO) e um Redator de Autoridade. Sua missão é criar um artigo denso, de altíssima qualidade para ser lido tanto por humanos (B2B/B2C) quanto por IAs (Google Gemini/ChatGPT).
 
-    system_2 = """
-Você é Especialista em SEO Semântico (GEO) e Redator de Autoridade E‑E‑A‑T.
-Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
+DIRETRIZES DE ESTILO E TOM (O MANIFESTO ANTI-ROBÔ):
+1. O texto deve ter ritmo, profundidade e elegância. 
+2. PALAVRAS E FRASES PROIBIDAS: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". Vá direto ao ponto, usando voz ativa e afirmações contundentes.
+3. FUJA DA ESTRUTURA WIKIPEDIA: Não defina termos básicos a menos que seja para quebrar um paradigma. Seu leitor já sabe o básico. Entregue 'Information Gain' (Informação Nova e Profunda).
 
-MANIFESTO ANTI-ROBÔ — ESTILO:
-1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
-2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos/iremos", "Em resumo", "Por fim", "Pesquisas recentes revelam", "Vale ressaltar".
-3) Não explique o óbvio; entregue leitura avançada com aplicações práticas e comparações.
+REGRAS ESTRUTURAIS OBRIGATÓRIAS DE HTML:
+4. Use EXCLUSIVAMENTE HTML puro (<h2>, <h3>, <p>, <ul>, <li>, <strong>, <table>, <a>). Sem ```html ou tags <html><body>.
+5. RESUMO RÁPIDO: Logo após o parágrafo de introdução (sem título de introdução), insira um <h2> chamado "Resumo Rápido" com 3 bullet points curtos (<ul><li>).
+6. TÍTULOS (H2): Use os títulos provocativos e informativos do briefing. PROIBIDO usar "O que é", "Benefícios" ou "Conclusão".
+7. FAQ ESTRATÉGICO: Crie um <h2> chamado "Perguntas Frequentes" com 3 perguntas de nível avançado (em <h3>) e respostas (em <p>).
 
-REGRAS HTML (OBRIGATÓRIAS):
-4) Use exclusivamente HTML puro: <h1>, <h2>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>, <code>, <pre>, <a>.
-   - Não use Markdown nem ```.
-   - Não insira <img> (as imagens serão injetadas pelo sistema).
-5) Após o parágrafo inicial, **insira exatamente** a linha de marcador:
-   <br>Resumo Rápido<br>
-   Em seguida, um <ul> com 3 <li> objetivos (insights práticos do artigo). Sempre que apresentar uma lista <ul>, certifique-se de não usar ponto final nos <li> caso sejam frases curtas.
-6) TÍTULOS (H2): use integralmente os H2 sugeridos no briefing (sem “O que é”, “Benefícios”, “Conclusão”).
-7) **FAQ avançado**: no terço final, insira **exatamente** a linha:
-   <br>Perguntas Frequentes<br>
-   Em seguida, crie 3 perguntas e respostas de nível avançado em HTML:
-   - Cada pergunta em <p><strong>...</strong></p>
-   - Cada resposta em <p>...</p>
-8) Links (Evidências): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva o nome da instituição com <a href="URL_EXATA">Nome da Instituição</a>.
-   - Proibido inventar números, estatísticas não verificáveis, anos, ou fontes. Se o briefing disser FOCO CONCEITUAL, **não** insira links nem estatísticas, limite-se a analisar os métodos e processos. Toda afirmação estatística no corpo do texto (como porcentagens populacionais ou taxas de crescimento) exige obrigatoriamente um link para uma fonte neutra.
-9) Cegueira a concorrentes: ignore marcas privadas de terceiros encontradas no contexto.
-10) Marca Alvo (terço final): inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística, sem adjetivos promocionais.
+REGRAS CRÍTICAS DE E-E-A-T (HONESTIDADE E REFERÊNCIAS):
+8. A REGRA DE OURO DA REFERÊNCIA: É mil vezes preferível um texto magistralmente escrito sem nenhum dado ou link, do que um texto com dados inventados. VOCÊ É PROIBIDO DE INVENTAR ESTATÍSTICAS, ANOS OU PESQUISAS (ex: "Censo 2026", "aumentou 114%").
+9. USO DE LINKS (href): Se o briefing lhe fornecer um dado com uma URL neutra válida, você DEVE envelopar a fonte com a tag HTML correta (ex: <a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Nome da Instituição</a>). Se o briefing disser "Foco conceitual", NÃO insira links nem invente dados. Use apenas argumentos lógicos, pedagógicos e filosóficos. Toda afirmação estatística no corpo do texto exige obrigatoriamente um link real.
+10. CEGUEIRA PARA CONCORRENTES: Ignore qualquer menção a marcas ou escolas privadas concorrentes que estejam no contexto. 
+11. POSICIONAMENTO DA MARCA ALVO: A marca alvo deve aparecer no terço final do texto, em um <h3>. Apresente-a como um "Caso de Aplicação Metodológica" ou "Abordagem Prática". Descreva a metodologia dela de forma fria, técnica e jornalística. É terminantemente proibido usar adjetivos publicitários e panfletários (ex: "é a melhor escolha", "maravilhosa", "perfeita"). Demonstre autoridade provando que ela usa a metodologia ensinada no texto."""
 
-QUALIDADE E COBERTURA:
-11) Tamanho orientativo: 1.000–1.600 palavras; maximize ganho de informação e exemplos aplicáveis.
-12) Integre os termos da DENSIDADE SEMÂNTICA naturalmente no corpo (não liste).
-13) REGRA DE OURO (SAÍDA PURA): Entregue EXCLUSIVAMENTE o código HTML. NÃO adicione nenhum comentário, introdução, conclusão, "AI:" ou autoavaliação do seu próprio trabalho no final do texto. O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
-"""
-
-    user_2 = f"""
-Palavra-chave: '{palavra_chave}'
-
-CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-O QUE A CONCORRÊNCIA DIZ HOJE (para fact-checking e contraste):
+    user_2 = f"""Palavra-chave: '{palavra_chave}'
+    CONTEXTO TEMPORAL: Hoje é o ano de {ano_atual}. Não projete o futuro se não tiver provas.
+    
+O QUE A CONCORRÊNCIA DIZ HOJE (CONTEXTO BRUTO PARA FACT-CHECKING):
 {contexto_google}
 {baseline_ia}
 
-SEU BRIEFING (siga à risca o ângulo e os H2 propostos):
+SEU BRIEFING EDITORIAL (SIGA O ÂNGULO NARRATIVO E A ESTRUTURA DAQUI E CUBRA O ENTITY GAP):
 {analise}
 
-MARCA ALVO (Cliente):
-- Nome: {marca_alvo} (remova o '@' no texto)
-- Posicionamento: {marca_info['Posicionamento']}
-- Territórios: {marca_info['Territorios']}
-- Tom de Voz: {marca_info['TomDeVoz']}
-- Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
-- O que NÃO fazer: {marca_info['RegrasNegativas']}
+A MARCA ALVO (O CLIENTE):
+Nome da Marca: {marca_alvo} (Remova o @)
+Posicionamento e Essência: {marca_info['Posicionamento']}
+Territórios da Marca (Incorpore isso na essência do texto): {marca_info['Territorios']}
+Tom de Voz Exigido: {marca_info['TomDeVoz']}
+Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
+O que NÃO fazer (Regras Negativas): {marca_info['RegrasNegativas']}
 
-Escreva o ARTIGO FINAL em HTML conforme as regras, preservando exatamente os marcadores:
-<br>Resumo Rápido<br>
-<br>Perguntas Frequentes<br>
-"""
+Escreva o artigo final em HTML seguindo o manifesto anti-robô e as regras de E-E-A-T."""
 
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
@@ -481,39 +479,28 @@ Escreva o ARTIGO FINAL em HTML conforme as regras, preservando exatamente os mar
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
 
-    # NOTA: Aqui está a correção vital do {{}}
-    system_3 = f"""
-Você é especialista em SEO técnico e Schema.org.
-Retorne EXCLUSIVAMENTE **um JSON** puro, válido e COMPATÍVEL com este schema Pydantic:
+    system_3 = f"""Você é especialista em SEO técnico e Schema.org. 
+Você DEVE retornar APENAS UM JSON puro, válido e compatível com este schema:
 {json.dumps(schema_gerado, ensure_ascii=False)}
 
-REGRAS CRÍTICAS:
-1) NUNCA inclua markdown, comentários, ```json ou campos extras.
-2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
-3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
-4) 'dicas_imagens': exatamente 2 strings em inglês, descritivas e específicas (ex.: "bilingual classroom observation, natural light, candid, corporate", "school finance dashboard, clean ui, overhead"). Apenas substantivos/estilos; sem marcas.
-5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
-   - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
-   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
-
-ANTI-CLOAKING E VALIDAÇÃO:
-- Proibido inventar perguntas/respostas que não existam no HTML.
-- Proibido inventar dados/anos/links no JSON.
-- Saída deve conter apenas as chaves: title, meta_description, dicas_imagens, schema_faq.
-"""
-
+REGRA CRÍTICA ANTI-CLOAKING: Para o schema_faq, você DEVE extrair EXATAMENTE as perguntas (<h3>) e respostas (<p>) que estão fisicamente escritas na seção 'Perguntas Frequentes' do HTML. NUNCA invente perguntas que não existam no texto.
+NÃO envolva a resposta em markdown (como ```json)."""
+    
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
-
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
+    # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
         termos_busca = meta_dicas.get('dicas_imagens', [])
+        
         UNSPLASH_KEY = st.secrets.get("UNSPLASH_KEY", "")
+        
         if isinstance(termos_busca, list):
-            for i, termo in enumerate(termos_busca[:2]):
+            for i, termo in enumerate(termos_busca[:2]): 
                 img_html_pronta = ""
+                
                 if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
@@ -523,21 +510,30 @@ ANTI-CLOAKING E VALIDAÇÃO:
                             if "results" in dados_img and len(dados_img["results"]) > 0:
                                 img_url = dados_img["results"][0]["urls"]["regular"]
                                 alt_text = dados_img["results"][0]["alt_description"] or termo
-                                img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" loading="lazy" decoding="async" />'
-                    except Exception:
-                        pass
+                                img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+                    except:
+                        pass 
+                
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
-                    img_html_pronta = f'<img src="{base_poll}{p_codificado}" alt="{clean_termo}" loading="lazy" decoding="async" />'
+                    img_html_pronta = f'<figure style="margin: 25px 0;"><img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></figure>'
+
                 if img_html_pronta:
-                    alvo_replace = '<br>Resumo Rápido<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
+                    alvo_replace = '<h2>Resumo Rápido</h2>' if i == 0 else '<h2>Perguntas Frequentes</h2>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
+                    
     except Exception as e:
         print(f"Erro silencioso ao injetar imagem: {e}")
 
-    return artigo_html, dicas_json, contexto_google, baseline_ia
+    # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (ORIGINALIDADE, CITABILIDADE E CLUSTER)
+    st.write("📊 Fase 4: Calculando Originalidade, Citabilidade e Cluster...")
+    score_originalidade = avaliar_originalidade(artigo_html, contexto_google)
+    citabilidade = prever_citabilidade_llm(artigo_html, palavra_chave)
+    cluster = gerar_cluster(palavra_chave)
+
+    return (artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, score_originalidade, citabilidade, cluster)
 
 
 def publicar_wp(titulo, conteudo_html, meta_dict):
@@ -545,7 +541,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
     meta_desc = meta_dict.get("meta_description", "")
     schema_faq = meta_dict.get("schema_faq", {})
     if schema_faq:
-        script_schema = f'\n\n<script type="application/ld+json">{json.dumps(schema_faq, ensure_ascii=False)}</script>'
+        script_schema = f'\n\n<script type="application/ld+json">\n{json.dumps(schema_faq, ensure_ascii=False, indent=2)}\n</script>'
         conteudo_html += script_schema
     payload = {
         "title": titulo,
@@ -562,6 +558,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
+
 tab1, tab2, tab3 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO"])
 
 with tab2:
@@ -587,13 +584,27 @@ with tab1:
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            with st.status("🤖 Processando Motor GEO v3...", expanded=True) as status:
+            with st.status("🤖 Processando Motor GEO v4...", expanded=True) as status:
                 try:
-                    artigo_html, dicas_json, google_data, ia_data = executar_geracao_completa(palavra_chave_input, marca_selecionada)
+                    (
+                        artigo_html, 
+                        dicas_json, 
+                        google_data, 
+                        ia_data, 
+                        entity_gap, 
+                        score_originalidade, 
+                        citabilidade, 
+                        cluster
+                    ) = executar_geracao_completa(palavra_chave_input, marca_selecionada)
+                    
                     st.session_state['art_gerado'] = artigo_html
                     st.session_state['metas_geradas'] = dicas_json
                     st.session_state['google_ctx'] = google_data
                     st.session_state['ia_ctx'] = ia_data
+                    st.session_state['entity_gap'] = entity_gap
+                    st.session_state['score_originalidade'] = score_originalidade
+                    st.session_state['citabilidade'] = citabilidade
+                    st.session_state['cluster'] = cluster
                     st.session_state['marca_atual'] = marca_selecionada
                     st.session_state['keyword_atual'] = palavra_chave_input
                     status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
@@ -616,16 +627,30 @@ with tab1:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
 
-            with st.expander("🕵️‍♂️ Auditoria: O que ranqueia hoje (Google & IA)?", expanded=False):
+            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V4)
+            with st.expander("🧩 Entity Gap Analysis (Oportunidades Semânticas)", expanded=False):
+                st.markdown(st.session_state['entity_gap'])
+            
+            with st.expander("🧠 Previsão de Citabilidade por IAs (LLMs)", expanded=False):
+                st.markdown(st.session_state['citabilidade'])
+                
+            with st.expander("🥇 Originalidade do Artigo (vs Concorrentes)", expanded=False):
+                st.markdown(st.session_state['score_originalidade'])
+                
+            with st.expander("🗺️ Sugestão de Content Cluster (Topical Authority)", expanded=False):
+                st.markdown(st.session_state['cluster'])
+
+            with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?", expanded=False):
                 st.markdown("**Google (Serper + Jina Reader):**")
                 st.info(st.session_state['google_ctx'])
-                st.markdown("**IA (Perplexity):**")
+                st.markdown("**IA (Perplexity Baseline):**")
                 st.info(st.session_state['ia_ctx'])
 
             with st.expander("👁️ Pré-visualização do HTML", expanded=False):
                 st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
-                st.markdown("### 📋 Código HTML:")
-                st.code(st.session_state['art_gerado'], language="html")
+                
+            st.markdown("### 📋 Código HTML:")
+            st.code(st.session_state['art_gerado'], language="html")
 
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
                 st.json(meta)
@@ -639,11 +664,11 @@ with tab1:
                                 st.error(f"❌ Falha ao enviar: {res.text}")
 
 # ==========================================
-# 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
+# 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
 # ==========================================
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
-    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais de Prompt Engineering.")
+    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights estruturais.")
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -657,41 +682,30 @@ with tab3:
         else:
             with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
                 
-               # NOVO PROMPT: VETOS ABSOLUTOS E PERMISSÃO PARA NOTA 100
-                sys_audit = """
-Você é um Auditor Sênior de SEO (E-E-A-T) e um Especialista em Engenharia de Prompt.
-Sua missão é auditar o HTML gerado com PROFUNDIDADE E CONTEXTO. 
-
-REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS - PENALIDADE SE DESCUMPRIR):
-1) CEGUEIRA PARA IMAGENS (VETO): É ESTRITAMENTE PROIBIDO mencionar, avaliar, criticar ou sugerir melhorias para as tags <img>, seus atributos 'alt' ou sua relevância. Ignore-as 100%.
-2) EXTENSÃO E DENSIDADE: Textos longos, densos (1000+ palavras) e aprofundados são o OBJETIVO deste sistema para SEO E-E-A-T. NUNCA critique o texto por ser "extenso", "denso" ou sugira que seja "mais conciso".
-3) RESUMO RÁPIDO: Se o marcador exato `<br>Resumo Rápido<br>` estiver no HTML seguido de uma lista `<ul>`, a exigência de resumo inicial está 100% CUMPRIDA. Não peça para "adicionar um resumo".
-4) SENSIBILIDADE AO CONTEXTO: Termos técnicos do nicho educacional (ex: "contexto educacional", "metodologia", "processo") são adequados. SÓ critique clichês robóticos reais de IA (ex: "Em resumo", "É inegável que").
-5) INTEGRAÇÃO DA MARCA ALVO: Avalie a integração da marca informada. Descrever metodologias ou diferenciais dela de forma descritiva e técnica É EXCELENTE (Estudo de Caso). Só penalize se houver tom agressivo de venda ("compre agora", "somos a melhor").
-6) VERIFICAÇÃO DE FONTES: Exija links `<a href>` APENAS se o texto citar uma estatística exata (ex: "43% das pessoas"). Textos puramente conceituais NÃO precisam de links.
-
-DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
-- PERMISSÃO DE NOTA MÁXIMA: Se o texto cumpriu os H2, tem os marcadores literais (Resumo e FAQ), não tem clichês robóticos e fez a integração técnica da marca corretamente, VOCÊ DEVE DAR NOTA 100.
-- Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev". Não invente defeitos genéricos.
-- Se houver erro real, aponte. Sugestões de DEV devem ser comportamentais ("Mude o tom de voz em X"), NUNCA mandando "banir a palavra Y".
-
-RETORNO ESTRITAMENTE EM JSON PURO:
-{
-  "score": 0-100,
-  "veredito": "Análise de 2 linhas focada nas peculiaridades reais deste artigo.",
-  "critica": [],
-  "melhoria": [],
-  "sugestoes_dev": [] 
-}
-"""
-
-                usr_audit = f"""
-Palavra-chave: {kw_auditoria}
-Texto HTML: {txt_auditoria}
-Marca Alvo: {marca_para_auditoria}
-
-Avalie as nuances DESSA palavra-chave e marca específicas. Se o texto estiver perfeito tecnicamente, dê nota 100 e retorne as listas vazias. Retorne APENAS o JSON.
-"""
+                # MANTIDO O PROMPT RESTRITIVO E PERFEITO QUE VOCÊ APROVOU PARA O MONITOR
+                sys_audit = """Você é um auditor sênior de SEO e E-E-A-T do Google. Seu padrão é altíssimo.
+                
+                REGRAS DE AUDITORIA:
+                1. A REGRA DE NEGÓCIO PROÍBE CITAR CONCORRENTES. Não penalize o texto por falta de comparações com marcas do mesmo nicho.
+                2. PENALIZAÇÃO DE ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link ou alucinar datas futuras, a nota deve ser muito baixa.
+                3. PENALIZAÇÃO DE BACKLINKS: Verifique as tags <a href>. Todos os dados numéricos e estudos DEVEM ter links para fontes. Se houver dado sem link, penalize fortemente.
+                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca deve ser mencionada com um tom jornalístico, técnico e imparcial. Se a linguagem for panfletária, cheia de adjetivos bajuladores (ex: "a melhor escolha", "maravilhosa"), puna o E-E-A-T.
+                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NÃO tire pontos se a imagem não tiver fonte ou parecer genérica. Avalie apenas a autoridade do TEXTO.
+                
+                VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
+                {
+                  "score": "Um número inteiro de 0 a 100",
+                  "veredito": "Resumo de autoridade e apontamento crítico",
+                  "critica": "Pontos fracos técnicos (em bullet points)",
+                  "melhoria": "O que adicionar para bater a nota 100 (em bullet points)"
+                }"""
+                
+                usr_audit = f"""Palavra-chave: {kw_auditoria}
+                Texto HTML: {txt_auditoria}
+                Marca Alvo: {marca_para_auditoria}
+                
+                Audite e retorne APENAS o JSON."""
+                
                 try:
                     relatorio_bruto = chamar_llm(
                         sys_audit,
@@ -726,33 +740,11 @@ Avalie as nuances DESSA palavra-chave e marca específicas. Se o texto estiver p
                     
                     with col_critica:
                         with st.expander("🚨 Críticas Técnicas ao Texto", expanded=True):
-                            criticas = dados_audit.get('critica', [])
-                            if isinstance(criticas, list) and criticas:
-                                for c in criticas:
-                                    st.markdown(f"- {c}")
-                            else:
-                                st.markdown("✅ **Nenhuma crítica identificada. Texto cirúrgico!**")
-                                
+                            st.markdown(dados_audit.get('critica', 'Sem críticas.'))
+                            
                     with col_melhoria:
                         with st.expander("🛠️ Correções para este Artigo", expanded=True):
-                            melhorias = dados_audit.get('melhoria', [])
-                            if isinstance(melhorias, list) and melhorias:
-                                for m in melhorias:
-                                    st.markdown(f"- {m}")
-                            else:
-                                st.markdown("✅ **Sem sugestões de melhoria pendentes.**")
-
-                    # NOVA SEÇÃO: FEEDBACK PARA OS DEVS (TRATAMENTO DE ARRAY VAZIO)
-                    st.markdown("---")
-                    st.markdown("### ⚙️ Engenharia de Prompt (Melhoria Contínua)")
-                    with st.expander("💡 Sugestões de Novos Guardrails Estruturais", expanded=True):
-                        sugestoes_dev = dados_audit.get('sugestoes_dev', [])
-                        if isinstance(sugestoes_dev, list) and len(sugestoes_dev) > 0:
-                            for s in sugestoes_dev:
-                                st.info(f"🤖 **Insight para o Prompt:** {s}")
-                            st.caption("Dica: Copie os insights acima que fizerem sentido e cole no `system_2` (prompt do Claude) no código principal.")
-                        else:
-                            st.success("✨ **O prompt atual está performando de forma excelente para este nicho. Nenhuma sugestão estrutural gerada neste ciclo.**")
+                            st.markdown(dados_audit.get('melhoria', 'Sem melhorias.'))
 
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
