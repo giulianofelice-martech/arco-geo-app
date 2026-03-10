@@ -17,26 +17,122 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
 
 st.markdown("""
+    st.markdown("""
     <style>
-    .main { background-color: #f5f7f9; }
-    .stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #007bff; color: white; font-weight: bold; }
-    </style>
-    """, unsafe_allow_html=True)
+    /* Importando as fontes do site da Arco */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
-st.title("🤖 Arco Martech | Motor GEO v6.0 (AI Search Native)")
+    /* Forçando a tipografia global */
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
+    h1, h2, h3 {
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 700 !important;
+        color: #111827 !important;
+        letter-spacing: -0.02em;
+    }
+
+    /* Botões Primários (Estilo Botão Header Arco) */
+    .stButton > button {
+        background-color: #111827 !important; /* Fundo escuro elegante */
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        border: none !important;
+        height: 3.2em;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .stButton > button:hover {
+        background-color: #374151 !important; /* Cinza mais claro no hover */
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        color: #FFFFFF !important;
+    }
+
+    /* Estilo das Abas (Tabs) */
+    [data-baseweb="tab-list"] {
+        gap: 24px;
+        border-bottom: 2px solid #E5E7EB;
+    }
+    [data-baseweb="tab"] {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        color: #6B7280;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    [data-baseweb="tab"][aria-selected="true"] {
+        color: #F05D23 !important; /* Laranja Arco ativo */
+        border-bottom-color: #F05D23 !important;
+    }
+
+    /* Melhorando os Expanders (Para parecerem Cards) */
+    .streamlit-expanderHeader {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600 !important;
+        color: #111827;
+        background-color: #FFFFFF;
+        border-radius: 8px;
+    }
+    
+    div[data-testid="stExpander"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        margin-bottom: 16px;
+    }
+
+    /* Customizando o Tooltip (Pipeline Ultimate) */
+    .pipeline-container {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9em; 
+        color: #6B7280; 
+        margin-bottom: 2rem;
+        background-color: #FFFFFF;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #E5E7EB;
+    }
+    .pipeline-step {
+        cursor: help; 
+        color: #374151;
+        font-weight: 500;
+        border-bottom: 1px dashed #D1D5DB;
+        transition: color 0.2s;
+    }
+    .pipeline-step:hover {
+        color: #F05D23;
+        border-bottom-color: #F05D23;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Trazendo a logo da Arco do próprio CDN deles
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    st.image("https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg", width=120)
+
+st.markdown("<h1 style='margin-top: -20px;'>Motor GEO v6.0 <span style='color: #F05D23; font-size: 0.6em;'>AI Search Native</span></h1>", unsafe_allow_html=True)
 
 # SUBSTITUIÇÃO DO ST.CAPTION PELO HTML COM TOOLTIPS
 pipeline_html = """
-<div style="font-size: 0.9em; color: #6c757d; margin-bottom: 1.5rem;">
-    <strong>Pipeline Ultimate:</strong> 
-    <span title="Busca dados reais no Google e IAs concorrentes. (Tech: Serper.dev, Jina AI, GPT-4o-mini)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Search</span> ➔ 
-    <span title="Descobre as perguntas exatas que as IAs fazem nos bastidores. (Tech: GPT-4o-mini)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Reverse Query</span> ➔ 
-    <span title="Mapeia palavras e conceitos de autoridade para o nicho. (Tech: GPT-4o)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Entity Graph</span> ➔ 
-    <span title="Redação estratégica focada em retenção e E-E-A-T. (Tech: Claude 3.7 Sonnet)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Writer</span> ➔ 
-    <span title="Criação do código oculto (JSON-LD) que o Google adora. (Tech: Claude 3.7 Sonnet)" style="cursor: help; border-bottom: 1px dotted #6c757d;">Schema</span> ➔ 
-    <span title="Mede se o texto cobriu todos os tópicos exigidos pelo buscador." style="cursor: help; border-bottom: 1px dotted #6c757d;">Coverage</span> ➔ 
-    <span title="Simula se IAs como Perplexity e SearchGPT usariam seu texto como fonte oficial." style="cursor: help; border-bottom: 1px dotted #6c757d;">RAG Simulation</span> ➔ 
-    <span title="Blinda o texto para garantir que a IA cite a sua marca, e não a concorrência." style="cursor: help; border-bottom: 1px dotted #6c757d;">Hijacking Defense</span>
+<div class="pipeline-container">
+    <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">Pipeline Ultimate:</strong> 
+    <span title="Busca dados reais no Google e IAs concorrentes. (Tech: Serper.dev, Jina AI, GPT-4o-mini)" class="pipeline-step">Search</span> ➔ 
+    <span title="Descobre as perguntas exatas que as IAs fazem nos bastidores. (Tech: GPT-4o-mini)" class="pipeline-step">Reverse Query</span> ➔ 
+    <span title="Mapeia palavras e conceitos de autoridade para o nicho. (Tech: GPT-4o)" class="pipeline-step">Entity Graph</span> ➔ 
+    <span title="Redação estratégica focada em retenção e E-E-A-T. (Tech: Claude 3.7 Sonnet)" class="pipeline-step">Writer</span> ➔ 
+    <span title="Criação do código oculto (JSON-LD) que o Google adora. (Tech: Claude 3.7 Sonnet)" class="pipeline-step">Schema</span> ➔ 
+    <span title="Mede se o texto cobriu todos os tópicos exigidos pelo buscador." class="pipeline-step">Coverage</span> ➔ 
+    <span title="Simula se IAs como Perplexity e SearchGPT usariam seu texto como fonte oficial." class="pipeline-step">RAG Simulation</span> ➔ 
+    <span title="Blinda o texto para garantir que a IA cite a sua marca, e não a concorrência." class="pipeline-step">Hijacking Defense</span>
 </div>
 """
 st.markdown(pipeline_html, unsafe_allow_html=True)
