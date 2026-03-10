@@ -310,6 +310,7 @@ REGRAS HTML (OBRIGATÓRIAS):
 QUALIDADE E COBERTURA:
 11) Tamanho orientativo: 1.000–1.600 palavras; maximize ganho de informação e exemplos aplicáveis.
 12) Integre os termos da DENSIDADE SEMÂNTICA naturalmente no corpo (não liste).
+13) REGRA DE OURO (SAÍDA PURA): Entregue EXCLUSIVAMENTE o código HTML. NÃO adicione nenhum comentário, introdução, conclusão, "AI:" ou autoavaliação do seu próprio trabalho no final do texto. O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 """
 
     user_2 = f"""
@@ -502,9 +503,12 @@ with tab1:
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
 # ==========================================
+# ==========================================
+# 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA ROBUSTA)
+# ==========================================
 with tab3:
     st.subheader("🔍 Monitor de Autoridade GEO")
-    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca e auditar seu texto com alta precisão contextual.")
+    st.caption("Esta aba utiliza o **GPT-4o** para simular um algoritmo de busca, auditar seu texto e gerar insights de Prompt Engineering para os Devs.")
     conteudo_para_auditoria = st.session_state.get('art_gerado', '')
     keyword_para_auditoria = st.session_state.get('keyword_atual', '')
     marca_para_auditoria = st.session_state.get('marca_atual', 'a marca').replace('@', '')
@@ -512,50 +516,39 @@ with tab3:
     txt_auditoria = st.text_area("HTML do Artigo para Auditoria", height=300, value=conteudo_para_auditoria)
     kw_auditoria = st.text_input("Palavra-Chave Alvo", value=keyword_para_auditoria)
 
-    if st.button("🔎 Analisar com GPT-4o"):
+    if st.button("🔎 Analisar com GPT-4o e Gerar Insights"):
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
-            with st.spinner("Auditando conteúdo e calculando GEO Score..."):
-                # NOVO PROMPT: MAIS INTELIGENTE, CONTEXTUAL E ANTI-ALUCINAÇÃO
+            with st.spinner("Auditando conteúdo, calculando GEO Score e criando Guardrails..."):
+                # NOVO PROMPT: AGORA COM ENGENHARIA DE PROMPT REVERSA
                 sys_audit = """
-Você é um Auditor Sênior de SEO, especialista em E-E-A-T e Search Generative Experience (SGE).
-Sua missão é avaliar o HTML fornecido com extremo rigor técnico, mas com JUSTIÇA CONTEXTUAL.
+Você é um Auditor Sênior de SEO (E-E-A-T) e também um Especialista em Engenharia de Prompt (AI Dev).
+Sua missão é avaliar o HTML fornecido e, além de criticar o texto atual, sugerir melhorias de GUARDRAILS para o sistema gerador.
 
-REGRAS DE AUDITORIA (GUARDRAILS):
-1) JUSTIÇA CONTEXTUAL (Falsos Positivos):
-   - Nem todo texto precisa de dados. Se o texto for puramente metodológico, instrucional ou conceitual, NÃO penalize a ausência de links ou estatísticas.
-   - Só exija links (`<a href="...">`) se o texto fizer afirmações estatísticas explícitas, citar estudos de mercado ou dados concretos.
-2) DETECÇÃO DE ALUCINAÇÃO E VÍCIOS DE IA:
-   - Penalize fortemente o uso de clichês textuais que denunciam uso de IA (ex: "No cenário atual", "Cada vez mais", "É importante ressaltar", "Em resumo").
-   - Penalize afirmações grandiosas ou projeções futuras exageradas e sem lastro ("Isso vai revolucionar o amanhã").
-3) INTEGRAÇÃO DA MARCA (ESTUDO DE CASO):
-   - A marca deve ser citada de forma consultiva e metodológica. Penalize caso a citação pareça um panfleto publicitário ou venda agressiva.
-4) HIGIENE TÉCNICA E ESTRUTURA:
-   - Verifique a presença exata dos marcadores obrigatórios: `<br>Resumo Rápido<br>` e `<br>Perguntas Frequentes<br>`.
-   - Recompense a quebra de leitura com listas e citações (`<blockquote>`).
-5) IMAGENS:
-   - Ignore completamente o uso ou ausência de tags `<img>`. Não pontue nem critique isso.
+REGRAS DE AUDITORIA (GUARDRAILS PARA O TEXTO):
+1) JUSTIÇA CONTEXTUAL: Só exija links para afirmações estatísticas concretas. Textos puramente metodológicos não são penalizados por falta de links.
+2) DETECÇÃO DE ALUCINAÇÃO E VÍCIOS: Penalize fortemente clichês textuais de IA (ex: "No cenário atual", "Em resumo", "Vale ressaltar").
+3) INTEGRAÇÃO DA MARCA: A marca deve ser citada de forma técnica. Penalize panfletagem promocional.
+4) HIGIENE HTML: Verifique a presença literal dos marcadores `<br>Resumo Rápido<br>` e `<br>Perguntas Frequentes<br>`.
 
-CÁLCULO DA NOTA (0–100):
-- Precisão/Evidências contextuais (35 pts)
-- Ganho de informação real (sem superficialidade) (25 pts)
-- Higiene Técnica e Marcadores HTML (20 pts)
-- Integração natural da marca (10 pts)
-- Zero vícios de IA e clichês (10 pts)
+REGRAS DE FEEDBACK PARA DESENVOLVEDORES (META-PROMPTING):
+- Atue como um Engenheiro de Prompt. Ao notar uma falha recorrente no texto atual, crie 1 ou 2 sugestões de NOVAS REGRAS DE PROMPT.
+- Estas regras DEVEM SER AGNÓSTICAS: não mencione a palavra-chave atual nem a marca atual. A regra deve servir para o "System Prompt" geral do agente (ex: "Adicione uma instrução proibindo o LLM de usar transições com gerúndio no início dos parágrafos").
 
 RETORNO ESTRITAMENTE EM JSON PURO:
-Gere as chaves "critica" e "melhoria" obrigatóriamente como ARRAYS (listas de strings), nunca como uma string única. Exemplo de estrutura exigida:
 {
   "score": 85,
   "veredito": "Resumo de 2 linhas sobre o texto.",
   "critica": [
-    "O parágrafo X usa o clichê 'no cenário atual'.",
-    "Faltou o marcador literal <br>Perguntas Frequentes<br>."
+    "O parágrafo X usa o clichê 'no cenário atual'."
   ],
   "melhoria": [
-    "Substituir clichês por afirmações diretas na voz ativa.",
-    "Inserir os marcadores de SEO exatamente como solicitado."
+    "Substituir clichês por afirmações diretas na voz ativa."
+  ],
+  "sugestoes_dev": [
+    "ADICIONAR AO PROMPT DO REDATOR: 'É terminantemente proibido o uso da expressão [inserir clichê encontrado].'",
+    "NOVO GUARDRAIL: 'Sempre que apresentar uma lista <ul>, certifique-se de não usar ponto final nos <li> caso sejam frases curtas.'"
   ]
 }
 """
@@ -565,7 +558,7 @@ Palavra-chave: {kw_auditoria}
 Texto HTML: {txt_auditoria}
 Marca Alvo: {marca_para_auditoria}
 
-Analise friamente e retorne APENAS o JSON válido.
+Analise friamente e retorne APENAS o JSON válido com as sugestões para os DEVs.
 """
                 try:
                     relatorio_bruto = chamar_llm(
@@ -596,28 +589,39 @@ Analise friamente e retorne APENAS o JSON válido.
                     else:
                         st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
 
-                    st.markdown("#### Análise Profunda")
+                    st.markdown("#### Análise do Conteúdo Gerado")
                     col_critica, col_melhoria = st.columns(2)
                     
-                    # LOGICA DE RENDERIZAÇÃO ATUALIZADA (Arrays em vez de strings raw)
                     with col_critica:
-                        with st.expander("🚨 Críticas Técnicas", expanded=True):
+                        with st.expander("🚨 Críticas Técnicas ao Texto", expanded=True):
                             criticas = dados_audit.get('critica', [])
-                            if isinstance(criticas, list):
+                            if isinstance(criticas, list) and criticas:
                                 for c in criticas:
                                     st.markdown(f"- {c}")
                             else:
-                                st.markdown(criticas)
+                                st.markdown("Nenhuma crítica identificada.")
                                 
                     with col_melhoria:
-                        with st.expander("🛠️ Plano de Melhoria", expanded=True):
+                        with st.expander("🛠️ Correções para este Artigo", expanded=True):
                             melhorias = dados_audit.get('melhoria', [])
-                            if isinstance(melhorias, list):
+                            if isinstance(melhorias, list) and melhorias:
                                 for m in melhorias:
                                     st.markdown(f"- {m}")
                             else:
-                                st.markdown(melhorias)
-                                
+                                st.markdown("Sem sugestões de melhoria.")
+
+                    # NOVA SEÇÃO: FEEDBACK PARA OS DEVS
+                    st.markdown("---")
+                    st.markdown("### ⚙️ Engenharia de Prompt (Melhoria Contínua)")
+                    with st.expander("💡 Sugestões de Novos Guardrails para o Sistema", expanded=True):
+                        sugestoes_dev = dados_audit.get('sugestoes_dev', [])
+                        if isinstance(sugestoes_dev, list) and sugestoes_dev:
+                            for s in sugestoes_dev:
+                                st.info(f"🤖 **Insight para o Prompt:** {s}")
+                            st.caption("Dica: Copie os insights acima que fizerem sentido e cole no `system_2` (prompt do Claude) no código principal.")
+                        else:
+                            st.success("O prompt atual parece robusto. Nenhuma sugestão estrutural gerada neste ciclo.")
+
                 except Exception as e:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
                     with st.expander("Ver resposta bruta da IA"):
