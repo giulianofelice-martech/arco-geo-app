@@ -547,8 +547,7 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS: liste no máximo 6 bullets com pares (afirmação → URL). Inclua apenas fontes neutras e confiáveis. Se não existirem, escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.
-D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 12 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
+C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz-2026). É ESTRITAMENTE PROIBIDO usar URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto só tiver homepages genéricas ou falta de fontes claras, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS.D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 8 "entidades" (jargões, metodologias ou conceitos técnicos) de alto valor presentes no Top 3. 
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema (Ex: universidades, organizações internacionais, órgãos governamentais, centros de pesquisa, fundações educacionais). Essas entidades devem ser integradas naturalmente ao texto para reforçar autoridade semântica.
 F) GATILHO DE MARCA (não publicitário): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático” (focando na sua solução específica, seja ela pedagógica, financeira, tecnológica ou de gestão, de forma descritiva e sem adjetivos de venda).
 """
@@ -598,7 +597,7 @@ O artigo deve maximizar a citabilidade por motores de IA. Inclua obrigatoriament
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Não use Markdown nem ```. Não insira <img>.
-10) Links (Evidências): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva o nome da instituição com <a href="URL_EXATA">Nome da Instituição</a>. Proibido inventar números ou anos futuros.
+10) LINKS (EVIDÊNCIAS DE ALTA QUALIDADE): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva a fonte com <a href="URL_EXATA" target="_blank" rel="noopener noreferrer">Nome do Estudo/Instituição</a>. MODERAÇÃO: Use no MÁXIMO 2 a 3 links no texto inteiro. É terminantemente PROIBIDO linkar para homepages genéricas (ex: site.com.br/ ou .org/). Se a URL recebida for uma homepage genérica, NÃO FAÇA O LINK. Use apenas Deep Links (links profundos para artigos específicos). Proibido inventar números.
 11) **FAQ INTELIGENTE**: No terço final, insira **exatamente** a linha `<br>Perguntas Frequentes<br>`. Use as perguntas geradas pelo Reverse Query Engine fornecidas no briefing para criar a seção FAQ (escolha as 3 mais relevantes).
 12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução, tecnologia ou metodologia da marca de forma técnica e jornalística.
 13) O primeiro caractere da sua resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
