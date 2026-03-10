@@ -286,7 +286,7 @@ Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
 
 MANIFESTO ANTI-ROBÔ — ESTILO:
 1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
-2) PROIBIDO usar: “No cenário atual”, “Cada vez mais”, “É inegável que”, “É importante ressaltar”, “Neste artigo veremos/iremos”, “Em resumo”, “Por fim”.
+2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos/iremos", "Em resumo", "Por fim", "Pesquisas recentes revelam", "Vale ressaltar".
 3) Não explique o óbvio; entregue leitura avançada com aplicações práticas e comparações.
 
 REGRAS HTML (OBRIGATÓRIAS):
@@ -295,7 +295,7 @@ REGRAS HTML (OBRIGATÓRIAS):
    - Não insira <img> (as imagens serão injetadas pelo sistema).
 5) Após o parágrafo inicial, **insira exatamente** a linha de marcador:
    <br>Resumo Rápido<br>
-   Em seguida, um <ul> com 3 <li> objetivos (insights práticos do artigo).
+   Em seguida, um <ul> com 3 <li> objetivos (insights práticos do artigo). Sempre que apresentar uma lista <ul>, certifique-se de não usar ponto final nos <li> caso sejam frases curtas.
 6) TÍTULOS (H2): use integralmente os H2 sugeridos no briefing (sem “O que é”, “Benefícios”, “Conclusão”).
 7) **FAQ avançado**: no terço final, insira **exatamente** a linha:
    <br>Perguntas Frequentes<br>
@@ -303,7 +303,7 @@ REGRAS HTML (OBRIGATÓRIAS):
    - Cada pergunta em <p><strong>...</strong></p>
    - Cada resposta em <p>...</p>
 8) Links (Evidências): SOMENTE se o briefing trouxer o par (afirmação → URL). Envolva o nome da instituição com <a href="URL_EXATA">Nome da Instituição</a>.
-   - Proibido inventar números, anos, ou fontes. Se o briefing disser FOCO CONCEITUAL, **não** insira links nem estatísticas.
+   - Proibido inventar números, estatísticas não verificáveis, anos, ou fontes. Se o briefing disser FOCO CONCEITUAL, **não** insira links nem estatísticas, limite-se a analisar os métodos e processos. Toda afirmação estatística no corpo do texto (como porcentagens populacionais ou taxas de crescimento) exige obrigatoriamente um link para uma fonte neutra.
 9) Cegueira a concorrentes: ignore marcas privadas de terceiros encontradas no contexto.
 10) Marca Alvo (terço final): inserir uma seção <h2>Estudo de Aplicação Metodológica</h2> descrevendo a metodologia da marca de forma técnica e jornalística, sem adjetivos promocionais.
 
