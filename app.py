@@ -681,7 +681,7 @@ Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
 
 MANIFESTO ANTI-ROBÔ E ESTILO:
 1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
-2) PROIBIDO usar: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Em resumo", "Por fim". 
+2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 3) Não explique o óbvio; entregue leitura avançada.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS:
@@ -693,12 +693,12 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS:
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) LINKS EVIDENCIAIS (MODERAÇÃO EXTREMA): Use no MÁXIMO 2 a 3 links no texto inteiro. É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas (ex: .gov/ ou .org/). Se a URL recebida no briefing for uma homepage genérica, NÃO CRIE O LINK e NÃO USE O DADO NUMÉRICO. Só crie a tag <a> se for um Deep Link (artigo exato). 
+10) DADOS E LINKS (MODERAÇÃO EXTREMA): Use no máximo 2 a 3 links profundos (Deep Links) no texto. É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas (ex: .gov/ ou .org/). REGRA DE OURO: Se você não possui um link exato válido para embasar a informação, É PROIBIDO CITAR DADOS NUMÉRICOS (percentuais, frações, estatísticas exatas de mercado). Prefira abordagens qualitativas e conceituais à invenção de números sem fontes.
 11) **FAQ INTELIGENTE**: No terço final, insira `<br>Perguntas Frequentes<br>`. Use as Reverse Queries do briefing (escolha as 3 mais relevantes).
 12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica.
 13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Graph.
-15) VETO ABSOLUTO A CONCORRENTES: É EXPRESSAMENTE PROIBIDO citar qualquer empresa/sistema concorrente do mesmo nicho da marca alvo.
+15) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. ATENÇÃO: Entidades listadas no campo "Diretrizes OBRIGATÓRIAS" do cliente (como chancelas, certificadoras, ferramentas de terceiros ou tecnologias integradas) SÃO PARCEIROS ESTRATÉGICOS. Eles devem ser citados livremente como diferenciais que compõem o ecossistema da Marca Alvo, nunca tratados como concorrentes.
 """
 
     user_2 = f"""
@@ -1002,21 +1002,19 @@ with tab3:
         else:
             with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
                 
-                sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas justo e contextual.
+                sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas baseado em lógica estrutural e não em achismos.
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
-                1. VETO A CONCORRENTES (FALHA CRÍTICA): O texto é ESTRITAMENTE PROIBIDO de citar marcas, produtos ou empresas concorrentes do mesmo segmento da marca alvo. Se o texto contiver o nome de QUALQUER outra marca privada concorrente que não seja a marca alvo, REDUZA A NOTA PARA 50 imediatamente e critique isso duramente. (Nota: não penalize o texto pela "falta" de comparações externas).
-                2. ALUCINAÇÃO (FALHA CRÍTICA): Se o texto inventar estatísticas óbvias sem link (ex: "cresceu 114%") ou alucinar datas futuras irreais, DESTRUA a nota.
-                3. CONDICIONAL DE BACKLINKS VS. TEXTO CONCEITUAL: 
-                   - Se o texto citar DADOS NUMÉRICOS EXATOS ou ESTUDOS NOMINAIS, eles DEVEM obrigatoriamente ter um link (<a href>). Penalize fortemente se faltar.
-                   - PORÉM, se o texto NÃO tiver números exatos e for puramente CONCEITUAL/FILOSÓFICO, É ESTRITAMENTE PROIBIDO penalizá-lo por "falta de links" ou "falta de dados". Avalie apenas a coerência, a lógica e a densidade teórica.
-                4. AVALIAÇÃO DA MARCA ALVO (ESTUDO DE CASO): A marca DEVE ser mencionada com um tom jornalístico e técnico (focando em sua solução, tecnologia, produto ou metodologia). Se for assim, a integração está PERFEITA; não exija "provas externas". Só puna se a linguagem for panfletária e cheia de adjetivos bajuladores.
-                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA tire pontos se a imagem não tiver fonte ou parecer genérica.
-                6. EXTENSÃO E CLICHÊS: Textos densos e extensos são o objetivo. SÓ penalize se houver jargões robóticos de IA ("Em resumo", "É inegável que", "No cenário atual").
+                1. AVALIAÇÃO DE CONCORRENTES VS. PARCEIROS: O texto é proibido de mencionar rivais comerciais do mesmo segmento da marca alvo. Se identificar menção a rivais, puna o texto. CONTUDO, instituições, tecnologias de apoio, associações ou certificadoras que compõem a solução da marca alvo SÃO PARCEIROS. É expressamente proibido penalizar o texto por citar parceiros estratégicos de forma integrada à metodologia da marca.
+                2. RASTREABILIDADE DE DADOS E LINKS PROFUNDOS (FALHA CRÍTICA): Se o texto apresentar estatísticas, métricas quantitativas ou percentuais exatos (ex: "16%", "20% mais") sem ancorá-los em um link referencial real e profundo (<a href>), REDUZA A NOTA. Links para homepages genéricas (ex: unesco.org) NÃO servem como comprovação de dados específicos.
+                3. VALIDAÇÃO CONCEITUAL: Se o texto for puramente conceitual e focado em tendências, processos ou metodologias (sem usar métricas numéricas exatas), ele NÃO requer links para comprovação. É ESTRITAMENTE PROIBIDO penalizar um texto por "falta de links/dados" se ele não fez afirmações quantitativas.
+                4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom jornalístico ou de estudo de caso. A integração estará perfeita se for descritiva. Penalize apenas se houver tom apelativo ou de marketing agressivo.
+                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA avalie fonte, qualidade ou presença de imagens.
+                6. LINGUAGEM DE IA: Penalize o uso de muletas textuais comuns a LLMs ("Em resumo", "É inegável que", "No cenário atual"). Textos devem ser densos e diretos.
                 
                 DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
-                - PERMISSÃO DE NOTA MÁXIMA: Se o texto seguiu as regras, NÃO CITOU CONCORRENTES, não alucinou e fez uma integração técnica da marca, VOCÊ DEVE DAR NOTA 100.
-                - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev". Não invente defeitos genéricos só para dar nota 90.
+                - PERMISSÃO DE NOTA MÁXIMA: Se o texto for coerente, não alucinar números sem links, não citar rivais e seguir a estrutura pedida, VOCÊ DEVE DAR NOTA 100. Não procure "pelo em ovo" para dar 90.
+                - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev".
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
                 {
