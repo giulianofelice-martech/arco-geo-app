@@ -11,12 +11,6 @@ import urllib.parse
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
-
-Entendido. Sem mexer nos botões nem nos inputs, apenas alinhando a tag azul com o título e a logo, usando o seu CSS base.
-
-Substitua exatamente o código que você mandou por este aqui. A única coisa nova é a classe .arco-tag no CSS e a div flexível ali embaixo para alinhar os elementos:
-
-Python
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
