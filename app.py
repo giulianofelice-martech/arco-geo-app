@@ -22,23 +22,21 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
     /* ==================================================
-       FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
+       1. FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
        ================================================== */
     .stApp { background-color: #FAFAFA !important; }
     [data-testid="stSidebar"] { background-color: #FFFFFF !important; border-right: 1px solid #EAEAEA !important; }
-    .markdown-text-container, .stMarkdown p, li, span, label, .stText { color: #374151 !important; font-family: 'Inter', sans-serif; }
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div { background-color: #FFFFFF !important; border: 1px solid #D1D5DB !important; border-radius: 8px !important; color: #111827 !important; }
-
-    /* Forçando a tipografia global */
-    html, body, [class*="css"] {
+    
+    /* Tipografia global limpa para modo claro */
+    html, body, [class*="css"], .markdown-text-container, .stMarkdown p, li, span, label, .stText {
         font-family: 'Inter', sans-serif;
+        color: #374151 !important; 
     }
 
-    /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
+    /* Estilizando os Títulos para Montserrat (Removido o !important da cor para permitir destaque) */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
-        color: #111827 !important;
         letter-spacing: -0.02em;
     }
 
@@ -55,27 +53,18 @@ st.markdown("""
         padding: 4px 12px;
         border-radius: 50px;
         text-transform: uppercase;
-        margin-bottom: 8px;
     }
 
-    /* Botões Primários */
-    .stButton > button {
-        background-color: #111827 !important;
-        color: #FFFFFF !important;
+    /* Suavizando o hover dos botões nativos do Streamlit sem quebrar o estilo deles */
+    button[kind="primary"] {
         border-radius: 8px !important;
-        border: none !important;
-        height: 3.2em;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease !important;
     }
-    
-    .stButton > button:hover {
-        background-color: #418EDE !important; /* Azul Arco no hover */
+    button[kind="primary"]:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(65, 142, 222, 0.2);
-        color: #FFFFFF !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     /* Estilo das Abas (Tabs) */
@@ -86,30 +75,21 @@ st.markdown("""
     [data-baseweb="tab"] {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
-        color: #6B7280 !important;
         padding-top: 16px;
         padding-bottom: 16px;
         background-color: transparent !important;
-    }
-    [data-baseweb="tab"][aria-selected="true"] {
-        color: #418EDE !important; /* Azul Arco na aba ativa */
-        border-bottom-color: #418EDE !important;
     }
 
     /* Melhorando os Expanders */
     .streamlit-expanderHeader {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
-        color: #111827 !important;
-        background-color: #FFFFFF !important;
         border-radius: 8px;
     }
-    
     div[data-testid="stExpander"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E5E7EB !important;
         border-radius: 8px !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 16px;
     }
 
@@ -132,22 +112,28 @@ st.markdown("""
         transition: color 0.2s;
     }
     .pipeline-step:hover {
-        color: #418EDE;
-        border-bottom-color: #418EDE;
+        color: #F05D23; /* Hover em Laranja */
+        border-bottom-color: #F05D23;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Trazendo a logo da Arco e a Tag Exclusiva
-col_logo, col_title = st.columns([1, 5])
-with col_logo:
-    st.image("https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg", width=120)
+# ==========================================
+# CABEÇALHO ALINHADO PERFEITAMENTE COM HTML
+# ==========================================
+st.markdown("""
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
+        <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" width="140" alt="Logo Arco">
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <div class='arco-tag' style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
+            <h1 style="margin: 0; padding: 0; font-size: 2.4rem; color: #111827 !important;">Motor GEO v7.0 <span style="color: #F05D23 !important;">AI Search Native</span></h1>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
-with col_title:
-    st.markdown("<div class='arco-tag'>MOTOR DE INTELIGÊNCIA</div>", unsafe_allow_html=True)
-    st.markdown("<h1 style='margin-top: -10px;'>Motor GEO v7.0 <span style='color: #F05D23; font-size: 0.6em;'>AI Search Native</span></h1>", unsafe_allow_html=True)
-
-# SUBSTITUIÇÃO DO ST.CAPTION PELO HTML COM TOOLTIPS
+# ==========================================
+# PIPELINE COM TOOLTIPS
+# ==========================================
 pipeline_html = """
 <div class="pipeline-container">
     <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">Pipeline Ultimate:</strong> 
