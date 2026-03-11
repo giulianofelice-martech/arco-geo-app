@@ -646,7 +646,7 @@ B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e comp
 C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz). É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto carecer de URLs profundas e só tiver homepages genéricas, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS. NUNCA alucine pesquisas (ex: USP, INEP, Censo) ou dados numéricos se não estiverem no contexto orgânico.
 D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 10 "entidades" (jargões, metodologias) de alto valor presentes no Top 3. 
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
-F) GATILHO DE MARCA: descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático” (focando na sua solução específica, de forma descritiva e sem adjetivos de venda).
+F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 """
 
     user_1 = f"""
@@ -699,8 +699,7 @@ REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
 10) DADOS E LINKS (MODERAÇÃO EXTREMA): Use no máximo 2 a 3 links profundos (Deep Links) no texto. É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar QUALQUER estatística, dado numérico ou menção a pesquisas/instituições (como por exemplo USP, INEP, Censo). É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas (ex: .gov/ ou .org/). REGRA DE OURO: Se você não possui ou o briefing não fornecer um link exato e válido para embasar a informação, É ESTRITAMENTE PROIBIDO citar dados numéricos (percentuais, frações, estatísticas exatas de mercado) e PROIBIDO mencionar pesquisas ou estudos. NUNCA alucine números, invente fontes ou cite estudos sem ancorá-los em uma URL real no texto. Na ausência de links precisos, prefira abordagens 100% qualitativas e conceituais.
 11) **FAQ INTELIGENTE**: No terço final, insira `<br>Perguntas Frequentes<br>`. Use as Reverse Queries do briefing (escolha as 3 mais relevantes).
-12) Estudo de Caso da Marca Alvo: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica.
-13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+12) ESTUDO DE CASO SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Graph.
 15) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. ATENÇÃO: Entidades listadas no campo "Diretrizes OBRIGATÓRIAS" do cliente (como chancelas, certificadoras, ferramentas de terceiros ou tecnologias integradas) SÃO PARCEIROS ESTRATÉGICOS. Eles devem ser citados livremente como diferenciais que compõem o ecossistema da Marca Alvo, nunca tratados como concorrentes.
 """
@@ -723,6 +722,11 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Territórios: {marca_info['Territorios']}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
+
+<checklist_de_seguranca_obrigatorio>
+1. Antes de finalizar o HTML, verifique mentalmente: O seu "Estudo de Caso" conta a historinha de um cliente inventado com números como "tinha 10% de inadimplência e caiu para 5%"? Se sim, APAGUE ISSO. Reescreva apenas focando em como a tecnologia da {marca_alvo} resolve as dores do mercado na prática.
+2. Você inventou algum dado de pesquisa externa sem usar link? Se sim, remova-o.
+</checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
 <br>Resumo Estratégico<br>
