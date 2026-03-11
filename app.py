@@ -899,7 +899,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-    # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
+   # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
@@ -910,7 +910,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 if UNSPLASH_KEY:
-                    url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                    # URL LIMPA E DIRETA
+                    url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
                         if res.status_code == 200:
@@ -923,16 +924,17 @@ ANTI-CLOAKING E VALIDAÇÃO:
                         pass
                 
                 if not img_html_pronta:
+                    # FALLBACK LIMPO E DIRETA
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
-                    base_poll = "[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)"
+                    base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
                     
                 if img_html_pronta:
                     alvo_replace = '<br>Resumo Estratégico<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
     except Exception as e:
-        print(f"Erro silencioso ao injetar imagem: {e}")
+        st.error(f"Erro ao injetar imagem: {e}") # Mudei para st.error para você ver se falhar
 
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
     st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
