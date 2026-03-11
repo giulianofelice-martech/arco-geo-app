@@ -207,7 +207,7 @@ if 'brandbook_df' not in st.session_state:
             "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço. | Protagonistas na evolução da forma de ensinar e aprender. Abordagem com diagnósticos e embasamentos profundos, superamos as expectativas de parceiros. Somos alta performance e transformamos complexidade em oportunidades. | Promessa: Educação de excelência com foco em resultados acadêmicos, suporte pedagógico próximo e uso de dados para aprendizado.",
             "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas",
             "TomDeVoz": "Acadêmico, inovador, especialista e inspirador. Visionário, colaborativo",
-            "PublicoAlvo": "Estudantes, vestibulandos e pais. Mantenedores e gestores de escolas médias e grandes, com alto rigor acadêmico e foco em resultados no ENEM.",
+            "PublicoAlvo": "Mantenedores e gestores de escolas médias e grandes, com alto rigor acadêmico e foco em resultados no ENEM. Estudantes, vestibulandos e pais",
             "RegrasNegativas": "Não usar tom professoral antiquado, não prometer aprovação sem esforço.",
             "RegrasPositivas": "Destaque os diferenciais: - Líder nacional em aprovação no SiSU 2025, - Maior sistema de ensino do Brasil, - +1.300 escolas parceiras, - 97% de fidelização. Propósito da marca: Moldar, com coragem e embasamento, a educação do futuro ao lado das escolas."
         },
@@ -860,24 +860,24 @@ with tab1:
         try:
             publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
             
-            # 1. PRIMEIRO: Puxa e limpa os públicos do Brandbook (eles ficam no topo!)
-            opcoes_publico = [p.strip() for p in re.split(r'[,|.]', publicos_da_marca) if p.strip()]
+            # AGORA SIM: Cortando EXCLUSIVAMENTE pelo ponto final
+            opcoes_publico = [p.strip() for p in publicos_da_marca.split('.') if p.strip()]
             
             # Prevenção: Se a marca não tiver público cadastrado, joga o "Geral"
             if not opcoes_publico:
                 opcoes_publico = ["Público Geral (Baseado na Keyword)"]
             else:
-                # 2. SEGUNDO: Adiciona o "Público Geral" logo abaixo dos públicos da marca
+                # Adiciona o "Público Geral" logo abaixo dos públicos da marca
                 opcoes_publico.append("Público Geral (Baseado na Keyword)")
                 
         except Exception:
             # Fallback de segurança se der erro
             opcoes_publico = ["Público Geral (Baseado na Keyword)"]
             
-        # 3. TERCEIRO: A opção de digitar sempre vai para o final da fila
+        # A opção de digitar sempre vai para o final da fila
         opcoes_publico.append("✍️ Digitar outro público (Personalizado)...")
         
-        # O selectbox automaticamente pega o item [0] (o primeiro do Brandbook) como padrão
+        # Selectbox para o usuário
         escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Escolha uma persona do Brandbook ou selecione 'Digitar outro' para inserir uma nova.")
         
         # Se o usuário quiser digitar, abre o campo de texto
