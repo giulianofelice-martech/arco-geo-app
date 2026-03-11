@@ -857,14 +857,22 @@ with tab1:
     with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
         # --- NOVO: EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
-        try:
+      try:
             publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
             opcoes_publico = [p.strip() for p in re.split(r'[,|.]', publicos_da_marca) if p.strip()]
             opcoes_publico.append("Público Geral (Baseado na Keyword)")
         except:
             opcoes_publico = ["Público Geral"]
             
-        publico_selecionado = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Isso muda radicalmente o tom do artigo. Ex: B2B (Gestores) focará em dores financeiras/processos; B2C (Pais) focará em pedagogia/acolhimento.")
+        opcoes_publico.append("✍️ Digitar outro público (Personalizado)...") # Nova opção!
+            
+        escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Escolha uma persona do Brandbook ou selecione 'Digitar outro' para inserir uma nova.")
+        
+        # Se o usuário quiser digitar, abre o campo de texto
+        if escolha_publico == "✍️ Digitar outro público (Personalizado)...":
+            publico_selecionado = st.text_input("Qual é o público-alvo?", placeholder="Ex: pais de alunos, estudantes do ensino médio, professores...")
+        else:
+            publico_selecionado = escolha_publico
         # ----------------------------------------------
         palavra_chave_input = st.text_area("Palavra-Chave / Briefing", placeholder="Ex: metodologia bilíngue nas escolas")
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
