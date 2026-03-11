@@ -599,7 +599,7 @@ def simular_resposta_ai(keyword, artigo_html):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     from datetime import datetime
@@ -641,7 +641,7 @@ REGRAS-MESTRAS (obrigatórias):
 5) Saída sempre em pt-BR.
 
 ENTREGÁVEIS DO BRIEFING:
-A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas.
+A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
 C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz). É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto só tiver homepages genéricas, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS.
 D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 10 "entidades" (jargões, metodologias) de alto valor presentes no Top 3. 
@@ -651,6 +651,8 @@ F) GATILHO DE MARCA: descreva como a marca aparecerá no terço final como um �
 
     user_1 = f"""
 Palavra-chave: '{palavra_chave}'
+
+Público-Alvo Foco Deste Artigo: {publico_alvo}
 
 Contexto extraído do Google (Serper + Jina):
 {contexto_google}
@@ -676,11 +678,13 @@ Instruções:
     st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
 
     system_2 = """
-Você é Especialista em SEO Semântico (GEO) e Redator de Autoridade E‑E‑A‑T.
-Produza um ARTIGO FINAL em HTML puro, pt-BR, com ganho de informação real.
+Você é Especialista em SEO Semântico (GEO), Copywriter Sênior e Redator de Autoridade E‑E‑A‑T.
+Sua missão é traduzir o Tom de Voz corporativo em um texto altamente engajador, focando cirurgicamente nas dores e aspirações do público-alvo.
 
-MANIFESTO ANTI-ROBÔ E ESTILO:
-1) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
+MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
+1) Incorpore RIGOROSAMENTE o Tom de Voz e a essência da marca informada.
+1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor financeiro busca eficiência; um professor busca didática; pais buscam segurança).
+1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 3) Não explique o óbvio; entregue leitura avançada.
 
@@ -711,11 +715,12 @@ O QUE A CONCORRência DIZ HOJE (para fact-checking e contraste):
 SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 {analise}
 
-MARCA ALVO (Cliente):
-- Nome: {marca_alvo} (remova o '@' no texto)
+DIRECIONAMENTO DE COPYWRITING E MARCA:
+- Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
+- Tom de Voz Exigido: {marca_info['TomDeVoz']}
+- Nome da Marca: {marca_alvo} (remova o '@' no texto)
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios: {marca_info['Territorios']}
-- Tom de Voz: {marca_info['TomDeVoz']}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
@@ -851,6 +856,16 @@ with tab1:
     col1, col2 = st.columns([1, 2])
     with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
+        # --- NOVO: EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
+        try:
+            publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
+            opcoes_publico = [p.strip() for p in re.split(r'[,|.]', publicos_da_marca) if p.strip()]
+            opcoes_publico.append("Público Geral (Baseado na Keyword)")
+        except:
+            opcoes_publico = ["Público Geral"]
+            
+        publico_selecionado = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Isso muda radicalmente o tom do artigo. Ex: B2B (Gestores) focará em dores financeiras/processos; B2C (Pais) focará em pedagogia/acolhimento.")
+        # ----------------------------------------------
         palavra_chave_input = st.text_area("Palavra-Chave / Briefing", placeholder="Ex: metodologia bilíngue nas escolas")
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
         st.markdown("---")
@@ -883,7 +898,7 @@ with tab1:
                         retrieval_simulation,
                         hijacking_risk,
                         ai_simulation
-                    ) = executar_geracao_completa(palavra_chave_input, marca_selecionada)
+                    ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
                     
                     st.session_state['art_gerado'] = artigo_html
                     st.session_state['metas_geradas'] = dicas_json
