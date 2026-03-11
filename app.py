@@ -11,16 +11,7 @@ import urllib.parse
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
-# ==========================================
-# 1. CONFIGURAÇÃO DA PÁGINA
-# ==========================================
-st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
 
-Entendido! Vamos reverter para os seus botões e inputs originais (com os emojis mantidos) e adicionar apenas a Tag Azul no cabeçalho e o modo claro travado, garantindo que o alinhamento e as cores do título (com o AI Search Native em laranja/vermelho) fiquem perfeitos.
-
-Substitua exatamente do seu st.set_page_config até a linha do pipeline_html por isto:
-
-Python
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
