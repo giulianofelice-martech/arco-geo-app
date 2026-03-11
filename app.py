@@ -853,6 +853,10 @@ with tab2:
     st.info("💡 Dica: Adicione regras específicas na coluna 'RegrasPositivas'.")
 
 with tab1:
+    # 1. CRIANDO A "CAIXA" NO TOPO ANTES DAS COLUNAS
+    caixa_topo = st.container()
+    st.markdown("<br>", unsafe_allow_html=True) # Dá um pequeno respiro visual
+    
     col1, col2 = st.columns([1, 2])
     with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
@@ -889,59 +893,63 @@ with tab1:
         palavra_chave_input = st.text_area("Palavra-Chave / Briefing", placeholder="Ex: metodologia bilíngue nas escolas")
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
         st.markdown("---")
+        
         if not WP_READY:
             st.warning("🔌 Integração WordPress inativa. Faltam as credenciais no menu Secrets.")
         else:
             st.success("🔌 Conectado ao WordPress (Pronto para Yoast).")
 
+    # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
     if gerar_btn:
         if not TOKEN:
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets.")
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            with st.status("🤖 Processando Motor GEO v6...", expanded=True) as status:
-                try:
-                    (
-                        artigo_html, 
-                        dicas_json, 
-                        google_data, 
-                        ia_data, 
-                        entity_gap, 
-                        score_originalidade, 
-                        citabilidade, 
-                        cluster,
-                        reverse_queries,
-                        citation_score,
-                        entity_coverage,
-                        geo_score,
-                        retrieval_simulation,
-                        hijacking_risk,
-                        ai_simulation
-                    ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
-                    
-                    st.session_state['art_gerado'] = artigo_html
-                    st.session_state['metas_geradas'] = dicas_json
-                    st.session_state['google_ctx'] = google_data
-                    st.session_state['ia_ctx'] = ia_data
-                    st.session_state['entity_gap'] = entity_gap
-                    st.session_state['score_originalidade'] = score_originalidade
-                    st.session_state['citabilidade'] = citabilidade
-                    st.session_state['cluster'] = cluster
-                    st.session_state['reverse_queries'] = reverse_queries
-                    st.session_state['citation_score'] = citation_score
-                    st.session_state['entity_coverage'] = entity_coverage
-                    st.session_state['geo_score'] = geo_score
-                    st.session_state['retrieval_simulation'] = retrieval_simulation
-                    st.session_state['hijacking_risk'] = hijacking_risk
-                    st.session_state['ai_simulation'] = ai_simulation
-                    
-                    st.session_state['marca_atual'] = marca_selecionada
-                    st.session_state['keyword_atual'] = palavra_chave_input
-                    status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
-                except Exception as e:
-                    status.update(label="❌ Erro durante a geração", state="error")
-                    st.error(f"Erro Crítico: {e}")
+            # É AQUI QUE A MÁGICA ACONTECE: O 'with caixa_topo' joga o loading lá pra cima!
+            with caixa_topo:
+                with st.status("🤖 Processando Motor GEO v6...", expanded=True) as status:
+                    try:
+                        (
+                            artigo_html, 
+                            dicas_json, 
+                            google_data, 
+                            ia_data, 
+                            entity_gap, 
+                            score_originalidade, 
+                            citabilidade, 
+                            cluster,
+                            reverse_queries,
+                            citation_score,
+                            entity_coverage,
+                            geo_score,
+                            retrieval_simulation,
+                            hijacking_risk,
+                            ai_simulation
+                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
+                        
+                        st.session_state['art_gerado'] = artigo_html
+                        st.session_state['metas_geradas'] = dicas_json
+                        st.session_state['google_ctx'] = google_data
+                        st.session_state['ia_ctx'] = ia_data
+                        st.session_state['entity_gap'] = entity_gap
+                        st.session_state['score_originalidade'] = score_originalidade
+                        st.session_state['citabilidade'] = citabilidade
+                        st.session_state['cluster'] = cluster
+                        st.session_state['reverse_queries'] = reverse_queries
+                        st.session_state['citation_score'] = citation_score
+                        st.session_state['entity_coverage'] = entity_coverage
+                        st.session_state['geo_score'] = geo_score
+                        st.session_state['retrieval_simulation'] = retrieval_simulation
+                        st.session_state['hijacking_risk'] = hijacking_risk
+                        st.session_state['ai_simulation'] = ai_simulation
+                        
+                        st.session_state['marca_atual'] = marca_selecionada
+                        st.session_state['keyword_atual'] = palavra_chave_input
+                        status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
+                    except Exception as e:
+                        status.update(label="❌ Erro durante a geração", state="error")
+                        st.error(f"Erro Crítico: {e}")
 
     if 'art_gerado' in st.session_state:
         with col2:
