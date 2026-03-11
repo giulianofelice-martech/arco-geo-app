@@ -855,9 +855,10 @@ with tab2:
 with tab1:
     col1, col2 = st.columns([1, 2])
     with col1:
+        with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
         # --- NOVO: EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
-      try:
+        try:
             publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
             opcoes_publico = [p.strip() for p in re.split(r'[,|.]', publicos_da_marca) if p.strip()]
             opcoes_publico.append("Público Geral (Baseado na Keyword)")
