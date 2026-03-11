@@ -818,7 +818,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) DENSIDADE DE EVIDÊNCIAS (FLEXÍVEL) E VETO A DADOS FANTASMAS: É recomendável dar "peso numérico" ao texto usando os números (%) do Brandbook ou extraídos pelo Estrategista. Para dados externos de MERCADO, é OBRIGATÓRIO usar a tag HTML <a href="...">. Dados institucionais da Marca Alvo SÃO PROPRIETÁRIOS e não exigem link. ATENÇÃO: Se não houver dados reais mapeados no briefing ou na marca, É PERFEITAMENTE ACEITÁVEL que o texto seja 100% conceitual e focado em metodologia. NUNCA invente dados numéricos do zero.
+10) DENSIDADE DE EVIDÊNCIAS (FLEXÍVEL) E DEEP LINKS: É recomendável dar "peso numérico" ao texto. Para QUALQUER dado externo de mercado, estatística, ou menção a instituições/pesquisas (ex: USP, INEP, British Council), é OBRIGATÓRIO ancorar a fonte usando a tag HTML <a href="..."> com um link profundo. É TERMINANTEMENTE PROIBIDO citar nomes de pesquisas/instituições sem colocar o link <a href>. Dados institucionais da Marca Alvo (ex: % de fidelização) são proprietários e NÃO exigem link. ATENÇÃO: Se não houver dados reais com link no briefing, faça um texto 100% conceitual. NUNCA invente dados ou cite organizações sem o respectivo link.
 11) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todos os jargões sugeridos no Briefing (Entity Coverage). Não deixe faltar os "Benefícios" e "Desafios" se forem relevantes. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
 12) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo os diferenciais REAIS da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números falsos de "antes e depois" ou métricas irreais. Foque em explicar COMO a marca resolve o problema usando sua metodologia.
 13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
@@ -850,8 +850,8 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 3. Você evitou blocos de texto massivos, quebrando ideias em listas <ul><li> e parágrafos curtos (15 a 35 palavras)?
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
 5. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício. Se sim, APAGUE ISSO.
-6. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
-7. Você citou alguma instituição/organização externa fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
+6. DENSIDADE DE EVIDÊNCIAS E LINKS: Você citou alguma instituição, organização externa (ex: UNESCO, British Council) ou pesquisa? SE SIM, você incluiu a tag <a href="..."> apontando para um link profundo? SE NÃO TEM LINK, APAGUE A MENÇÃO À INSTITUIÇÃO/PESQUISA IMEDIATAMENTE.
+7. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -881,7 +881,7 @@ REGRAS CRÍTICAS:
 2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
 3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
 4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.
-5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+5) 'schema_faq': JSON-LD **FAQPage** com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
     - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
@@ -906,7 +906,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 if UNSPLASH_KEY:
-                    url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
+                    url = f"[https://api.unsplash.com/search/photos?query=](https://api.unsplash.com/search/photos?query=){urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
                         if res.status_code == 200:
@@ -921,7 +921,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
-                    base_poll = "https://image.pollinations.ai/prompt/"
+                    base_poll = "[https://image.pollinations.ai/prompt/](https://image.pollinations.ai/prompt/)"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
                     
                 if img_html_pronta:
@@ -1173,10 +1173,10 @@ with tab1:
                 
             st.markdown("---")
             st.subheader("📋 Copie seu HTML Pronto")
-            st.info("Passe o mouse no canto superior direito do bloco abaixo e clique no ícone de copiar 📋, ou clique dentro e use Ctrl+A / Ctrl+C.")
+            st.info("Passe o mouse no canto superior direito do bloco abaixo e clique no ícone de copiar 📋.")
             
-            # Text area é excelente para copiar grandes blocos de texto no Streamlit
-            st.text_area("Código-fonte (HTML):", value=st.session_state['art_gerado'], height=400)
+            # Text area trocado por st.code para habilitar o ícone de cópia nativo!
+            st.code(st.session_state['art_gerado'], language="html")
             st.markdown("---")
 
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
@@ -1228,7 +1228,7 @@ with tab3:
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
                 1. AVALIAÇÃO DE CONCORRENTES VS. PARCEIROS: O texto é proibido de mencionar rivais comerciais da marca alvo. Tecnologias de apoio ou certificadoras da marca SÃO PARCEIROS.
-                2. RASTREABILIDADE DE DADOS (FALHA CRÍTICA): Se o texto apresentar estatísticas DE MERCADO ou DE TERCEIROS sem ancorá-los em um link referencial real (<a href>), REDUZA A NOTA. EXCEÇÃO ABSOLUTA: Dados institucionais da própria Marca Alvo (ex: prêmios ganhos, número de parceiros, aprovações no SiSU da marca, taxa de fidelização da marca) SÃO DADOS PROPRIETÁRIOS. É ESTRITAMENTE PROIBIDO penalizar o texto por não colocar links em métricas que pertencem à própria marca avaliada.
+                2. RASTREABILIDADE DE DADOS E LINKS: Se o texto apresentar dados DE MERCADO ou citar PESQUISAS e INSTITUIÇÕES (ex: British Council, USP), é obrigatório ter um link referencial real (<a href>). Sem link, REDUZA A NOTA. EXCEÇÃO ABSOLUTA: Dados institucionais da própria Marca Alvo (ex: % de fidelização, número de escolas) SÃO PROPRIETÁRIOS e não levam link.
                 3. VALIDAÇÃO CONCEITUAL: Se o texto for puramente conceitual, NÃO requer links.
                 4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
