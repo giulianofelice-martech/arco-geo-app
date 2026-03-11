@@ -141,20 +141,20 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 # ==========================================
-# PIPELINE COM TOOLTIPS
+# PIPELINE COM TOOLTIPS (ATUALIZADO V7.0)
 # ==========================================
 pipeline_html = """
 <div class="pipeline-container">
-    <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">Pipeline Ultimate:</strong> 
-    <span title="Busca dados reais no Google e IAs concorrentes. (Tech: Serper.dev, Jina AI, GPT-4o-mini)" class="pipeline-step">Search</span> ➔ 
-    <span title="Descobre as perguntas exatas que as IAs fazem nos bastidores. (Tech: GPT-4o-mini)" class="pipeline-step">Reverse Query</span> ➔ 
-    <span title="Mapeia palavras e conceitos de autoridade para o nicho. (Tech: GPT-4o)" class="pipeline-step">Entity Graph</span> ➔ 
-    <span title="Redação estratégica focada em retenção e E-E-A-T. (Tech: Claude 3.7 Sonnet)" class="pipeline-step">Writer</span> ➔ 
-    <span title="Criação do código oculto (JSON-LD) que o Google adora. (Tech: Claude 3.7 Sonnet)" class="pipeline-step">Schema</span> ➔ 
-    <span title="Mede se o texto cobriu todos os tópicos exigidos pelo buscador." class="pipeline-step">Coverage</span> ➔ 
-    <span title="Simula se IAs como Perplexity e SearchGPT usariam seu texto como fonte oficial." class="pipeline-step">RAG Simulation</span> ➔ 
-    <span title="Blinda o texto para garantir que a IA cite a sua marca, e não a concorrência." class="pipeline-step">Hijacking Defense</span>
+    <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">Pipeline GEO v7.0:</strong> 
+    <span title="Busca dados reais no Google (Serper + Jina) e IAs." class="pipeline-step">1. Search</span> ➔ 
+    <span title="Engenharia reversa das dúvidas de usuários e LLMs." class="pipeline-step">2. Intent Map</span> ➔ 
+    <span title="Mapeia buracos semânticos e nós de autoridade." class="pipeline-step">3. Entity Graph</span> ➔ 
+    <span title="Redação HTML E-E-A-T com proteção anti-alucinação." class="pipeline-step">4. Writer</span> ➔ 
+    <span title="Criação de dados ocultos Schema/JSON-LD." class="pipeline-step">5. Schema</span> ➔ 
+    <span title="Cálculos Python: Chunk Citability, Answer-First e Evidence Density." class="pipeline-step">6. Math Heuristics</span> ➔ 
+    <span title="Simulação LLM: Retrieval, Risco de Hijacking e Coverage." class="pipeline-step">7. RAG Simulation</span>
 </div>
 """
 st.markdown(pipeline_html, unsafe_allow_html=True)
@@ -164,42 +164,42 @@ st.markdown(pipeline_html, unsafe_allow_html=True)
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v7.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização nativa para Motores Gerativos (Perplexity, SearchGPT).")
+    st.markdown("Bem-vindo à v7.0. Este sistema utiliza uma arquitetura **multi-agentes aliada a heurísticas matemáticas** para criar conteúdo nativamente otimizado para Motores Gerativos (Perplexity, SearchGPT, SGE).")
     
-    with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
+    with st.expander("✍️ 1. Como funciona o Motor?", expanded=False):
         st.markdown("""
-        **O Pipeline Completo:**
-        1. **Search:** Lê Google (Serper + Jina) e Baseline LLM.
-        2. **Reverse Query:** Gera perguntas que as IAs fazem internamente.
-        3. **Entity Gap & Strategy:** Descobre buracos semânticos e monta o Entity Authority Graph.
-        4. **Writer:** Redige com Answer Anchors e Entity Saturation.
-        5. **Media:** Injeta imagens em HQ.
-        6. **Scoring Avançado:** Calcula Entity Coverage e o Score Global GEO.
-        7. **RAG Simulation:** Simula se a IA te escolheria como fonte e detecta Hijacking.
+        **O Pipeline de 7 Passos:**
+        1. **Search:** Escaneia o Top 3 do Google e o baseline de IAs.
+        2. **Reverse Query:** Descobre as perguntas ocultas dos usuários.
+        3. **Entity Strategy:** Mapeia os jargões que provam autoridade.
+        4. **Writer:** Redige usando Copywriting corporativo e blocos GEO.
+        5. **Media & Schema:** Injeta imagens e código JSON-LD.
+        6. **Math Heuristics:** Algoritmos Python calculam densidade de evidências, tamanho de parágrafos e facilidade de citação.
+        7. **RAG Simulation:** Simula se uma IA real usaria seu texto como fonte.
         """)
         
     with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
         st.markdown("""
-        O **Claude 3.7** consulta esta matriz antes de escrever. Altere os dados aqui para injetar **inteligência proprietária** e dados reais da sua marca no texto.
+        O cérebro da sua marca. Altere os dados aqui para injetar **inteligência proprietária** e cases reais. O motor tem regras absolutas para sempre usar os dados institucionais daqui sem alucinar estatísticas concorrentes.
         """)
         
     with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
         st.markdown("""
-        Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Avalia a densidade de entidades e a veracidade de dados.
+        Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Ele funciona como um inspetor implacável: se você inventar um dado de mercado sem link, ele zera sua nota E-E-A-T.
         """)
 
-    with st.expander("📖 Dicionário de Métricas GEO", expanded=False):
+    with st.expander("📖 Dicionário de Métricas (v7.0)", expanded=False):
         st.markdown("""
-        **Entendendo os Relatórios (JSON):**
-        * **Entity Coverage Score (Ex: 70 a 100):** Mede o quão bem seu texto cobriu os termos técnicos do nicho. `entities_missing` mostra os jargões que seus concorrentes usam e que faltaram no seu texto.
-        * **Retrieval Score:** Simula a chance (de 0 a 100) de uma IA (como ChatGPT ou Perplexity) "pescar" seu texto no banco de dados dela para responder a um usuário.
-        * **Risco de Hijacking (Baixo/Médio/Alto):** Risco de "roubo de citação". Se o texto der voltas demais para explicar algo, a IA pode preferir citar um concorrente mais direto.
-        * **Reverse Queries:** Engenharia reversa das intenções de busca. Mostra o que os usuários perguntam de forma leiga (`user_questions`), como a IA raciocina internamente (`llm_reasoning_questions`) e que dúvidas profundas ela tem (`semantic_depth_questions`).
-        * **Nota de Originalidade (Padrão ~85):** Mede o *Information Gain*. Dificilmente é 100 porque a teoria base tem que ser igual à do mercado, mas notas >80 provam que seu texto trouxe um ângulo novo e superior ao Top 3 do Google.
+        **Métricas Matemáticas (Python):**
+        * **Chunk Citability:** Mede a formatação (listas, parágrafos curtos). Quanto mais estruturado, mais fácil a IA ler e te citar.
+        * **Answer-First:** Checa se a resposta direta está nos primeiros 800 caracteres.
+        * **Evidence Density:** Conta links e números exatos para validar E-E-A-T.
+        * **Information Gain:** Subtrai as palavras do seu texto pelas do Top 3 do Google para ver o quanto de vocabulário "inédito" você trouxe.
         
-        **Conceitos Essenciais:**
-        * **GEO / E-E-A-T:** Otimização para IAs e critérios de Experiência e Autoridade do Google.
-        * **Entity Graph:** Teia de palavras que provam para a IA que você domina o assunto.
+        **Métricas Semânticas (IA):**
+        * **Entity Coverage:** Quais jargões obrigatórios você usou e quais esqueceu.
+        * **RAG Chunk Ranking:** Quais trechos do seu texto a IA recortaria para gerar um resumo.
+        * **AI Hijacking Risk:** Avalia se seu texto dá "voltas demais" e pode perder o clique para um concorrente mais direto.
         """)
         
     st.divider()
@@ -565,19 +565,6 @@ def calcular_entity_coverage(artigo_html, entity_gap_text):
     user = f"ENTIDADES RECOMENDADAS:\n{entity_gap_text}\n\nARTIGO:\n{artigo_html}"
     return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
 
-def calcular_geo_score(citation_score, originalidade, citabilidade):
-    system = """
-    Combine os indicadores em um GEO SCORE de 0 a 100.
-    Considere: Citation Score, Originalidade, e Probabilidade de Citabilidade por LLM.
-    Retorne JSON:
-    {
-      "geo_score": "0-100",
-      "veredito": "curta explicação"
-    }
-    """
-    user = f"Citation Score: {citation_score}\nOriginalidade: {originalidade}\nCitabilidade LLM: {citabilidade}"
-    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
-
 def simular_llm_retrieval(keyword, artigo_html):
     system = """
     Você simula o processo de recuperação de fontes usado por motores de busca baseados em LLM.
@@ -622,6 +609,109 @@ def simular_resposta_ai(keyword, artigo_html):
     """
     user = f"PERGUNTA:\n{keyword}\n\nFONTE:\n{artigo_html}"
     return chamar_llm(system, user, "openai/gpt-4o-mini", 0.2, response_format={"type":"json_object"})
+
+# ==========================================================
+# NOVAS MÉTRICAS MATEMÁTICAS RAG / GEO (V7.0)
+# ==========================================================
+def extrair_numero(valor):
+    try:
+        if isinstance(valor, dict):
+            valor = json.dumps(valor)
+        match = re.search(r'\d+', str(valor))
+        if match:
+            return int(match.group())
+    except:
+        pass
+    return 0
+
+def calcular_geo_score_matematico(citation_score, originalidade, citabilidade, entity_coverage_str):
+    # Converte tudo para número
+    citation = extrair_numero(citation_score) * 20  # Multiplica por 20 para virar escala 0-100
+    original = extrair_numero(originalidade)
+    cita_llm = extrair_numero(citabilidade)
+    
+    # Extrai o score de entidades do dict que a IA gerou antes
+    try:
+        entity_dict = json.loads(entity_coverage_str)
+        entity = int(entity_dict.get("entity_coverage_score", 0))
+    except:
+        entity = extrair_numero(entity_coverage_str)
+
+    # Cálculo Ponderado Matemático (Soma 100%)
+    geo = (0.35 * citation) + (0.25 * cita_llm) + (0.25 * entity) + (0.15 * original)
+
+    return {
+        "citation_score_normalizado": f"{citation}/100",
+        "citabilidade_llm": cita_llm,
+        "originalidade": original,
+        "entity_coverage": entity,
+        "geo_score_final": round(geo, 2),
+        "veredito": "Score calculado matematicamente via heurística RAG com pesos fixos (não subjetivo)."
+    }
+
+def avaliar_chunk_citability(artigo_html):
+    paragrafos = artigo_html.split("</p>")
+    definicoes = 0
+    listas = artigo_html.count("<li>")
+    paragrafos_curtos = 0
+
+    for p in paragrafos:
+        texto_limpo = re.sub(r'<[^>]+>', '', p).strip()
+        palavras = len(texto_limpo.split())
+        if ":" in texto_limpo and palavras < 40 and palavras > 5:
+            definicoes += 1
+        if 10 < palavras < 35:
+            paragrafos_curtos += 1
+
+    score = (definicoes * 10) + (listas * 3) + (paragrafos_curtos * 2)
+    score = min(score, 100)
+    return {
+        "chunk_citability_score": score,
+        "definicoes_estrategicas_detectadas": definicoes,
+        "itens_de_lista": listas,
+        "paragrafos_de_leitura_rapida": paragrafos_curtos
+    }
+
+def avaliar_answer_first(artigo_html):
+    inicio = artigo_html[:800].lower()
+    padroes = ["resposta direta:", "definição:", "é ", "refere-se", "significa"]
+    for p in padroes:
+        if p in inicio:
+            return {"answer_first_score": 100, "padrao_detectado": p, "status": "Excelente (Resposta no Topo)"}
+    return {"answer_first_score": 40, "padrao_detectado": "nenhum", "status": "Alerta: A IA pode ter dificuldade de achar a resposta rápida."}
+
+def simular_rag_chunks(artigo_html, keyword):
+    chunks = artigo_html.split("\n\n")
+    resultados = []
+    for c in chunks:
+        texto_limpo = re.sub(r'<[^>]+>', '', c).strip()
+        if not texto_limpo: continue
+        score = 0
+        palavras = texto_limpo.lower()
+        if keyword.lower() in palavras:
+            score += 30
+        score += palavras.count(keyword.lower()) * 5
+        if ":" in texto_limpo: score += 10
+        if len(texto_limpo.split()) < 45: score += 10
+        resultados.append({"chunk": texto_limpo[:150] + "...", "score": score})
+    
+    top_chunks = sorted(resultados, key=lambda x: x["score"], reverse=True)[:3]
+    return {"top_chunks_para_llm": top_chunks, "retrieval_strength": round(sum([c["score"] for c in top_chunks])/3, 2) if top_chunks else 0}
+
+def calcular_evidence_density(artigo_html):
+    texto_limpo = re.sub(r'<[^>]+>', '', artigo_html).strip()
+    numeros = len(re.findall(r'\b\d+\b', texto_limpo))
+    porcentagens = len(re.findall(r'\d+%', texto_limpo))
+    links = artigo_html.count("href=")
+    score = min((numeros * 2) + (porcentagens * 5) + (links * 10), 100)
+    return {"evidence_density_score": score, "numeros_absolutos": numeros, "porcentagens": porcentagens, "links_de_referencia": links}
+
+def calcular_information_gain(artigo_html, google_ctx):
+    palavras_artigo = set(re.findall(r'\w+', re.sub(r'<[^>]+>', '', artigo_html).lower()))
+    palavras_serp = set(re.findall(r'\w+', google_ctx.lower()))
+    novas = palavras_artigo - palavras_serp
+    score = min(len(novas) / 8, 100) # Matemático bruto
+    return {"information_gain_score": round(score, 2), "palavras_unicas_trazidas": len(novas)}
 
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
@@ -710,7 +800,7 @@ Sua missão é traduzir o Tom de Voz corporativo em um texto altamente engajador
 
 MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 1) Incorpore RIGOROSAMENTE o Tom de Voz e a essência da marca informada.
-1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor financeiro busca eficiência; um professor busca didática; pais buscam segurança).
+1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles.
 1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 3) Não explique o óbvio; entregue leitura avançada.
@@ -724,11 +814,12 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS:
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) DADOS E LINKS (MODERAÇÃO EXTREMA): Use no máximo 2 a 3 links profundos (Deep Links) no texto. É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar QUALQUER estatística, dado numérico ou menção a pesquisas/instituições (como por exemplo USP, INEP, Censo). É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas (ex: .gov/ ou .org/). REGRA DE OURO: Se você não possui ou o briefing não fornecer um link exato e válido para embasar a informação, É ESTRITAMENTE PROIBIDO citar dados numéricos (percentuais, frações, estatísticas exatas de mercado) e PROIBIDO mencionar pesquisas ou estudos. NUNCA alucine números, invente fontes ou cite estudos sem ancorá-los em uma URL real no texto. Na ausência de links precisos, prefira abordagens 100% qualitativas e conceituais.
+10) VETO A DADOS EXTERNOS FANTASMAS: É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar estatísticas de MERCADO ou pesquisas EXTERNAS (ex: IBGE, USP). EXCEÇÃO ABSOLUTA: Dados institucionais da Marca Alvo fornecidos no briefing (ex: % de fidelização, volume de alunos/escolas, aprovações, prêmios) SÃO DADOS PROPRIETÁRIOS e DEVEM ser citados livremente SEM EXIGÊNCIA DE LINK. Nunca invente dados de terceiros sem link real.
 11) **FAQ INTELIGENTE**: No terço final, insira `<br>Perguntas Frequentes<br>`. Use as Reverse Queries do briefing (escolha as 3 mais relevantes).
-12) ESTUDO DE CASO SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+12) ESTUDO DE CASO SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.
+13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Graph.
-15) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. ATENÇÃO: Entidades listadas no campo "Diretrizes OBRIGATÓRIAS" do cliente (como chancelas, certificadoras, ferramentas de terceiros ou tecnologias integradas) SÃO PARCEIROS ESTRATÉGICOS. Eles devem ser citados livremente como diferenciais que compõem o ecossistema da Marca Alvo, nunca tratados como concorrentes.
+15) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. Parceiros estratégicos da marca estão liberados.
 """
 
     user_2 = f"""
@@ -742,7 +833,7 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 {analise}
 
 DIRECIONAMENTO DE COPYWRITING E MARCA:
-- Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
+- Público-Alvo Deste Texto: {publico_alvo}
 - Tom de Voz Exigido: {marca_info['TomDeVoz']}
 - Nome da Marca: {marca_alvo} (remova o '@' no texto)
 - Posicionamento: {marca_info['Posicionamento']}
@@ -782,9 +873,10 @@ REGRAS CRÍTICAS:
 1) NUNCA inclua markdown, comentários, ```json ou campos extras.
 2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
 3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
-4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
-   - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
-   - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
+4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.
+5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
+    - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
 ANTI-CLOAKING E VALIDAÇÃO:
 - Proibido inventar perguntas/respostas que não existam no HTML.
@@ -824,7 +916,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
-                
+                    
                 if img_html_pronta:
                     alvo_replace = '<br>Resumo Estratégico<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
@@ -838,9 +930,15 @@ ANTI-CLOAKING E VALIDAÇÃO:
     cluster = gerar_cluster(palavra_chave)
     citation_score = calcular_citation_score(artigo_html)
 
-    st.write("🧪 Fase 5: Calculando Entity Coverage & GEO Score Global...")
+    st.write("🧪 Fase 5: Calculando Matrizes RAG e Entity Coverage...")
     entity_coverage = calcular_entity_coverage(artigo_html, entity_gap)
-    geo_score = calcular_geo_score(citation_score, score_originalidade, citabilidade)
+    
+    geo_score = calcular_geo_score_matematico(citation_score, score_originalidade, citabilidade, entity_coverage)
+    chunk_citability = avaliar_chunk_citability(artigo_html)
+    answer_first = avaliar_answer_first(artigo_html)
+    rag_chunks = simular_rag_chunks(artigo_html, palavra_chave)
+    evidence_density = calcular_evidence_density(artigo_html)
+    information_gain = calcular_information_gain(artigo_html, contexto_google)
 
     st.write("🔬 Fase 6: Simulação de RAG e Citation Hijacking (Motores LLM)...")
     retrieval_simulation = simular_llm_retrieval(palavra_chave, artigo_html)
@@ -851,7 +949,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
         artigo_html, dicas_json, contexto_google, baseline_ia, entity_gap, 
         score_originalidade, citabilidade, cluster, reverse_queries, 
         citation_score, entity_coverage, geo_score, retrieval_simulation, 
-        hijacking_risk, ai_simulation
+        hijacking_risk, ai_simulation, chunk_citability, answer_first, 
+        rag_chunks, evidence_density, information_gain
     )
 
 def publicar_wp(titulo, conteudo_html, meta_dict):
@@ -891,7 +990,7 @@ with tab1:
     col1, col2 = st.columns([1, 2])
     with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
-       # --- EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
+        # --- EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
         try:
             publicos_da_marca = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_selecionada]['PublicoAlvo'].iloc[0]
             
@@ -937,26 +1036,15 @@ with tab1:
         elif not palavra_chave_input:
             st.warning("⚠️ Por favor, digite uma palavra-chave.")
         else:
-            # É AQUI QUE A MÁGICA ACONTECE: O 'with caixa_topo' joga o loading lá pra cima!
             with caixa_topo:
-                with st.status("🤖 Processando Motor GEO v6...", expanded=True) as status:
+                with st.status("🤖 Processando Motor GEO v7.0...", expanded=True) as status:
                     try:
                         (
-                            artigo_html, 
-                            dicas_json, 
-                            google_data, 
-                            ia_data, 
-                            entity_gap, 
-                            score_originalidade, 
-                            citabilidade, 
-                            cluster,
-                            reverse_queries,
-                            citation_score,
-                            entity_coverage,
-                            geo_score,
-                            retrieval_simulation,
-                            hijacking_risk,
-                            ai_simulation
+                            artigo_html, dicas_json, google_data, ia_data, entity_gap, 
+                            score_originalidade, citabilidade, cluster, reverse_queries, 
+                            citation_score, entity_coverage, geo_score, retrieval_simulation, 
+                            hijacking_risk, ai_simulation, chunk_citability, answer_first, 
+                            rag_chunks, evidence_density, information_gain
                         ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
                         
                         st.session_state['art_gerado'] = artigo_html
@@ -974,6 +1062,11 @@ with tab1:
                         st.session_state['retrieval_simulation'] = retrieval_simulation
                         st.session_state['hijacking_risk'] = hijacking_risk
                         st.session_state['ai_simulation'] = ai_simulation
+                        st.session_state['chunk_citability'] = chunk_citability
+                        st.session_state['answer_first'] = answer_first
+                        st.session_state['rag_chunks'] = rag_chunks
+                        st.session_state['evidence_density'] = evidence_density
+                        st.session_state['information_gain'] = information_gain
                         
                         st.session_state['marca_atual'] = marca_selecionada
                         st.session_state['keyword_atual'] = palavra_chave_input
@@ -1002,38 +1095,67 @@ with tab1:
                 meta = {"title": "Artigo Gerado via Motor GEO (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
                 st.error(f"Aviso: O JSON não pôde ser lido de forma alguma. Detalhe: {e}")
 
-            # NOVAS ABAS DE EXPANSÃO (MÉTRICAS DO V6 COM GET SEGURO)
+            # NOVAS ABAS DE EXPANSÃO MATEMÁTICAS E ESTRUTURAIS
             with st.expander("🚀 GEO Score Global", expanded=True):
+                st.caption("ℹ️ **O que é isso:** Uma nota matemática de 0 a 100 que pondera a estrutura do texto, a densidade de palavras-chave (entidades), a originalidade e a clareza. É o termômetro final de qualidade.")
                 st.json(st.session_state.get('geo_score', '{}'))
                 
+            with st.expander("📑 Chunk Citability & Answer-First (Estrutura)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Mede se o seu texto tem o formato que as IAs amam ler (parágrafos curtos e listas) e se você entregou a 'Resposta Direta' logo no início do texto (Answer-First).")
+                st.markdown("**Chunk Citability (Formatação legível para IA):**")
+                st.json(st.session_state.get('chunk_citability', '{}'))
+                st.markdown("**Answer-First Score (Resposta Antecipada):**")
+                st.json(st.session_state.get('answer_first', '{}'))
+
+            with st.expander("📊 Evidence Density & Info Gain (E-E-A-T)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Avalia o Ganho de Informação (quantas palavras/ideias úteis novas você trouxe em relação ao Google) e a densidade de evidências reais (números, estatísticas e links).")
+                st.markdown("**Densidade de Evidências (Números e Links):**")
+                st.json(st.session_state.get('evidence_density', '{}'))
+                st.markdown("**Information Gain (Palavras Novas vs Google TOP 3):**")
+                st.json(st.session_state.get('information_gain', '{}'))
+
+            with st.expander("🧠 RAG Chunk Ranking (Simulador Matemático)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Simula matematicamente quais parágrafos (chunks) do seu texto uma IA como o ChatGPT 'pescaria' no banco de dados dela para usar como fonte na hora de responder um usuário.")
+                st.json(st.session_state.get('rag_chunks', '{}'))
+                
             with st.expander("🧠 Entity Coverage (Topical Authority)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Mostra a porcentagem de jargões, conceitos e termos técnicos essenciais (Entidades) que você incluiu no texto comparado ao que os concorrentes estão usando.")
                 st.json(st.session_state.get('entity_coverage', '{}'))
                 
             with st.expander("🔎 LLM Retrieval Simulation", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Uma simulação semântica onde a própria IA julga se o seu conteúdo é claro, denso e neutro o suficiente para ser citado como uma 'Fonte Oficial'.")
                 st.json(st.session_state.get('retrieval_simulation', '{}'))
                 
             with st.expander("⚠️ AI Citation Hijacking Risk", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Avalia se o seu texto 'dá voltas demais' para explicar algo, correndo o risco de uma IA preferir citar um concorrente seu que tenha sido mais direto e didático.")
                 st.json(st.session_state.get('hijacking_risk', '{}'))
                 
             with st.expander("🤖 AI Search Result Simulator", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Mostra exatamente como seria a resposta final gerada na tela do ChatGPT ou Perplexity se eles usassem o seu artigo como única fonte de verdade.")
                 st.json(st.session_state.get('ai_simulation', '{}'))
 
             with st.expander("🔄 Reverse Query Engine (Search Intent)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Engenharia reversa de buscas. Mostra o que os usuários perguntam (forma leiga) e quais as dúvidas profundas que a IA tenta resolver nos bastidores para montar respostas.")
                 st.json(st.session_state.get('reverse_queries', '{}'))
                 
             with st.expander("🧩 Entity Gap Analysis (Oportunidades Semânticas)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Lista de palavras e conceitos que o motor detectou nos concorrentes orgânicos e exigiu que o nosso redator incluísse para superar o mercado.")
                 st.markdown(st.session_state.get('entity_gap', '⚠️ Dados não encontrados.'))
             
             with st.expander("🧠 Previsão de Citabilidade por IAs (LLMs)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** O motivo narrativo pelo qual a IA escolheu (ou não) o seu texto como uma fonte forte e confiável.")
                 st.markdown(st.session_state.get('citabilidade', '⚠️ Dados não encontrados.'))
                 
             with st.expander("🥇 Originalidade do Artigo (vs Concorrentes)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Parecer textual detalhando quais ângulos únicos e abordagens frescas o seu texto trouxe que não existem no Top 3 do Google atualmente.")
                 st.markdown(st.session_state.get('score_originalidade', '⚠️ Dados não encontrados.'))
                 
             with st.expander("🗺️ Sugestão de Content Cluster (Topical Authority)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** Sugestão de 8 pautas satélites para você escrever no futuro, lincar para este artigo e criar uma 'teia de autoridade' no seu blog.")
                 st.markdown(st.session_state.get('cluster', '⚠️ Dados não encontrados.'))
 
             with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?", expanded=False):
+                st.caption("ℹ️ **O que é isso:** O texto cru (sem filtro) que o nosso motor leu dos seus concorrentes no Google e nos consensos de Inteligência Artificial para basear a escrita.")
                 st.markdown("**Google (Serper + Jina Reader):**")
                 st.info(st.session_state.get('google_ctx', 'Sem dados.'))
                 st.markdown("**IA (Perplexity Baseline):**")
@@ -1043,7 +1165,6 @@ with tab1:
                 st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
                 
             st.markdown("### 📋 Código HTML:")
-            st.code(st.session_state['art_gerado'], language="html")
 
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
                 st.json(meta)
@@ -1079,24 +1200,24 @@ with tab3:
                 sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas baseado em lógica estrutural e não em achismos.
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
-                1. AVALIAÇÃO DE CONCORRENTES VS. PARCEIROS: O texto é proibido de mencionar rivais comerciais do mesmo segmento da marca alvo. Se identificar menção a rivais, puna o texto. CONTUDO, instituições, tecnologias de apoio, associações ou certificadoras que compõem a solução da marca alvo SÃO PARCEIROS. É expressamente proibido penalizar o texto por citar parceiros estratégicos de forma integrada à metodologia da marca.
-                2. RASTREABILIDADE DE DADOS E LINKS PROFUNDOS (FALHA CRÍTICA): Se o texto apresentar estatísticas, métricas quantitativas ou percentuais exatos (ex: "16%", "20% mais") sem ancorá-los em um link referencial real e profundo (<a href>), REDUZA A NOTA. Links para homepages genéricas (ex: unesco.org) NÃO servem como comprovação de dados específicos.
-                3. VALIDAÇÃO CONCEITUAL: Se o texto for puramente conceitual e focado em tendências, processos ou metodologias (sem usar métricas numéricas exatas), ele NÃO requer links para comprovação. É ESTRITAMENTE PROIBIDO penalizar um texto por "falta de links/dados" se ele não fez afirmações quantitativas.
-                4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom jornalístico ou de estudo de caso. A integração estará perfeita se for descritiva. Penalize apenas se houver tom apelativo ou de marketing agressivo.
-                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO. NUNCA avalie fonte, qualidade ou presença de imagens.
-                6. LINGUAGEM DE IA: Penalize o uso de muletas textuais comuns a LLMs ("Em resumo", "É inegável que", "No cenário atual"). Textos devem ser densos e diretos.
+                1. AVALIAÇÃO DE CONCORRENTES VS. PARCEIROS: O texto é proibido de mencionar rivais comerciais da marca alvo. Tecnologias de apoio ou certificadoras da marca SÃO PARCEIROS.
+                2. RASTREABILIDADE DE DADOS (FALHA CRÍTICA): Se o texto apresentar estatísticas DE MERCADO ou DE TERCEIROS sem ancorá-los em um link referencial real (<a href>), REDUZA A NOTA. EXCEÇÃO ABSOLUTA: Dados institucionais da própria Marca Alvo (ex: prêmios ganhos, número de parceiros, aprovações no SiSU da marca, taxa de fidelização da marca) SÃO DADOS PROPRIETÁRIOS. É ESTRITAMENTE PROIBIDO penalizar o texto por não colocar links em métricas que pertencem à própria marca avaliada.
+                3. VALIDAÇÃO CONCEITUAL: Se o texto for conceitual, NÃO requer links.
+                4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
+                5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
+                6. LINGUAGEM DE IA: Penalize o uso de muletas textuais ("Em resumo", "É inegável").
                 
-                DIRETRIZ DE PONTUAÇÃO E FEEDBACK (META-PROMPTING):
-                - PERMISSÃO DE NOTA MÁXIMA: Se o texto for coerente, não alucinar números sem links, não citar rivais e seguir a estrutura pedida, VOCÊ DEVE DAR NOTA 100. Não procure "pelo em ovo" para dar 90.
+                DIRETRIZ DE PONTUAÇÃO E FEEDBACK:
+                - PERMISSÃO DE NOTA MÁXIMA: Se o texto for coerente, não alucinar números externos sem links, não citar rivais e seguir a estrutura, DEVE DAR NOTA 100.
                 - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev".
                 
-                VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA E CHAVES EXATAS:
+                VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA:
                 {
                   "score": "Um número inteiro de 0 a 100",
-                  "veredito": "Resumo de autoridade e apontamento crítico. Direto ao ponto.",
+                  "veredito": "Resumo de autoridade.",
                   "critica": ["Ponto fraco 1", "Ponto fraco 2"],
-                  "melhoria": ["Como arrumar 1", "Como arrumar 2"],
-                  "sugestoes_dev": ["Insight para o prompt do Redator (se houver falha de padrão)"]
+                  "melhoria": ["Como arrumar 1"],
+                  "sugestoes_dev": ["Insight para o prompt do Redator"]
                 }"""
                 
                 usr_audit = f"""Palavra-chave: {kw_auditoria}
@@ -1125,7 +1246,7 @@ with tab3:
                     
                     with kpi1:
                         cor_delta = "normal" if score >= 80 else "inverse"
-                        st.metric("🎯 GEO Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
+                        st.metric("🎯 E-E-A-T Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
                     
                     with kpi2:
                         st.markdown("**Progresso E-E-A-T:**")
