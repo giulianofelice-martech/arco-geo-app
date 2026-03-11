@@ -764,7 +764,7 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS REAIS (DATA MINING E DEEP LINKS): Vasculhe o contexto orgânico fornecido. Extraia NÚMEROS REAIS, ESTATÍSTICAS e PERCENTUAIS (%) exatos que os concorrentes usaram. Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo. É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: unesco.org). SEMPRE atrele os dados à URL profunda. Se o contexto carecer de URLs profundas e não tiver números, use EXCLUSIVAMENTE os números da Marca Alvo fornecidos no briefing e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS. NUNCA alucine pesquisas (ex: USP, INEP, Censo) ou dados numéricos se não estiverem no contexto orgânico.
+C) MAPA DE EVIDÊNCIAS REAIS E DEEP LINKS: Vasculhe o contexto orgânico. Extraia NÚMEROS REAIS, ESTATÍSTICAS e PERCENTUAIS (%) exatos, atrelando à URL profunda. É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: unesco.org). Se o contexto orgânico for fraco, busque os dados numéricos institucionais nas diretrizes da Marca Alvo. SE NÃO HOUVER DADOS NUMÉRICOS, é perfeitamente aceitável e recomendado declarar: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO. NUNCA alucine pesquisas (ex: USP, INEP, Censo) ou dados numéricos.
 D) DENSIDADE SEMÂNTICA OBRIGATÓRIA (NLP/TF-IDF): Analise o contexto orgânico e liste as 10 "entidades" (jargões, conceitos, metodologias) principais e de alto valor presentes no Top 3. O redator será OBRIGADO a incluir todas para garantir 100% de Entity Coverage.
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
@@ -818,9 +818,9 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) DENSIDADE DE EVIDÊNCIAS E VETO A DADOS FANTASMAS (MODERAÇÃO EXTREMA): Seu texto precisa de "peso numérico". Use no máximo 2 a 3 links profundos (Deep Links). É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar estatísticas de MERCADO ou pesquisas EXTERNAS (ex: IBGE, USP). É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas. EXCEÇÃO ABSOLUTA: Use os números e percentuais (%) do Brandbook da marca ou os extraídos pelo Estrategista; dados institucionais da Marca Alvo (ex: % de fidelização, prêmios) SÃO PROPRIETÁRIOS e DEVEM ser citados livremente SEM EXIGÊNCIA DE LINK. Nunca invente dados do zero ou cite estudos sem link real.
+10) DENSIDADE DE EVIDÊNCIAS (FLEXÍVEL) E VETO A DADOS FANTASMAS: É recomendável dar "peso numérico" ao texto usando os números (%) do Brandbook ou extraídos pelo Estrategista. Para dados externos de MERCADO, é OBRIGATÓRIO usar a tag HTML <a href="...">. Dados institucionais da Marca Alvo SÃO PROPRIETÁRIOS e não exigem link. ATENÇÃO: Se não houver dados reais mapeados no briefing ou na marca, É PERFEITAMENTE ACEITÁVEL que o texto seja 100% conceitual e focado em metodologia. NUNCA invente dados numéricos do zero.
 11) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todos os jargões sugeridos no Briefing (Entity Coverage). Não deixe faltar os "Benefícios" e "Desafios" se forem relevantes. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
-12) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo os diferenciais REAIS da marca (usando os dados institucionais dela) de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.
+12) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo os diferenciais REAIS da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números falsos de "antes e depois" ou métricas irreais. Foque em explicar COMO a marca resolve o problema usando sua metodologia.
 13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 14) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. Parceiros estratégicos da marca estão liberados.
 """
@@ -849,9 +849,9 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. Você evitou blocos de texto massivos, quebrando ideias em listas <ul><li> e parágrafos curtos (15 a 35 palavras)?
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos de "antes e depois". Se sim, APAGUE ISSO.
-6. Você citou alguma instituição/organização (ex: UNESCO, ACTFL, Universidades, Censo, etc.) fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
-7. A regra é clara: Sem link real = Sem citar nomes de pesquisas ou números estatísticos (exceto os dados que já vieram no Brandbook da {marca_alvo}).
+5. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício. Se sim, APAGUE ISSO.
+6. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
+7. Você citou alguma instituição/organização externa fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -1168,10 +1168,16 @@ with tab1:
                 st.markdown("**IA (Perplexity Baseline):**")
                 st.info(st.session_state.get('ia_ctx', 'Sem dados.'))
 
-            with st.expander("👁️ Pré-visualização do HTML", expanded=False):
+            with st.expander("👁️ Pré-visualização do Artigo (Visual)", expanded=False):
                 st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
                 
-            st.markdown("### 📋 Código HTML:")
+            st.markdown("---")
+            st.subheader("📋 Copie seu HTML Pronto")
+            st.info("Passe o mouse no canto superior direito do bloco abaixo e clique no ícone de copiar 📋, ou clique dentro e use Ctrl+A / Ctrl+C.")
+            
+            # Text area é excelente para copiar grandes blocos de texto no Streamlit
+            st.text_area("Código-fonte (HTML):", value=st.session_state['art_gerado'], height=400)
+            st.markdown("---")
 
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
                 st.json(meta)
