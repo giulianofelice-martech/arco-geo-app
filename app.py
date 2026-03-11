@@ -12,6 +12,11 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
 
+Entendido. Sem mexer nos botões nem nos inputs, apenas alinhando a tag azul com o título e a logo, usando o seu CSS base.
+
+Substitua exatamente o código que você mandou por este aqui. A única coisa nova é a classe .arco-tag no CSS e a div flexível ali embaixo para alinhar os elementos:
+
+Python
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
@@ -22,13 +27,6 @@ st.markdown("""
     /* Importando as fontes do site da Arco */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
-    /* ==================================================
-       FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
-       ================================================== */
-    .stApp { background-color: #FAFAFA !important; }
-    [data-testid="stSidebar"] { background-color: #FFFFFF !important; border-right: 1px solid #EAEAEA !important; }
-    .markdown-text-container, .stMarkdown p, li, span, label, .stText { color: #374151 !important; font-family: 'Inter', sans-serif; }
-
     /* Forçando a tipografia global */
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
@@ -38,10 +36,11 @@ st.markdown("""
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
+        color: #111827 !important;
         letter-spacing: -0.02em;
     }
 
-    /* TAG ESTILO ARCO */
+    /* TAG ESTILO ARCO (Azulzinha) - ADICIONADA AQUI */
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -54,10 +53,10 @@ st.markdown("""
         padding: 4px 12px;
         border-radius: 50px;
         text-transform: uppercase;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
 
-    /* Botões Primários originais */
+    /* Botões Primários (Estilo Botão Header Arco) */
     .stButton > button {
         background-color: #111827 !important; /* Fundo escuro elegante */
         color: #FFFFFF !important;
@@ -77,7 +76,7 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Estilo das Abas (Tabs) originais */
+    /* Estilo das Abas (Tabs) */
     [data-baseweb="tab-list"] {
         gap: 24px;
         border-bottom: 2px solid #E5E7EB;
@@ -94,20 +93,20 @@ st.markdown("""
         border-bottom-color: #F05D23 !important;
     }
 
-    /* Melhorando os Expanders originais */
+    /* Melhorando os Expanders (Para parecerem Cards) */
     .streamlit-expanderHeader {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
-        color: #111827 !important;
-        background-color: #FFFFFF !important;
+        color: #111827;
+        background-color: #FFFFFF;
         border-radius: 8px;
     }
     
     div[data-testid="stExpander"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #E5E7EB !important;
-        border-radius: 8px !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         margin-bottom: 16px;
     }
 
@@ -137,14 +136,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# CABEÇALHO ALINHADO PERFEITAMENTE COM HTML
+# CABEÇALHO ALINHADO COM A TAG
 # ==========================================
 st.markdown("""
     <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
         <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" width="140" alt="Logo Arco">
         <div style="display: flex; flex-direction: column; justify-content: center;">
-            <div class='arco-tag' style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
-            <h1 style="margin: 0; padding: 0; font-size: 2.4rem; color: #111827 !important;">Motor GEO v7.0 <span style="color: #F05D23 !important;">AI Search Native</span></h1>
+            <div class='arco-tag' style="width: fit-content;">MOTOR DE INTELIGÊNCIA</div>
+            <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
         </div>
     </div>
 """, unsafe_allow_html=True)
