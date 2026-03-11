@@ -230,7 +230,8 @@ class MetadadosArtigo(BaseModel):
 if 'brandbook_df' not in st.session_state:
     dados_iniciais = [
         {
-            "Marca": "@saseducacao",
+            "Marca": "SAS Educação",
+            "URL": "https://www.saseducacao.com.br/",
             "Posicionamento": "Marca visionária, líder em aprovação. Entrega de valor em tecnologia e serviço. | Protagonistas na evolução da forma de ensinar e aprender. Abordagem com diagnósticos e embasamentos profundos, superamos as expectativas de parceiros. Somos alta performance e transformamos complexidade em oportunidades. | Promessa: Educação de excelência com foco em resultados acadêmicos, suporte pedagógico próximo e uso de dados para aprendizado.",
             "Territorios": "Vestibulares, Tecnologia, Inovação, Pesquisas",
             "TomDeVoz": "Acadêmico, inovador, especialista e inspirador. Visionário, colaborativo",
@@ -239,7 +240,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque os diferenciais: - Líder nacional em aprovação no SiSU 2025, - Maior sistema de ensino do Brasil, - +1.300 escolas parceiras, - 97% de fidelização. Propósito da marca: Moldar, com coragem e embasamento, a educação do futuro ao lado das escolas."
         },
         {
-            "Marca": "@geekieeducacao",
+            "Marca": "Geekie",
+            "URL": "https://www.geekie.com.br/",
             "Posicionamento": "Metodologia inovadora (aluno no centro), fácil de implementar. | Material didático inteligente que apoia práticas ativas e que possibilita a personalização da aprendizagem por meio de dados. | Promessa: Aprendizado personalizado, engajante e baseado em dados.",
             "Territorios": "Inovação, IA/Personalização, Tecnologia, Dados",
             "TomDeVoz": "Inovador, moderno, ágil. Transformador, visionário, experimental, adaptável e inspirador",
@@ -248,7 +250,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque os diferenciais: - A primeira plataforma de educação baseada em dados, - Mais de 12 milhões de estudantes impactados, - Melhor solução de IA premiada no Top Educação. Propósito da marca: Transformar a educação para que cada estudante seja tratado como único."
         },
         {
-            "Marca": "@plataformacoc",
+            "Marca": "COC",
+            "URL": "https://coc.com.br/",
             "Posicionamento": "Marca aprovadora que evolui a escola pedagogicamente. | Promover transformação de alto impacto, através de resultados de crescimento para a gestão da escola e ao longo de toda a trajetória do aluno | Promessa: Resultados de crescimento para a gestão da escola e ao longo de toda a trajetória do aluno.",
             "Territorios": "Vestibulares, Esportes, Gestão escolar, Crescimento",
             "TomDeVoz": "Consultivo, parceiro, dinâmico. Viva, ponta firme, sagaz, aberta, contemporânea",
@@ -257,7 +260,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque os diferenciais: - Mais de 60 anos, - Melhor consultoria do Brasil 2x premiada no Top Educação. Propósito: Impulsionar escolas rumo a uma educação contemporânea de excelência."
         },
         {
-            "Marca": "@sistemapositivodeensino",
+            "Marca": "Sistema Positivo",
+            "URL": "https://www.sistemapositivo.com.br/",
             "Posicionamento": "Formação integral, humana e próxima. A maior rede do Brasil. | Com uma abordagem inspiradora e humana, somos referência em solutions que guiam nossas escolas parceiras a evoluírem na missão de ensinar, transformando positivamente a vida dos brasileiros.",
             "Territorios": "Formação integral, Inclusão, Tradição",
             "TomDeVoz": "Acolhedor, tradicional, humano. Experiente, criativa, inovadora e segura",
@@ -266,7 +270,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque os diferenciais: - Mais de 45 anos de atuação. Propósito: Inspirar e fortalecer escolas para que evoluam a educação brasileira com humanidade."
         },
         {
-            "Marca": "@saedigital",
+            "Marca": "SAE Digital",
+            "URL": "https://sae.digital/",
             "Posicionamento": "Melhor integração físico/digital, hiperatualizada. | Nos consolidamos como o sistema de ensino atualizado, que melhor integra o físico com o digital para potencializar o resultado dos alunos e dos nossos parceiros.",
             "Territorios": "Tecnologia, Inovação Digital",
             "TomDeVoz": "Prático, tecnológico, dinâmico. Jovem, amigável, antenado, parceiro",
@@ -275,7 +280,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Propósito: Desbravar o caminho para uma educação excelente e acessível, que permita a cada aluno e educador escolher e concretizar seus sonhos."
         },
         {
-            "Marca": "@solucaoconquista",
+            "Marca": "Conquista Solução Educacional",
+            "URL": "https://www.educacaoconquista.com.br/",
             "Posicionamento": "Solução completa focada na parceria Escola-Família. | Desenvolvimento integral e acessível, a partir de 4 pilares: educação financeira, empreendedorismo, educação socioemocional e família.",
             "Territorios": "Família, Educação Infantil, Valores, Comunidade, Empreendedorismo, Socioemocional",
             "TomDeVoz": "Familiar, parceiro, simples e didático. Integradora, descomplicada",
@@ -284,7 +290,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Propósito: Colaborar com escolas para formar alunos protagonistas que constroem seu próprio caminho."
         },
         {
-            "Marca": "@escoladainteligencia",
+            "Marca": "Escola da Inteligência",
+            "URL": "https://escoladainteligencia.com.br/",
             "Posicionamento": "Um ecossistema de educação que transforma alunos, professores, escolas e famílias pelo desenvolvimento da inteligência socioemocional.",
             "Territorios": "Comunidade, Socioemocional, habilidades e competências",
             "TomDeVoz": "Madura, especialista, profunda, humana, acessível, sentimental, suave, estável.",
@@ -293,7 +300,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Primeira solução socioemocional do mercado Brasileiro, presente desde 2010. Tricampeões invictos do Top Educação. Citar ferramentas 'Pulso', 'Mapa Socioemocional' e 'Indicadores Multifocais'. 1.2 milhões de pessoas impactadas."
         },
         {
-            "Marca": "@pesenglish",
+            "Marca": "PES English",
+            "URL": "https://www.pesenglish.com.br/",
             "Posicionamento": "O maior programa de inglês integrado às escolas, facilitador do ensino de qualidade, com resultados que mudam vidas. | Promessa: Educação acessível, integrada e descomplicada.",
             "Territorios": "Bilíngue, crescimento, tecnologia",
             "TomDeVoz": "Especialista, humano, dinâmico, acessível, suave",
@@ -302,7 +310,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: 91% de aprovação nos exames de Cambridge, parcerias com Cambridge e Pearson, sistema 'Level Up'. Programa curricular flexível. Mais de 800 escolas, custando 10x menos que curso de idiomas avulso."
         },
         {
-            "Marca": "@naveavela",
+            "Marca": "Nave a Vela",
+            "URL": "https://www.naveavela.com.br/",
             "Posicionamento": "Referência em educação tecnológica para formar estudantes protagonistas na resolução de problemas reais com tecnologia e criatividade por meio de experiências práticas.",
             "Territorios": "Inovação, tecnologia, criatividade",
             "TomDeVoz": "Especialista, espontâneo, racional, dinâmico",
@@ -311,7 +320,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Abordagem STEAM, 4Cs (criatividade, pensamento crítico, colaboração e comunicação), foco em Inteligência Artificial ética. 4x ganhadores no Top Educação em Educação Tecnológica."
         },
         {
-            "Marca": "@programapleno",
+            "Marca": "Programa Pleno",
+            "URL": "https://programapleno.com.br/",
             "Posicionamento": "O Pleno transforma o convívio escolar através da educação socioemocional interdisciplinar e com rigor científico, trabalhando saúde mental, física e relações interpessoais.",
             "Territorios": "Projetos, socioemocional, habilidades e competências, bem estar",
             "TomDeVoz": "Coletivo, jovem, dinâmico, espontâneo, sofisticado, humano, especialista",
@@ -320,16 +330,18 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Baseado no modelo internacional CASEL, abordagem SAFER, aprendizado baseado em projetos, Guia de trabalho nos espaços públicos e alinhamento à BNCC."
         },
         {
-            "Marca": "@geniodasfinancas",
+            "Marca": "Gênio das Finanças",
+            "URL": "https://geniodasfinancas.com.br/",
             "Posicionamento": "Através da educação financeira comportamental, unimos escolas, alunos e famílias para cultivar autonomia, consciência e equilíbrio nas decisões financeiras, fortalecendo projetos de vida mais saudáveis.",
             "Territorios": "Educação financeira comportamental, habilidades e competências",
-            "TomDeVoz": "Dinâmico, especialista, acessível, humano, estável",
+            "TomDeVoz": "Dinâmico, specialist, acessível, humano, estável",
             "PublicoAlvo": "Mantenedores e Gestores de escolas focadas em habilidades para a vida do aluno do ensino básico.",
             "RegrasNegativas": "Não usar termos como ficar rico ou fórmulas mágicas. O foco é 'comportamental e equilíbrio', nunca promessas milagrosas.",
             "RegrasPositivas": "Destaque: Educação financeira com propósito, ensinando finanças sem julgamentos e com foco no bem-estar emocional."
         },
         {
-            "Marca": "@maraltoedicoes",
+            "Marca": "Maralto",
+            "URL": "https://maralto.com.br/",
             "Posicionamento": "A Maralto assume a sua responsabilidade no processo de construção de um país leitor e apresenta o Programa de Formação Leitora Maralto com o desejo de promover diálogos em torno do livro, da leitura e dos leitores.",
             "Territorios": "Literatura, associação pedagógica",
             "TomDeVoz": "Coletiva, especialista, sofisticada, humana, profunda, formal",
@@ -338,7 +350,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Investimento autoral em conteúdo literário e visual. Propósito: Formar um país de leitores."
         },
         {
-            "Marca": "@internationalschoolsoficial",
+            "Marca": "International School",
+            "URL": "https://internationalschool.global/",
             "Posicionamento": "O programa bilíngue mais premiado do Brasil. Pioneira em bilinguismo no país. Prover soluções educacionais consistentes e inovadoras. Transformar vidas por meio da educação bilíngue. Empoderar a comunidade escolar para desenvolver o aluno como ser integral. | Promessa: Resultados concretos no aprendizado.",
             "Territorios": "Bilinguismo, educação, integral, viagens, inovação, pioneirismo",
             "TomDeVoz": "Especialista, inovador, inspirador, prático, pioneiro, parceiro",
@@ -347,7 +360,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Focar em estrutura informativa. Sempre trazer dados para embasar afirmações vindos de fontes seguras e confiáveis, sempre citar e linkar a fonte dos dados, preferir fontes de pesquisas, governos e instituições de renome. Sempre começar o primeiro parágrafo com um gancho que instigue a leitura, de preferência acompanhado de dado. Podemos usar pesquisas nacionais ou internacionais. Sempre usar construção gramatical focada em clareza: iniciar parágrafos com frases de afirmação, não com conectivos. Sempre conectar com a importância de aprender inglês indo além da gramática: focar na importância de aprender com contexto. Destaque os diferenciais (CSV): Utilização da metodologia CLIL de forma integral. Aborde vivências internacionais reais (KSCIA, Cambridge, Minecraft, Ubisoft, Leo) e a integração do inglês à rotina escolar."
         },
         {
-            "Marca": "@isaaceducacao",
+            "Marca": "Isaac",
+            "URL": "https://isaac.com.br/",
             "Posicionamento": "A maior plataforma financeira e de gestão para a educação. | Promessa: Mensalidades em dia, sem dor de cabeça.",
             "Territorios": "Gestão financeira, Inovação, dados, tecnologia",
             "TomDeVoz": "Corporativo, direto, analítico. Simples (acessível) e parceiro, especialista em gestão financeira.",
@@ -356,7 +370,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Diminuição real da inadimplência, 2x premiada no Top educação, excelência técnica, comprometimento e resultados tangíveis."
         },
         {
-            "Marca": "@classapp",
+            "Marca": "ClassApp",
+            "URL": "https://www.classapp.com.br/",
             "Posicionamento": "A agenda escolar online melhor avaliada do Brasil | Promessa: Mais que funcionalidades, soluções definitivas para os desafios reais da escola.",
             "Territorios": "Comunicação escolar, gestão, inovação",
             "TomDeVoz": "Autoridade acessível (sabe e explica como faz), empática e humana.",
@@ -365,7 +380,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Adesão de 95% e leitura de 85%, segurança, única vencedora do Top Educação na categoria e mais de 260 mil avaliações com nota 4.8."
         },
         {
-            "Marca": "@activesoft",
+            "Marca": "Activesoft",
+            "URL": "https://activesoft.com.br/",
             "Posicionamento": "Gestão escolar mais simples e eficiente com a Activesoft: tudo o que sua escola precisa para otimizar processos, ganhar eficiência e alcançar melhores resultados.",
             "Territorios": "Gestão escolar, dados, gestão acadêmica, gestão financeira, administrativa",
             "TomDeVoz": "Simples, acessível, clara e amigável.",
@@ -374,7 +390,8 @@ if 'brandbook_df' not in st.session_state:
             "RegrasPositivas": "Destaque: Plataforma 100% online (ao contrário de desktops), 25 anos de mercado, atendimento em chat em até 2 minutos (90% de satisfação). Mais de 3 milhões de usuários."
         },
         {
-            "Marca": "@arcoeducacao",
+            "Marca": "Arco Educação",
+            "URL": "https://www.arcoeducacao.com.br/",
             "Posicionamento": "A plataforma integrada de soluções educacionais da Arco Educação. Ponto de encontro de soluções que simplificam a rotina. +12.000 escolas parceiras e +4 milhões de alunos. | Promessa: Tudo que a educação precisa, em um só lugar.",
             "Territorios": "Conexão e tecnologia, foco no elo entre gestão e família (herança isaac/ClassApp).",
             "TomDeVoz": "Confiável, estratégica: torna o complicado mais simples, conecta o que estava separado.",
@@ -723,6 +740,7 @@ def calcular_information_gain(artigo_html, google_ctx):
 def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
+    url_marca = marca_info.get('URL', '')
     from datetime import datetime
     ano_atual = datetime.now().year
 
@@ -762,7 +780,7 @@ REGRAS-MESTRAS (obrigatórias):
 5) Saída sempre em pt-BR.
 6)GATILHOS DE VETO E ANTI-ALUCINAÇÃO (TOLERÂNCIA ZERO):
 - REGRA DO DADO ÓRFÃO: É TERMINANTEMENTE PROIBIDO criar briefings sugerindo estatísticas exatas (ex: "37% de aumento", "9 em cada 10") a menos que você tenha a URL profunda e exata fornecida no contexto orgânico. Se não tiver a URL de pesquisa empírica, force o redator a focar em "Argumentação Lógica e Qualitativa" e proíba o uso de números absolutos ou percentuais.
-- BLINDAGEM DE MARCA: O usuário fornecerá o ID da Marca Alvo com sufixos de rede social (ex: @geekieeducacao, @internationalschoolsoficial, @plataformacoc). Você DEVE orientar o redator a extrair e utilizar APENAS o Nome Fantasia natural (ex: Geekie, International School, COC). Nunca use termos como "oficial" ou o "@".
+- BLINDAGEM E LINK DE MARCA: Oriente o redator a usar a Marca Alvo exatamente como fornecida e a criar um link (href) para a URL Oficial da marca toda vez que ela for mencionada no texto.
 
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
@@ -786,7 +804,8 @@ Baseline de IAs (consenso atual):
 Reverse Queries (Perguntas de LLMs para estruturar o texto e FAQ):
 {reverse_queries}
 
-Marca Alvo:
+Marca Alvo: {marca_alvo}
+URL da Marca: {url_marca}
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios Estratégicos: {marca_info['Territorios']}
 
@@ -812,7 +831,7 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 2.1) VETO DE VOCABULÁRIO IA APRIMORADO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as seguintes expressões e suas variações: "cenário em transformação", "transcendeu o status", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "mergulhar em", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar".
 2.2) ESTILO JORNALÍSTICO (SHOW, DON'T TELL): Não diga que algo é "inovador" ou "fundamental". Apresente o fato técnico e deixe o leitor concluir isso. Escreva como um analista de dados da McKinsey ou um jornalista investigativo focado em negócios B2B.
 3) Não explique o óbvio; entregue leitura avançada.
-4) HIGIENE DO NOME DA MARCA (LIMPEZA OBRIGATÓRIA): A marca alvo será enviada a você em formato de "handle" de rede social (ex: @geekieeducacao, @internationalschoolsoficial, @plataformacoc). Você é OBRIGADO a higienizar essa string e usar APENAS o Nome Fantasia comercial, natural e elegante ao longo do texto (ex: Geekie, International School, COC). É estritamente proibido imprimir o arroba (@) ou sufixos como "oficial", "educacao" ou "edicoes".
+4) LINK OFICIAL DA MARCA (OBRIGATÓRIO): A marca alvo e sua URL serão enviadas a você. Toda vez que você citar o nome da marca no texto, você É OBRIGADO a transformá-la em um hiperlink para o site oficial. Exemplo: <a href="[URL_AQUI]" target="_blank">[NOME_DA_MARCA]</a>.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
@@ -828,7 +847,7 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 11.1) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
 11.2) FONTE DOS LINKS: Priorize os deep links fornecidos no briefing. Se o briefing fornecer um link genérico ou não fornecer, você tem autorização para usar sua base de conhecimento interna para gerar uma URL profunda e real de instituições de alta autoridade (ex: relatórios PISA, CASEL, McKinsey, Porvir) que corrobore com o argumento conceitual.
 13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
-13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial limpo da marca, sem "@" ou "oficial".
+13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
 """
@@ -846,7 +865,8 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
 - Tom de Voz Exigido: {marca_info['TomDeVoz']}
-- Nome da Marca Bruto: {marca_alvo} (OBRIGATÓRIO: Extraia e utilize apenas o Nome Fantasia Comercial no texto, removendo obrigatoriamente o '@' e sufixos de rede social como 'oficial', 'edicoes'. Exemplo mental: se receber '@plataformacoc', escreva apenas 'COC').
+- Marca Alvo: {marca_alvo}
+- URL da Marca: {url_marca} (OBRIGATÓRIO: Linkar a marca para esta URL sempre que citada).
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios: {marca_info['Territorios']}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
@@ -860,7 +880,8 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 5. VETO A RIVAIS: Verifique seu texto. Você citou o nome de ALGUMA OUTRA EMPRESA/SISTEMA que não seja a {marca_alvo}? (Ex: Edify, SAS, Bernoulli, etc). SE SIM, APAGUE E FOQUE NO CONCEITO.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
-8. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
+8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
+9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -1244,7 +1265,7 @@ with tab3:
                 4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
                 6. LIBERDADE TEXTUAL (SEM NITPICKING): É expressamente proibido penalizar o texto, criar críticas ou reduzir pontos por causa de jargões corporativos, clichês ou expressões como "mundo globalizado", "cenário atual", "em resumo" ou "transcendeu". Foque exclusivamente na estrutura E-E-A-T e nos dados, e deixe o estilo literário livre.
-                7. HIGIENE DA MARCA (FOCO NO HTML): Avalie a grafia da marca EXCLUSIVAMENTE dentro do corpo do Texto HTML. IGNORE o arroba/sufixo fornecido na variável 'Marca Alvo' do prompt. Se dentro do HTML gerado a marca estiver limpa e natural (ex: "International School"), não aponte erros. Só penalize se o arroba (@) ou "oficial" aparecerem DENTRO do HTML.
+                7. LINKAGEM DA MARCA (FOCO NO HTML): Toda vez que a Marca Alvo for mencionada no texto, ela deve obrigatoriamente conter um link (href) para sua URL oficial. Penalize se a marca for citada sem o link para o site.
                 
                 DIRETRIZ DE PONTUAÇÃO E FEEDBACK (A REGRA DOS 100 PONTOS):
                 - Se você NÃO encontrar nenhuma quebra das regras acima (ou seja, se os arrays 'critica' e 'melhoria' estiverem vazios), O SCORE DEVE SER ESTRITAMENTE 100.
