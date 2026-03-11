@@ -684,7 +684,10 @@ def avaliar_chunk_citability(artigo_html):
         if 10 < palavras < 35:
             paragrafos_curtos += 1
 
-    score = (definicoes * 10) + (listas * 3) + (paragrafos_curtos * 2)
+    # NOVA LÓGICA DE FREIO: Máximo de 15 pontos para listas (aprox. 5 itens no total)
+    pontos_lista = min(listas * 3, 15)
+
+    score = (definicoes * 10) + pontos_lista + (paragrafos_curtos * 2)
     score = min(score, 100)
     return {
         "chunk_citability_score": score,
@@ -837,7 +840,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
 5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
-7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA): IAs e humanos não leem blocos de texto massivos. Transforme seções em frameworks estruturados (ex: <h2>Os principais pilares...</h2><ul><li>...</li></ul>). O limite MÁXIMO de um parágrafo é de 4 linhas, mas você DEVE alternar dinamicamente: mescle parágrafos "maiores" (3 a 4 linhas) com parágrafos de impacto ultracurtos (1 a 2 linhas) para criar respiro visual. Use e abuse de listas.
+7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). Alterne dinamicamente: mescle parágrafos "maiores" (3 a 4 linhas) com parágrafos de impacto ultracurtos (1 a 2 linhas). LIMITAÇÃO DE LISTAS: É ESTRITAMENTE PROIBIDO abusar de bullet points. Use no máximo 2 a 3 listas (<ul>) em todo o artigo, apenas quando for absolutamente necessário para enumerar dados complexos. Textos fluidos são prioridade.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
 REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
@@ -863,8 +866,7 @@ Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natu
 Inclua pelo menos um momento do texto onde uma crença comum do setor é questionada ou refinada.
 19) MICRO-ANÁLISE CAUSAL:
 Sempre que apresentar um benefício ou prática, explique rapidamente o mecanismo por trás.
-20) LISTAS COM CONTEXTO:
-Evite listas puramente descritivas. Sempre introduza ou conclua listas com interpretação.
+20) LISTAS COM CONTEXTO E LIMITE: O texto não pode parecer uma apresentação de slides. Se usar uma lista (respeitando o limite máximo de 3 no texto todo), é obrigatório introduzi-la com contexto e concluí-la com forte interpretação analítica.
 21) VOZ EDITORIAL DE ANALISTA:
 Escreva como um analista que observa padrões do setor educacional.
 22) MICRO-SÍNTESE:
@@ -903,7 +905,7 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
-10. AUDITORIA DE FONTES: Você citou alguma Associação, Instituto, Estudo ou Pesquisa no texto? Se sim, você colocou a tag de link (<a href="...">) junto ao nome deles? Se estiver sem link, APAGUE a menção à instituição agora mesmo ou adicione o link correspondente.
+10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério (ex: MEC) ou Órgão Governamental no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente. Não tente consertar, apenas apague a afirmação.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
