@@ -26,10 +26,6 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Forçando o fundo claro que você gostou (sem quebrar os inputs) */
-    .stApp { background-color: #FAFAFA !important; }
-    [data-testid="stSidebar"] { background-color: #FFFFFF !important; }
-
     /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
@@ -137,15 +133,14 @@ st.markdown("""
 # CABEÇALHO ALINHADO COM A TAG
 # ==========================================
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 24px;">
-        <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" width="160" alt="Logo Arco">
+    <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 24px; margin-left: -15px;">
+        <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" width="220" style="margin-right: -20px;" alt="Logo Arco">
         <div style="display: flex; flex-direction: column; justify-content: center;">
-            <div class='arco-tag' style="width: fit-content;">MOTOR DE INTELIGÊNCIA</div>
+            <div class='arco-tag' style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
             <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
         </div>
     </div>
 """, unsafe_allow_html=True)
-
 # ==========================================
 # PIPELINE COM TOOLTIPS
 # ==========================================
