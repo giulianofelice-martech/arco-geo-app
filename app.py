@@ -855,7 +855,6 @@ with tab2:
 with tab1:
     col1, col2 = st.columns([1, 2])
     with col1:
-        with col1:
         marca_selecionada = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist())
         # --- NOVO: EXTRAÇÃO DINÂMICA DE PÚBLICO-ALVO ---
         try:
@@ -865,9 +864,9 @@ with tab1:
         except:
             opcoes_publico = ["Público Geral"]
             
-        opcoes_publico.append("✍️ Digitar outro público (Personalizado)...") # Nova opção!
+            opcoes_publico.append("✍️ Digitar outro público (Personalizado)...") # Nova opção!
             
-        escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Escolha uma persona do Brandbook ou selecione 'Digitar outro' para inserir uma nova.")
+            escolha_publico = st.selectbox("🎯 Para quem estamos escrevendo?", opcoes_publico, help="Escolha uma persona do Brandbook ou selecione 'Digitar outro' para inserir uma nova.")
         
         # Se o usuário quiser digitar, abre o campo de texto
         if escolha_publico == "✍️ Digitar outro público (Personalizado)...":
