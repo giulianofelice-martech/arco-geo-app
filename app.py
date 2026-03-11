@@ -837,7 +837,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
 5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
-7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY): IAs não leem blocos de texto massivos. Transforme seções em frameworks (ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>). Seus parágrafos DEVEM TER no MÁXIMO 3 a 4 linhas (entre 15 e 35 palavras). Use e abuse de listas (<ul><li>) ao longo de todo o artigo.
+7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA): IAs e humanos não leem blocos de texto massivos. Transforme seções em frameworks estruturados (ex: <h2>Os principais pilares...</h2><ul><li>...</li></ul>). O limite MÁXIMO de um parágrafo é de 4 linhas, mas você DEVE alternar dinamicamente: mescle parágrafos "maiores" (3 a 4 linhas) com parágrafos de impacto ultracurtos (1 a 2 linhas) para criar respiro visual. Use e abuse de listas.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
 REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
@@ -851,6 +851,26 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
+16) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO):
+Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural:
+- Misture frases curtas (8–12 palavras) com frases médias (18–25 palavras).
+- Nem todos os parágrafos precisam ter exatamente o mesmo tamanho.
+- Em alguns trechos, use uma frase isolada para enfatizar uma ideia.
+17) OBSERVAÇÃO OPERACIONAL (ANTI-TEXTO GENÉRICO):
+-Sempre que explicar um conceito , inclua uma observação concreta da situação ou implementação.
+-Evite abstrações vagas. Prefira descrições operacionais.
+18) CONTRAPONTO ANALÍTICO (OBRIGATÓRIO EM PELO MENOS 1 H2):
+Inclua pelo menos um momento do texto onde uma crença comum do setor é questionada ou refinada.
+19) MICRO-ANÁLISE CAUSAL:
+Sempre que apresentar um benefício ou prática, explique rapidamente o mecanismo por trás.
+20) LISTAS COM CONTEXTO:
+Evite listas puramente descritivas. Sempre introduza ou conclua listas com interpretação.
+21) VOZ EDITORIAL DE ANALISTA:
+Escreva como um analista que observa padrões do setor educacional.
+22) MICRO-SÍNTESE:
+Após alguns blocos analíticos, inclua uma frase curta que consolide a ideia.
+23) PROIBIDO PARÁGRAFOS SIMÉTRICOS:
+Evite produzir vários parágrafos consecutivos com tamanho semelhante e mesma estrutura sintática.
 """
 
     user_2 = f"""
@@ -893,7 +913,7 @@ Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os
 ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
 
-    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.3)
+    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
     # GUILHOTINA PYTHON: Corta qualquer "auto-avaliação" da IA que venha depois do fechamento do HTML
