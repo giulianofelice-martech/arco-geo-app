@@ -760,6 +760,9 @@ REGRAS-MESTRAS (obrigatórias):
 3) Anti-alucinação total: só liste dados/estudos se houver URL pública verificável.
 4) Neutralidade competitiva: ignore marcas privadas concorrentes presentes no contexto bruto.
 5) Saída sempre em pt-BR.
+6)GATILHOS DE VETO E ANTI-ALUCINAÇÃO (TOLERÂNCIA ZERO):
+- REGRA DO DADO ÓRFÃO: É TERMINANTEMENTE PROIBIDO criar briefings sugerindo estatísticas exatas (ex: "37% de aumento", "9 em cada 10") a menos que você tenha a URL profunda e exata fornecida no contexto orgânico. Se não tiver a URL de pesquisa empírica, force o redator a focar em "Argumentação Lógica e Qualitativa" e proíba o uso de números absolutos ou percentuais.
+- BLINDAGEM DE MARCA: O usuário fornecerá o ID da Marca Alvo com sufixos de rede social (ex: @geekieeducacao, @internationalschoolsoficial, @plataformacoc). Você DEVE orientar o redator a extrair e utilizar APENAS o Nome Fantasia natural (ex: Geekie, International School, COC). Nunca use termos como "oficial" ou o "@".
 
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
@@ -807,7 +810,10 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor busca eficiência; pais buscam segurança).
 1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
+2.1) VETO DE VOCABULÁRIO IA APRIMORADO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as seguintes expressões e suas variações: "cenário em transformação", "transcendeu o status", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "mergulhar em", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar".
+2.2) ESTILO JORNALÍSTICO (SHOW, DON'T TELL): Não diga que algo é "inovador" ou "fundamental". Apresente o fato técnico e deixe o leitor concluir isso. Escreva como um analista de dados da McKinsey ou um jornalista investigativo focado em negócios B2B.
 3) Não explique o óbvio; entregue leitura avançada.
+4) HIGIENE DO NOME DA MARCA (LIMPEZA OBRIGATÓRIA): A marca alvo será enviada a você em formato de "handle" de rede social (ex: @geekieeducacao, @internationalschoolsoficial, @plataformacoc). Você é OBRIGADO a higienizar essa string e usar APENAS o Nome Fantasia comercial, natural e elegante ao longo do texto (ex: Geekie, International School, COC). É estritamente proibido imprimir o arroba (@) ou sufixos como "oficial", "educacao" ou "edicoes".
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
@@ -823,7 +829,9 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 11.1) FILTRO DE CITAÇÃO NOMINAL OBRIGATÓRIO: A menção de qualquer entidade externa (Institutos, Universidades, Órgãos Governamentais como British Council, York, UNESCO, etc.) está condicionada à existência de um DEEP LINK (URL exata da fonte/estudo). 
 - Lógica de Execução: Se o briefing NÃO contém o link profundo e exato, VOCÊ NÃO PODE citar o nome da instituição. Nesse cenário, use construções genéricas como "Estudos setoriais indicam" ou "Dados acadêmicos apontam". 
 EXCEÇÃO ÚNICA: Dados proprietários da Marca Alvo listados no Brandbook não exigem link.12) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todas as entidades (jargões/conceitos) do Entity Graph. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
+11.2) CHECK DE ALUCINAÇÃO NUMÉRICA: Se você escrever um número percentual (%) ou citar "estudos/pesquisas", e não houver uma tag <a href="..."> no exato mesmo parágrafo apontando para a fonte, APAGUE A FRASE INTEIRA.
 13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
+13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial limpo da marca, sem "@" ou "oficial".
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
 """
@@ -841,7 +849,7 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
 - Tom de Voz Exigido: {marca_info['TomDeVoz']}
-- Nome da Marca: {marca_alvo} (remova o '@' no texto)
+- Nome da Marca Bruto: {marca_alvo} (OBRIGATÓRIO: Extraia e utilize apenas o Nome Fantasia Comercial no texto, removendo obrigatoriamente o '@' e sufixos de rede social como 'oficial', 'edicoes'. Exemplo mental: se receber '@plataformacoc', escreva apenas 'COC').
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios: {marca_info['Territorios']}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
@@ -1239,6 +1247,8 @@ with tab3:
                 4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
                 6. LINGUAGEM DE IA: Penalize o uso de muletas textuais ("Em resumo", "É inegável").
+                7. DETECTOR DE SOTAQUE DE IA: Se o texto contiver palavras como "cenário atual", "mundo globalizado", "transcendeu" ou "fundamental", reduza imediatamente 10 pontos do score e aponte isso na 'critica'.
+                8. HIGIENE DA MARCA: Analise como a marca foi citada no texto. Se o artigo mencionar o nome da marca mantendo arroba ("@") ou sufixos esquisitos grudados (como "oficial", "edicoes" vindo do ID do Instagram), considere uma FALHA GRAVE de copywriting e reduza 15 pontos da nota final imediatamente. A marca deve soar natural (ex: "International School", "SAS", "Geekie").
                 
                 DIRETRIZ DE PONTUAÇÃO E FEEDBACK (A REGRA DOS 100 PONTOS):
                 - Se você NÃO encontrar nenhuma quebra das regras acima (ou seja, se os arrays 'critica' e 'melhoria' estiverem vazios), O SCORE DEVE SER ESTRITAMENTE 100.
