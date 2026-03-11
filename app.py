@@ -846,6 +846,7 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 11) PROTOCOLO DE RASTREABILIDADE (DEEP LINKS OBRIGATÓRIOS): É OBRIGATÓRIO incluir pelo menos 2 a 3 links externos (<a href="..." target="_blank">) ancorando afirmações ou dados. 
 11.1) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
 11.2) FONTE DOS LINKS: Priorize os deep links fornecidos no briefing. Se o briefing fornecer um link genérico ou não fornecer, você tem autorização para usar sua base de conhecimento interna para gerar uma URL profunda e real de instituições de alta autoridade (ex: relatórios PISA, CASEL, McKinsey, Porvir) que corrobore com o argumento conceitual.
+11.3) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
 13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
 13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
@@ -882,6 +883,7 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
+10. AUDITORIA DE FONTES: Você citou alguma Associação, Instituto, Estudo ou Pesquisa no texto? Se sim, você colocou a tag de link (<a href="...">) junto ao nome deles? Se estiver sem link, APAGUE a menção à instituição agora mesmo ou adicione o link correspondente.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
