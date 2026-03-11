@@ -188,7 +188,7 @@ with st.sidebar:
         Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Avalia a densidade de entidades e a veracidade de dados.
         """)
 
-   with st.expander("📖 Dicionário de Métricas GEO", expanded=False):
+    with st.expander("📖 Dicionário de Métricas GEO", expanded=False):
         st.markdown("""
         **Entendendo os Relatórios (JSON):**
         * **Entity Coverage Score (Ex: 70 a 100):** Mede o quão bem seu texto cobriu os termos técnicos do nicho. `entities_missing` mostra os jargões que seus concorrentes usam e que faltaram no seu texto.
