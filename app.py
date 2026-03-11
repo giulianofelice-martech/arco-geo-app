@@ -17,10 +17,17 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
 
 st.markdown("""
-    
     <style>
     /* Importando as fontes do site da Arco */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
+
+    /* ==================================================
+       FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
+       ================================================== */
+    .stApp { background-color: #FAFAFA !important; }
+    [data-testid="stSidebar"] { background-color: #FFFFFF !important; border-right: 1px solid #EAEAEA !important; }
+    .markdown-text-container, .stMarkdown p, li, span, label, .stText { color: #374151 !important; font-family: 'Inter', sans-serif; }
+    .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div { background-color: #FFFFFF !important; border: 1px solid #D1D5DB !important; border-radius: 8px !important; color: #111827 !important; }
 
     /* Forçando a tipografia global */
     html, body, [class*="css"] {
@@ -35,9 +42,25 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
 
-    /* Botões Primários (Estilo Botão Header Arco) */
+    /* TAG ESTILO ARCO (Azulzinha) */
+    .arco-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: #E8F2FA;
+        color: #418EDE !important;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 4px 12px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    /* Botões Primários */
     .stButton > button {
-        background-color: #111827 !important; /* Fundo escuro elegante */
+        background-color: #111827 !important;
         color: #FFFFFF !important;
         border-radius: 8px !important;
         border: none !important;
@@ -49,9 +72,9 @@ st.markdown("""
     }
     
     .stButton > button:hover {
-        background-color: #374151 !important; /* Cinza mais claro no hover */
+        background-color: #418EDE !important; /* Azul Arco no hover */
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 15px -3px rgba(65, 142, 222, 0.2);
         color: #FFFFFF !important;
     }
 
@@ -63,29 +86,30 @@ st.markdown("""
     [data-baseweb="tab"] {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
-        color: #6B7280;
+        color: #6B7280 !important;
         padding-top: 16px;
         padding-bottom: 16px;
+        background-color: transparent !important;
     }
     [data-baseweb="tab"][aria-selected="true"] {
-        color: #F05D23 !important; /* Laranja Arco ativo */
-        border-bottom-color: #F05D23 !important;
+        color: #418EDE !important; /* Azul Arco na aba ativa */
+        border-bottom-color: #418EDE !important;
     }
 
-    /* Melhorando os Expanders (Para parecerem Cards) */
+    /* Melhorando os Expanders */
     .streamlit-expanderHeader {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
-        color: #111827;
-        background-color: #FFFFFF;
+        color: #111827 !important;
+        background-color: #FFFFFF !important;
         border-radius: 8px;
     }
     
     div[data-testid="stExpander"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        background-color: #FFFFFF !important;
+        border: 1px solid #E5E7EB !important;
+        border-radius: 8px !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 16px;
     }
 
@@ -108,18 +132,20 @@ st.markdown("""
         transition: color 0.2s;
     }
     .pipeline-step:hover {
-        color: #F05D23;
-        border-bottom-color: #F05D23;
+        color: #418EDE;
+        border-bottom-color: #418EDE;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Trazendo a logo da Arco do próprio CDN deles
+# Trazendo a logo da Arco e a Tag Exclusiva
 col_logo, col_title = st.columns([1, 5])
 with col_logo:
     st.image("https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg", width=120)
 
-st.markdown("<h1 style='margin-top: -20px;'>Motor GEO v6.0 <span style='color: #F05D23; font-size: 0.6em;'>AI Search Native</span></h1>", unsafe_allow_html=True)
+with col_title:
+    st.markdown("<div class='arco-tag'>MOTOR DE INTELIGÊNCIA</div>", unsafe_allow_html=True)
+    st.markdown("<h1 style='margin-top: -10px;'>Motor GEO v7.0 <span style='color: #F05D23; font-size: 0.6em;'>AI Search Native</span></h1>", unsafe_allow_html=True)
 
 # SUBSTITUIÇÃO DO ST.CAPTION PELO HTML COM TOOLTIPS
 pipeline_html = """
@@ -142,7 +168,7 @@ st.markdown(pipeline_html, unsafe_allow_html=True)
 # ==========================================
 with st.sidebar:
     st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v6.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização nativa para Motores Gerativos (Perplexity, SearchGPT).")
+    st.markdown("Bem-vindo à v7.0. Este sistema utiliza uma arquitetura **multi-agentes** para criar conteúdo com autoridade máxima e otimização nativa para Motores Gerativos (Perplexity, SearchGPT).")
     
     with st.expander("✍️ 1. Gerador de Artigos", expanded=False):
         st.markdown("""
