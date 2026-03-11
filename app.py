@@ -1246,13 +1246,12 @@ with tab3:
                 3. VALIDAÇÃO CONCEITUAL: Se o texto for puramente conceitual, NÃO requer links.
                 4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
-                6. LINGUAGEM DE IA: Penalize o uso de muletas textuais ("Em resumo", "É inegável").
-                7. DETECTOR DE SOTAQUE DE IA: Se o texto contiver palavras como "cenário atual", "mundo globalizado", "transcendeu" ou "fundamental", reduza imediatamente 10 pontos do score e aponte isso na 'critica'.
-                8. HIGIENE DA MARCA: Analise como a marca foi citada no texto. Se o artigo mencionar o nome da marca mantendo arroba ("@") ou sufixos esquisitos grudados (como "oficial", "edicoes" vindo do ID do Instagram), considere uma FALHA GRAVE de copywriting e reduza 15 pontos da nota final imediatamente. A marca deve soar natural (ex: "International School", "SAS", "Geekie").
+                6. LIBERDADE TEXTUAL (SEM NITPICKING): É expressamente proibido penalizar o texto, criar críticas ou reduzir pontos por causa de jargões corporativos, clichês ou expressões como "mundo globalizado", "cenário atual", "em resumo" ou "transcendeu". Foque exclusivamente na estrutura E-E-A-T e nos dados, e deixe o estilo literário livre.
+                7. HIGIENE DA MARCA (FOCO NO HTML): Avalie a grafia da marca EXCLUSIVAMENTE dentro do corpo do Texto HTML. IGNORE o arroba/sufixo fornecido na variável 'Marca Alvo' do prompt. Se dentro do HTML gerado a marca estiver limpa e natural (ex: "International School"), não aponte erros. Só penalize se o arroba (@) ou "oficial" aparecerem DENTRO do HTML.
                 
                 DIRETRIZ DE PONTUAÇÃO E FEEDBACK (A REGRA DOS 100 PONTOS):
                 - Se você NÃO encontrar nenhuma quebra das regras acima (ou seja, se os arrays 'critica' e 'melhoria' estiverem vazios), O SCORE DEVE SER ESTRITAMENTE 100.
-                - É EXPRESSAMENTE PROIBIDO subtrair pontos (ex: dar 90, 85) baseando-se em avaliações estéticas subjetivas. Se tirou ponto, a justificativa TÊM que estar no array 'critica'.
+                - É EXPRESSAMENTE PROIBIDO subtrair pontos (ex: dar 90, 85) baseando-se em avaliações estéticas subjetivas ou vocabulário. Se tirou ponto, a justificativa TÊM que estar no array 'critica' baseada nas regras de 1 a 7.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA:
                 {
