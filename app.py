@@ -133,12 +133,17 @@ st.markdown("""
 # CABEÇALHO ALINHADO COM A TAG
 # ==========================================
 st.markdown("""
-    <div style="display: flex; align-items: center; gap: 0px; margin-bottom: 24px; margin-left: -15px;">
-        <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" width="220" style="margin-right: -20px;" alt="Logo Arco">
+    <div style="display: flex; align-items: center; margin-bottom: 24px;">
+        
+        <div style="width: 130px; margin-right: 15px;">
+            <img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 100%; transform: scale(1.8); transform-origin: left center;" alt="Logo Arco">
+        </div>
+        
         <div style="display: flex; flex-direction: column; justify-content: center;">
             <div class='arco-tag' style="width: fit-content; margin-bottom: 4px;">MOTOR DE INTELIGÊNCIA</div>
             <h1 style="margin: 0; padding: 0; font-size: 2.4rem;">Motor GEO v7.0 <span style="color: #F05D23; font-size: 0.6em;">AI Search Native</span></h1>
         </div>
+        
     </div>
 """, unsafe_allow_html=True)
 # ==========================================
