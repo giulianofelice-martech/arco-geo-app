@@ -188,13 +188,18 @@ with st.sidebar:
         Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Avalia a densidade de entidades e a veracidade de dados.
         """)
 
-    with st.expander("📖 Dicionário: O que nossa IA faz?", expanded=False):
+   with st.expander("📖 Dicionário de Métricas GEO", expanded=False):
         st.markdown("""
-        * **GEO (Generative Engine Optimization):** Otimização para buscadores com IA (como ChatGPT e Perplexity).
-        * **E-E-A-T:** Sigla do Google para Experiência, Especialidade, Autoridade e Confiabilidade.
-        * **Entity Graph:** Mapeamento inteligente de palavras e conceitos para provar que você domina o assunto.
-        * **RAG Simulation:** Simulamos se uma IA usaria seu texto como fonte oficial.
-        * **Hijacking Defense:** Defesa contra "roubo de citação", garantindo que a IA cite sua marca e não um concorrente.
+        **Entendendo os Relatórios (JSON):**
+        * **Entity Coverage Score (Ex: 70 a 100):** Mede o quão bem seu texto cobriu os termos técnicos do nicho. `entities_missing` mostra os jargões que seus concorrentes usam e que faltaram no seu texto.
+        * **Retrieval Score:** Simula a chance (de 0 a 100) de uma IA (como ChatGPT ou Perplexity) "pescar" seu texto no banco de dados dela para responder a um usuário.
+        * **Risco de Hijacking (Baixo/Médio/Alto):** Risco de "roubo de citação". Se o texto der voltas demais para explicar algo, a IA pode preferir citar um concorrente mais direto.
+        * **Reverse Queries:** Engenharia reversa das intenções de busca. Mostra o que os usuários perguntam de forma leiga (`user_questions`), como a IA raciocina internamente (`llm_reasoning_questions`) e que dúvidas profundas ela tem (`semantic_depth_questions`).
+        * **Nota de Originalidade (Padrão ~85):** Mede o *Information Gain*. Dificilmente é 100 porque a teoria base tem que ser igual à do mercado, mas notas >80 provam que seu texto trouxe um ângulo novo e superior ao Top 3 do Google.
+        
+        **Conceitos Essenciais:**
+        * **GEO / E-E-A-T:** Otimização para IAs e critérios de Experiência e Autoridade do Google.
+        * **Entity Graph:** Teia de palavras que provam para a IA que você domina o assunto.
         """)
         
     st.divider()
@@ -746,8 +751,9 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
 <checklist_de_seguranca_obrigatorio>
-1. Antes de finalizar o HTML, verifique mentalmente: O seu "Estudo de Caso" conta a historinha de um cliente inventado com números como "tinha 10% de inadimplência e caiu para 5%"? Se sim, APAGUE ISSO. Reescreva apenas focando em como a tecnologia da {marca_alvo} resolve as dores do mercado na prática.
-2. Você inventou algum dado de pesquisa externa sem usar link? Se sim, remova-o.
+1. Antes de finalizar o HTML, verifique mentalmente: O seu "Estudo de Caso" conta a historinha de um cliente inventado com números falsos? Se sim, APAGUE ISSO. Reescreva apenas focando em como a tecnologia da {marca_alvo} funciona na prática.
+2. Você citou alguma instituição/organização (ex: UNESCO, ACTFL, Universidades, Censo, etc) fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
+3. A regra é clara: Sem link real = Sem citar nomes de pesquisas ou números estatísticos (exceto os dados que já vieram no Brandbook da {marca_alvo}).
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -776,8 +782,7 @@ REGRAS CRÍTICAS:
 1) NUNCA inclua markdown, comentários, ```json ou campos extras.
 2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
 3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
-4) 'dicas_imagens': exatamente 2 strings em inglês, descritivas e específicas (ex.: "bilingual classroom observation, natural light, candid, corporate", "school finance dashboard, clean ui, overhead"). Apenas substantivos/estilos; sem marcas.
-5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.5) 'schema_faq': JSON-LD **FAQPage** com @context "https://schema.org", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
    - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
