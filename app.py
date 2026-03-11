@@ -16,31 +16,41 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
 
+Entendido! Vamos reverter para os seus botões e inputs originais (com os emojis mantidos) e adicionar apenas a Tag Azul no cabeçalho e o modo claro travado, garantindo que o alinhamento e as cores do título (com o AI Search Native em laranja/vermelho) fiquem perfeitos.
+
+Substitua exatamente do seu st.set_page_config até a linha do pipeline_html por isto:
+
+Python
+# ==========================================
+# 1. CONFIGURAÇÃO DA PÁGINA
+# ==========================================
+st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide")
+
 st.markdown("""
     <style>
     /* Importando as fontes do site da Arco */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap');
 
     /* ==================================================
-       1. FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
+       FORÇANDO O MODO CLARO NO MOBILE / DESKTOP
        ================================================== */
     .stApp { background-color: #FAFAFA !important; }
     [data-testid="stSidebar"] { background-color: #FFFFFF !important; border-right: 1px solid #EAEAEA !important; }
-    
-    /* Tipografia global limpa para modo claro */
-    html, body, [class*="css"], .markdown-text-container, .stMarkdown p, li, span, label, .stText {
+    .markdown-text-container, .stMarkdown p, li, span, label, .stText { color: #374151 !important; font-family: 'Inter', sans-serif; }
+
+    /* Forçando a tipografia global */
+    html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
-        color: #374151 !important; 
     }
 
-    /* Estilizando os Títulos para Montserrat (Removido o !important da cor para permitir destaque) */
+    /* Estilizando os Títulos para Montserrat (Idêntico ao site) */
     h1, h2, h3 {
         font-family: 'Montserrat', sans-serif !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
     }
 
-    /* TAG ESTILO ARCO (Azulzinha) */
+    /* TAG ESTILO ARCO */
     .arco-tag {
         display: inline-flex;
         align-items: center;
@@ -53,21 +63,30 @@ st.markdown("""
         padding: 4px 12px;
         border-radius: 50px;
         text-transform: uppercase;
+        margin-bottom: 8px;
     }
 
-    /* Suavizando o hover dos botões nativos do Streamlit sem quebrar o estilo deles */
-    button[kind="primary"] {
+    /* Botões Primários originais */
+    .stButton > button {
+        background-color: #111827 !important; /* Fundo escuro elegante */
+        color: #FFFFFF !important;
         border-radius: 8px !important;
-        font-family: 'Inter', sans-serif !important;
+        border: none !important;
+        height: 3.2em;
+        font-family: 'Inter', sans-serif;
         font-weight: 600 !important;
-        transition: all 0.3s ease !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    button[kind="primary"]:hover {
+    
+    .stButton > button:hover {
+        background-color: #374151 !important; /* Cinza mais claro no hover */
         transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        color: #FFFFFF !important;
     }
 
-    /* Estilo das Abas (Tabs) */
+    /* Estilo das Abas (Tabs) originais */
     [data-baseweb="tab-list"] {
         gap: 24px;
         border-bottom: 2px solid #E5E7EB;
@@ -75,21 +94,29 @@ st.markdown("""
     [data-baseweb="tab"] {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
+        color: #6B7280;
         padding-top: 16px;
         padding-bottom: 16px;
-        background-color: transparent !important;
+    }
+    [data-baseweb="tab"][aria-selected="true"] {
+        color: #F05D23 !important; /* Laranja Arco ativo */
+        border-bottom-color: #F05D23 !important;
     }
 
-    /* Melhorando os Expanders */
+    /* Melhorando os Expanders originais */
     .streamlit-expanderHeader {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600 !important;
+        color: #111827 !important;
+        background-color: #FFFFFF !important;
         border-radius: 8px;
     }
+    
     div[data-testid="stExpander"] {
         background-color: #FFFFFF !important;
         border: 1px solid #E5E7EB !important;
         border-radius: 8px !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
         margin-bottom: 16px;
     }
 
@@ -112,7 +139,7 @@ st.markdown("""
         transition: color 0.2s;
     }
     .pipeline-step:hover {
-        color: #F05D23; /* Hover em Laranja */
+        color: #F05D23;
         border-bottom-color: #F05D23;
     }
     </style>
