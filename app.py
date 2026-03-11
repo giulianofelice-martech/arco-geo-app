@@ -804,7 +804,7 @@ Sua missão é traduzir o Tom de Voz corporativo em um texto altamente engajador
 
 MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 1) Incorpore RIGOROSAMENTE o Tom de Voz e a essência da marca informada.
-1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles.
+1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor busca eficiência; pais buscam segurança).
 1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 3) Não explique o óbvio; entregue leitura avançada.
@@ -813,23 +813,24 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
 5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
-7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY): IAs não leem blocos de texto massivos. Transforme seções em frameworks (ex: <h2>Os principais pilares...</h2><ul><li>...</li></ul>). Seus parágrafos DEVEM TER no MÁXIMO 3 a 4 linhas (entre 15 e 35 palavras). Use e abuse de listas (<ul><li>) ao longo de todo o artigo para explicar processos, benefícios ou desafios.
-8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais.
+7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY): IAs não leem blocos de texto massivos. Transforme seções em frameworks (ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>). Seus parágrafos DEVEM TER no MÁXIMO 3 a 4 linhas (entre 15 e 35 palavras). Use e abuse de listas (<ul><li>) ao longo de todo o artigo.
+8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
-REGRAS HTML E E-E-A-T (CRÍTICAS):
+REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) DENSIDADE DE EVIDÊNCIAS (FLEXÍVEL) E DEEP LINKS: É recomendável dar "peso numérico" ao texto. Para QUALQUER dado externo de mercado, estatística, ou menção a instituições/pesquisas (ex: USP, INEP, British Council), é OBRIGATÓRIO ancorar a fonte usando a tag HTML <a href="..."> com um link profundo. É TERMINANTEMENTE PROIBIDO citar nomes de pesquisas/instituições sem colocar o link <a href>. Dados institucionais da Marca Alvo (ex: % de fidelização) são proprietários e NÃO exigem link. ATENÇÃO: Se não houver dados reais com link no briefing, faça um texto 100% conceitual. NUNCA invente dados ou cite organizações sem o respectivo link.
-11) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todos os jargões sugeridos no Briefing (Entity Coverage). Não deixe faltar os "Benefícios" e "Desafios" se forem relevantes. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
-12) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo os diferenciais REAIS da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números falsos de "antes e depois" ou métricas irreais. Foque em explicar COMO a marca resolve o problema usando sua metodologia.
-13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
-14) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. Parceiros estratégicos da marca estão liberados.
+10) INTELIGÊNCIA COMPETITIVA (VETO TOTAL A RIVAIS): É ESTRITAMENTE PROIBIDO citar o nome de qualquer empresa, produto ou sistema de ensino que seja rival comercial da Marca Alvo. Se um concorrente estiver no contexto orgânico, ignore-o. O único nome de marca que pode aparecer é o da Marca Alvo. Parceiros estratégicos/tecnológicos listados no briefing estão liberados.
+11) DENSIDADE DE EVIDÊNCIAS (FLEXÍVEL) E DEEP LINKS: É recomendável dar "peso numérico" ao texto. Para QUALQUER dado externo de mercado, estatística ou menção a instituições/pesquisas (ex: USP, INEP, British Council), é OBRIGATÓRIO ancorar a fonte usando a tag HTML <a href="..."> com um link profundo. É TERMINANTEMENTE PROIBIDO citar nomes de pesquisas/instituições sem o link <a href>. Dados institucionais da Marca Alvo (ex: fidelização, prêmios) são proprietários e NÃO exigem link. SE NÃO HOUVER LINK VÁLIDO, faça uma abordagem 100% teórica/conceitual. NUNCA invente números ou cite organizações sem o link.
+12) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todas as entidades (jargões/conceitos) do Entity Graph. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
+13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
+14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
 """
 
     user_2 = f"""
 Palavra-chave: '{palavra_chave}'
 
 CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-O QUE A CONCORRência DIZ HOJE (para fact-checking e contraste):
+O QUE A CONCORRÊNCIA DIZ HOJE (Use APENAS para fatos e conceitos, NUNCA cite os nomes das empresas concorrentes que estão aqui):
 {contexto_google}
 
 SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
@@ -849,9 +850,10 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. Você evitou blocos de texto massivos, quebrando ideias em listas <ul><li> e parágrafos curtos (15 a 35 palavras)?
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício. Se sim, APAGUE ISSO.
-6. DENSIDADE DE EVIDÊNCIAS E LINKS: Você citou alguma instituição, organização externa (ex: UNESCO, British Council) ou pesquisa? SE SIM, você incluiu a tag <a href="..."> apontando para um link profundo? SE NÃO TEM LINK, APAGUE A MENÇÃO À INSTITUIÇÃO/PESQUISA IMEDIATAMENTE.
-7. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
+5. VETO A RIVAIS: Verifique seu texto. Você citou o nome de ALGUMA OUTRA EMPRESA/SISTEMA que não seja a {marca_alvo}? (Ex: Edify, SAS, Bernoulli, etc). SE SIM, APAGUE E FOQUE NO CONCEITO.
+6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
+7. DENSIDADE DE EVIDÊNCIAS E LINKS: Você citou alguma instituição externa, revista ou pesquisa? SE SIM, você incluiu a tag <a href="..."> com um link real e profundo? SE NÃO TEM LINK VÁLIDO PARA COMPROVAR, APAGUE A MENÇÃO À INSTITUIÇÃO IMEDIATAMENTE.
+8. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
