@@ -819,8 +819,10 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
 10) INTELIGÊNCIA COMPETITIVA (VETO TOTAL A RIVAIS): É ESTRITAMENTE PROIBIDO citar o nome de qualquer empresa, produto ou sistema de ensino que seja rival comercial da Marca Alvo. Se um concorrente estiver no contexto orgânico, ignore-o. O único nome de marca que pode aparecer é o da Marca Alvo. Parceiros estratégicos/tecnológicos listados no briefing estão liberados.
-11) DENSIDADE DE EVIDÊNCIAS E LINKS (REGRA DE OURO): Para QUALQUER menção a instituições, universidades, organizações ou estudos (ex: York, British Council, UNESCO, INEP e outras), você é OBRIGADO a incluir a tag <a href="..."> com o link profundo fornecido. É TERMINANTEMENTE PROIBIDO citar nomes próprios de fontes externas sem o respectivo link. Se você não tiver o link exato no briefing, você deve descrever o fato de forma genérica (ex: "Pesquisas indicam que...") ou usar apenas os dados numéricos da Marca Alvo (ex: % de fidelização) que não exigem link por serem dados proprietários.
-12) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todas as entidades (jargões/conceitos) do Entity Graph. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
+11) PROTOCOLO DE RASTREABILIDADE DE EVIDÊNCIAS (VETO CRÍTICO): É TERMINANTEMENTE PROIBIDO realizar "Lazy Linking" (links para homepages genéricas como unesco.org, ibge.gov.br ou inep.gov.br). 
+11.1) FILTRO DE CITAÇÃO NOMINAL OBRIGATÓRIO: A menção de qualquer entidade externa (Institutos, Universidades, Órgãos Governamentais como British Council, York, UNESCO, etc.) está condicionada à existência de um DEEP LINK (URL exata da fonte/estudo). 
+- Lógica de Execução: Se o briefing NÃO contém o link profundo e exato, VOCÊ NÃO PODE citar o nome da instituição. Nesse cenário, use construções genéricas como "Estudos setoriais indicam" ou "Dados acadêmicos apontam". 
+EXCEÇÃO ÚNICA: Dados proprietários da Marca Alvo listados no Brandbook não exigem link.12) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todas as entidades (jargões/conceitos) do Entity Graph. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
 13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
@@ -852,7 +854,7 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
 5. VETO A RIVAIS: Verifique seu texto. Você citou o nome de ALGUMA OUTRA EMPRESA/SISTEMA que não seja a {marca_alvo}? (Ex: Edify, SAS, Bernoulli, etc). SE SIM, APAGUE E FOQUE NO CONCEITO.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
-6. DENSIDADE DE EVIDÊNCIAS E LINKS: Verifique cada nome de instituição citado (ex: York, British Council ou outras). Todos possuem um link <a href>? Se você citou o nome e não colocou o link, APAGUE o nome da instituição agora e reescreva de forma genérica para não ser penalizado no monitor.
+7. DENSIDADE DE EVIDÊNCIAS E LINKS (FILTRO DEEP LINK): Inspecione cada tag <a href>. Se a URL apontar para a home de um site (ex: google.com, unesco.org) sem um caminho de diretório específico para o dado, REMOVA O LINK E O NOME DA INSTITUIÇÃO IMEDIATAMENTE. Se citou British Council, York ou similares e não tem o link profundo, apague o nome deles e escreva "especialistas".
 8. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 </checklist_de_seguranca_obrigatorio>
 
