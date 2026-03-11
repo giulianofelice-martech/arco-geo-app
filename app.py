@@ -527,10 +527,14 @@ def prever_citabilidade_llm(artigo_html, palavra_chave):
     Você é o algoritmo de RAG de um buscador baseado em IA (como Perplexity ou Gemini).
     Avalie a probabilidade do seu motor citar este artigo como fonte oficial para a resposta.
     Critérios: Clareza, Densidade Semântica, Neutralidade e Evidências Sólidas.
-    Retorne a PROBABILIDADE_DE_CITACAO (Baixa, Média, Alta) e o MOTIVO.
+    Retorne APENAS um JSON:
+    {
+      "citabilidade_score": "nota de 0 a 100",
+      "motivo": "explicação"
+    }
     """
     user = f"ARTIGO:\n{artigo_html}\n\nKEYWORD: {palavra_chave}"
-    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1)
+    return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1, response_format={"type":"json_object"})
 
 def gerar_cluster(palavra_chave):
     system = """
@@ -760,8 +764,8 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS (MODERAÇÃO E DEEP LINKS): Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo (ex: site.com/pesquisa-xyz). É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: https://www.nih.gov/ ou https://www.unesco.org/). Se o contexto carecer de URLs profundas e só tiver homepages genéricas, descarte-as e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS. NUNCA alucine pesquisas (ex: USP, INEP, Censo) ou dados numéricos se não estiverem no contexto orgânico.
-D) DENSIDADE SEMÂNTICA (NLP/TF-IDF): Analise o contexto orgânico e liste até 10 "entidades" (jargões, metodologias) de alto valor presentes no Top 3. 
+C) MAPA DE EVIDÊNCIAS REAIS (DATA MINING E DEEP LINKS): Vasculhe o contexto orgânico fornecido. Extraia NÚMEROS REAIS, ESTATÍSTICAS e PERCENTUAIS (%) exatos que os concorrentes usaram. Liste no MÁXIMO 2 ou 3 bullets com pares (afirmação → URL). REGRA DE OURO: A URL DEVE ser um link profundo e exato para a página do estudo/artigo. É ESTRITAMENTE PROIBIDO sugerir URLs genéricas de homepages (ex: unesco.org). SEMPRE atrele os dados à URL profunda. Se o contexto carecer de URLs profundas e não tiver números, use EXCLUSIVAMENTE os números da Marca Alvo fornecidos no briefing e escreva: FOCO TOTALMENTE CONCEITUAL E METODOLÓGICO, SEM ESTATÍSTICAS EXTERNAS. NUNCA alucine pesquisas (ex: USP, INEP, Censo) ou dados numéricos se não estiverem no contexto orgânico.
+D) DENSIDADE SEMÂNTICA OBRIGATÓRIA (NLP/TF-IDF): Analise o contexto orgânico e liste as 10 "entidades" (jargões, conceitos, metodologias) principais e de alto valor presentes no Top 3. O redator será OBRIGADO a incluir todas para garantir 100% de Entity Coverage.
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 """
@@ -805,21 +809,20 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 3) Não explique o óbvio; entregue leitura avançada.
 
-GEO (GENERATIVE ENGINE OPTIMIZATION) – REGRAS OBRIGATÓRIAS:
-4) BLOCO DE DEFINIÇÃO: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>
-5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>
-6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 insights centrais.
-7) FRAMEWORK ESTRUTURADO: Transforme uma seção em Framework. Ex: <h2>Os principais pilares de...</h2><ul><li>...</li></ul>
-8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p>
+GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
+4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
+5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
+6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
+7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY): IAs não leem blocos de texto massivos. Transforme seções em frameworks (ex: <h2>Os principais pilares...</h2><ul><li>...</li></ul>). Seus parágrafos DEVEM TER no MÁXIMO 3 a 4 linhas (entre 15 e 35 palavras). Use e abuse de listas (<ul><li>) ao longo de todo o artigo para explicar processos, benefícios ou desafios.
+8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais.
 
 REGRAS HTML E E-E-A-T (CRÍTICAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) VETO A DADOS EXTERNOS FANTASMAS: É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar estatísticas de MERCADO ou pesquisas EXTERNAS (ex: IBGE, USP). EXCEÇÃO ABSOLUTA: Dados institucionais da Marca Alvo fornecidos no briefing (ex: % de fidelização, volume de alunos/escolas, aprovações, prêmios) SÃO DADOS PROPRIETÁRIOS e DEVEM ser citados livremente SEM EXIGÊNCIA DE LINK. Nunca invente dados de terceiros sem link real.
-11) **FAQ INTELIGENTE**: No terço final, insira `<br>Perguntas Frequentes<br>`. Use as Reverse Queries do briefing (escolha as 3 mais relevantes).
-12) ESTUDO DE CASO SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a solução da marca de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.
+10) DENSIDADE DE EVIDÊNCIAS E VETO A DADOS FANTASMAS (MODERAÇÃO EXTREMA): Seu texto precisa de "peso numérico". Use no máximo 2 a 3 links profundos (Deep Links). É OBRIGATÓRIO usar a tag HTML <a href="..."> para ancorar estatísticas de MERCADO ou pesquisas EXTERNAS (ex: IBGE, USP). É TERMINANTEMENTE PROIBIDO linkar para homepages genéricas. EXCEÇÃO ABSOLUTA: Use os números e percentuais (%) do Brandbook da marca ou os extraídos pelo Estrategista; dados institucionais da Marca Alvo (ex: % de fidelização, prêmios) SÃO PROPRIETÁRIOS e DEVEM ser citados livremente SEM EXIGÊNCIA DE LINK. Nunca invente dados do zero ou cite estudos sem link real.
+11) COBERTURA DE ENTIDADES E FAQ INTELIGENTE: Incorpore NATURALMENTE todos os jargões sugeridos no Briefing (Entity Coverage). Não deixe faltar os "Benefícios" e "Desafios" se forem relevantes. No terço final, insira `<br>Perguntas Frequentes<br>` usando as Reverse Queries fornecidas (escolha as 3 mais relevantes).
+12) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo os diferenciais REAIS da marca (usando os dados institucionais dela) de forma técnica e conceitual. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício. Não invente números de "antes e depois", não invente "uma rede de 5 escolas" nem métricas como "cresceu 20%". Foque em explicar COMO a marca resolve o problema usando sua metodologia.
 13) O primeiro caractere da resposta DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
-14) ENTITY SATURATION: Integre naturalmente as entidades do Entity Graph.
-15) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. Parceiros estratégicos da marca estão liberados.
+14) INTELIGÊNCIA COMPETITIVA (VETO A RIVAIS): É ESTRITAMENTE PROIBIDO citar qualquer empresa, produto ou sistema que seja rival comercial da Marca Alvo. Parceiros estratégicos da marca estão liberados.
 """
 
     user_2 = f"""
@@ -833,7 +836,7 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 {analise}
 
 DIRECIONAMENTO DE COPYWRITING E MARCA:
-- Público-Alvo Deste Texto: {publico_alvo}
+- Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
 - Tom de Voz Exigido: {marca_info['TomDeVoz']}
 - Nome da Marca: {marca_alvo} (remova o '@' no texto)
 - Posicionamento: {marca_info['Posicionamento']}
@@ -842,9 +845,13 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
 <checklist_de_seguranca_obrigatorio>
-1. Antes de finalizar o HTML, verifique mentalmente: O seu "Estudo de Caso" conta a historinha de um cliente inventado com números falsos? Se sim, APAGUE ISSO. Reescreva apenas focando em como a tecnologia da {marca_alvo} funciona na prática.
-2. Você citou alguma instituição/organização (ex: UNESCO, ACTFL, Universidades, Censo, etc) fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
-3. A regra é clara: Sem link real = Sem citar nomes de pesquisas ou números estatísticos (exceto os dados que já vieram no Brandbook da {marca_alvo}).
+1. A sua "Resposta rápida" está bem no início do texto e é super objetiva?
+2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
+3. Você evitou blocos de texto massivos, quebrando ideias em listas <ul><li> e parágrafos curtos (15 a 35 palavras)?
+4. Você usou todas as entidades obrigatórias mapeadas no briefing?
+5. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos de "antes e depois". Se sim, APAGUE ISSO.
+6. Você citou alguma instituição/organização (ex: UNESCO, ACTFL, Universidades, Censo, etc.) fazendo PROJEÇÕES para o futuro ou apresentando dados do passado SEM colocar um link <a href> real? SE SIM, REMOVA ESSA FRASE INTEIRA DO TEXTO IMEDIATAMENTE.
+7. A regra é clara: Sem link real = Sem citar nomes de pesquisas ou números estatísticos (exceto os dados que já vieram no Brandbook da {marca_alvo}).
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
@@ -1195,21 +1202,35 @@ with tab3:
         if not txt_auditoria:
             st.warning("⚠️ Por favor, gere um artigo na aba 1 primeiro ou cole o HTML aqui.")
         else:
-            with st.spinner("Realizando auditoria contextual profunda e calculando GEO Score..."):
+            with st.spinner("Executando Raio-X Matemático e Auditoria Semântica (GPT-4o)..."):
                 
+                # ==========================================
+                # 1. EXECUTA A MATEMÁTICA NO TEXTO INSERIDO
+                # ==========================================
+                try:
+                    math_chunk = avaliar_chunk_citability(txt_auditoria)
+                    math_evidence = calcular_evidence_density(txt_auditoria)
+                    math_answer = avaliar_answer_first(txt_auditoria)
+                except Exception as e:
+                    math_chunk, math_evidence, math_answer = {}, {}, {}
+                    print(f"Erro nas métricas matemáticas do monitor: {e}")
+
+                # ==========================================
+                # 2. AUDITORIA SEMÂNTICA (GPT-4o)
+                # ==========================================
                 sys_audit = """Você é um Auditor Sênior de SEO e E-E-A-T do Google, além de Especialista em Engenharia de Prompt. Seu padrão é altíssimo, mas baseado em lógica estrutural e não em achismos.
                 
                 REGRAS CRÍTICAS DE AUDITORIA (VETOS ABSOLUTOS E PENALIZAÇÕES):
                 1. AVALIAÇÃO DE CONCORRENTES VS. PARCEIROS: O texto é proibido de mencionar rivais comerciais da marca alvo. Tecnologias de apoio ou certificadoras da marca SÃO PARCEIROS.
                 2. RASTREABILIDADE DE DADOS (FALHA CRÍTICA): Se o texto apresentar estatísticas DE MERCADO ou DE TERCEIROS sem ancorá-los em um link referencial real (<a href>), REDUZA A NOTA. EXCEÇÃO ABSOLUTA: Dados institucionais da própria Marca Alvo (ex: prêmios ganhos, número de parceiros, aprovações no SiSU da marca, taxa de fidelização da marca) SÃO DADOS PROPRIETÁRIOS. É ESTRITAMENTE PROIBIDO penalizar o texto por não colocar links em métricas que pertencem à própria marca avaliada.
-                3. VALIDAÇÃO CONCEITUAL: Se o texto for conceitual, NÃO requer links.
+                3. VALIDAÇÃO CONCEITUAL: Se o texto for puramente conceitual, NÃO requer links.
                 4. TOM DA MARCA ALVO: A marca deve ser mencionada com tom de estudo de caso.
                 5. IMAGENS IGNORADAS: IGNORE COMPLETAMENTE AS TAGS HTML DE IMAGEM (<img...>) NA SUA AVALIAÇÃO.
                 6. LINGUAGEM DE IA: Penalize o uso de muletas textuais ("Em resumo", "É inegável").
                 
-                DIRETRIZ DE PONTUAÇÃO E FEEDBACK:
-                - PERMISSÃO DE NOTA MÁXIMA: Se o texto for coerente, não alucinar números externos sem links, não citar rivais e seguir a estrutura, DEVE DAR NOTA 100.
-                - Se a nota for 100, retorne ARRAYS VAZIOS `[]` nas chaves "critica", "melhoria" e "sugestoes_dev".
+                DIRETRIZ DE PONTUAÇÃO E FEEDBACK (A REGRA DOS 100 PONTOS):
+                - Se você NÃO encontrar nenhuma quebra das regras acima (ou seja, se os arrays 'critica' e 'melhoria' estiverem vazios), O SCORE DEVE SER ESTRITAMENTE 100.
+                - É EXPRESSAMENTE PROIBIDO subtrair pontos (ex: dar 90, 85) baseando-se em avaliações estéticas subjetivas. Se tirou ponto, a justificativa TÊM que estar no array 'critica'.
                 
                 VOCÊ DEVE RETORNAR EXCLUSIVAMENTE UM OBJETO JSON COM A SEGUINTE ESTRUTURA:
                 {
@@ -1242,24 +1263,35 @@ with tab3:
                     
                     st.markdown("---")
                     st.markdown("### 📊 Relatório de Performance GEO")
-                    kpi1, kpi2 = st.columns([1, 3])
                     
+                    # EXIBIÇÃO: Métricas Matemáticas vs Semânticas
+                    col_math1, col_math2, col_math3 = st.columns(3)
+                    with col_math1:
+                        st.metric("📏 Chunk Citability (Estrutura)", f"{math_chunk.get('chunk_citability_score', 0)}/100", help="Mede a facilidade de IAs lerem o texto (listas e parágrafos curtos).")
+                    with col_math2:
+                        st.metric("⚡ Answer First", f"{math_answer.get('answer_first_score', 0)}/100", help="Verifica se a resposta direta está no topo do texto.")
+                    with col_math3:
+                        st.metric("🔗 Evidence Density", f"{math_evidence.get('evidence_density_score', 0)}/100", help="Volume de números e links no texto.")
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    kpi1, kpi2 = st.columns([1, 3])
                     with kpi1:
                         cor_delta = "normal" if score >= 80 else "inverse"
-                        st.metric("🎯 E-E-A-T Score Estimado", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta)
+                        st.metric("🎯 LLM Audit Score", f"{score}/100", delta=f"{score - 100} do ideal", delta_color=cor_delta, help="Nota dada pelo GPT-4o baseada nas regras de E-E-A-T.")
                     
                     with kpi2:
-                        st.markdown("**Progresso E-E-A-T:**")
+                        st.markdown("**Progresso E-E-A-T (Qualitativo):**")
                         st.progress(score / 100)
                         
-                        if score >= 90:
-                            st.success(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
-                        elif score >= 75:
-                            st.info(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        if score == 100:
+                            st.success(f"🏆 **Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                        elif score >= 80:
+                            st.info(f"✅ **Veredito de Autoridade:** {dados_audit.get('veredito')}")
                         else:
-                            st.warning(f"**Veredito de Autoridade:** {dados_audit.get('veredito')}")
+                            st.warning(f"⚠️ **Veredito de Autoridade:** {dados_audit.get('veredito')}")
 
-                    st.markdown("#### Análise do Conteúdo Gerado")
+                    st.markdown("#### Análise Qualitativa (GPT-4o)")
                     col_critica, col_melhoria = st.columns(2)
                     
                     with col_critica:
@@ -1269,7 +1301,7 @@ with tab3:
                                 for c in criticas:
                                     st.markdown(f"- {c}")
                             else:
-                                st.markdown("✅ **Nenhuma crítica identificada. Texto cirúrgico!**")
+                                st.markdown("✅ **Nenhuma crítica identificada. O texto passou ileso!**")
                                 
                     with col_melhoria:
                         with st.expander("🛠️ Correções para este Artigo", expanded=True):
