@@ -1032,7 +1032,8 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     
     payload = {
         "title": titulo,
-        "content": conteudo_html,
+        # Substitua a variável conteudo_html por uma string simples de teste:
+        "content": "Este é um teste de API sem nenhuma tag HTML para verificar o firewall.",
         "status": "draft",
         "meta": {
             "_yoast_wpseo_title": seo_title,
