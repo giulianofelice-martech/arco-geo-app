@@ -1020,6 +1020,9 @@ ANTI-CLOAKING E VALIDAÇÃO:
     )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
+    import base64
+    from urllib.parse import urlparse
+    
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
     schema_faq = meta_dict.get("schema_faq", {})
@@ -1038,19 +1041,33 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
         }
     }
     
-    # MÁSCARA PARA BYPASS DO CLOUDFRONT / FIREWALL
+    # 1. Cria o token Basic Auth manualmente para evitar o bloqueio duplo do WAF
+    credenciais = f"{wp_user}:{wp_pwd}"
+    token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
+    
+    # 2. Extrai o domínio base para enganar o CORS do firewall
+    parsed_url = urlparse(wp_url)
+    dominio_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    
+    # 3. MÁSCARA EXTREMA PARA BYPASS DO AWS CLOUDFRONT / WAF
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        'Authorization': f'Basic {token_auth}',
+        'Origin': dominio_base,
+        'Referer': f"{dominio_base}/",
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'Connection': 'keep-alive'
     }
     
     try:
-        # Adicionado o parâmetro headers=headers na requisição
-        response = requests.post(wp_url, json=payload, headers=headers, auth=HTTPBasicAuth(wp_user, wp_pwd), timeout=25)
+        # Enviamos a requisição já com a autorização embutida no header
+        response = requests.post(wp_url, json=payload, headers=headers, timeout=25)
         return response
     except Exception as e:
-        # Tratamento seguro caso a conexão caia, a URL esteja incorreta ou dê timeout
         class ErrorResponse:
             status_code = 500
             text = f"Erro de Conexão com o servidor WordPress: {str(e)}"
