@@ -845,7 +845,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
 5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
-7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). Alterne dinamicamente: mescle parágrafos "maiores" (3 a 4 linhas) com parágrafos de impacto ultracurtos (1 a 2 linhas). LIMITAÇÃO DE LISTAS: É ESTRITAMENTE PROIBIDO abusar de bullet points. Use no máximo 2 a 3 listas (<ul>) em todo o artigo, apenas quando for absolutamente necessário para enumerar dados complexos. Textos fluidos são prioridade.
+7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
 REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
@@ -859,11 +859,10 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
-16) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO):
-Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural:
-- Misture frases curtas (8–12 palavras) com frases médias (18–25 palavras).
-- Nem todos os parágrafos precisam ter exatamente o mesmo tamanho.
-- Em alguns trechos, use uma frase isolada para enfatizar uma ideia.
+16) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
+Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural drástica:
+- Misture frases normais com frases de altíssimo impacto e curtas.
+- É OBRIGATÓRIO que a estrutura visual do texto oscile entre blocos maiores e blocos bem curtos.
 17) OBSERVAÇÃO OPERACIONAL (ANTI-TEXTO GENÉRICO):
 -Sempre que explicar um conceito , inclua uma observação concreta da situação ou implementação.
 -Evite abstrações vagas. Prefira descrições operacionais.
@@ -876,8 +875,7 @@ Sempre que apresentar um benefício ou prática, explique rapidamente o mecanism
 Escreva como um analista que observa padrões do setor educacional.
 22) MICRO-SÍNTESE:
 Após alguns blocos analíticos, inclua uma frase curta que consolide a ideia.
-23) PROIBIDO PARÁGRAFOS SIMÉTRICOS:
-Evite produzir vários parágrafos consecutivos com tamanho semelhante e mesma estrutura sintática.
+23) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
 """
 
     user_2 = f"""
@@ -903,7 +901,7 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 <checklist_de_seguranca_obrigatorio>
 1. A sua "Resposta rápida" está bem no início do texto e é super objetiva?
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
-3. Você evitou blocos de texto massivos, quebrando ideias em listas <ul><li> e parágrafos curtos (15 a 35 palavras)?
+3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
 5. VETO A RIVAIS: Verifique seu texto. Você citou o nome de ALGUMA OUTRA EMPRESA/SISTEMA que não seja a {marca_alvo}? (Ex: Edify, SAS, Bernoulli, etc). SE SIM, APAGUE E FOQUE NO CONCEITO.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
@@ -1037,8 +1035,15 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
             "_yoast_wpseo_metadesc": meta_desc
         }
     }
-    response = requests.post(wp_url, json=payload, auth=HTTPBasicAuth(wp_user, wp_pwd))
-    return response
+    try:
+        response = requests.post(wp_url, json=payload, auth=HTTPBasicAuth(wp_user, wp_pwd), timeout=20)
+        return response
+    except Exception as e:
+        class ErrorResponse:
+            status_code = 500
+            text = f"Erro de Conexão com o servidor WordPress: {str(e)}"
+            def json(self): return {}
+        return ErrorResponse()
 
 # ==========================================
 # 5. INTERFACE PRINCIPAL
@@ -1243,13 +1248,20 @@ with tab1:
             st.code(st.session_state['art_gerado'], language="html")
             st.markdown("---")
 
+            # NOVO LUGAR DO BOTÃO DO WORDPRESS (Fora do expander evita o bug de clique do Streamlit)
+            wp_url_atual, wp_user_atual, wp_pwd_atual = obter_credenciais_wp(st.session_state['marca_atual'])
+            if wp_url_atual and wp_user_atual and wp_pwd_atual:
+                st.subheader("🌐 Publicação Direta")
+                if st.button(f"📤 Enviar Rascunho para WordPress ({st.session_state['marca_atual']})", type="primary", use_container_width=True):
+                    with st.spinner("Enviando via API para o WordPress... Isso pode levar alguns segundos."):
+                        res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, wp_url_atual, wp_user_atual, wp_pwd_atual)
+                        if res.status_code == 201:
+                            st.success(f"✅ Rascunho criado com sucesso! Link: {res.json().get('link')}")
+                        else:
+                            st.error(f"❌ Falha ao enviar (Erro HTTP {res.status_code}): {res.text}")
+
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
                 st.json(meta)
-                wp_url_atual, wp_user_atual, wp_pwd_atual = obter_credenciais_wp(st.session_state['marca_atual'])
-                if wp_url_atual and wp_user_atual and wp_pwd_atual:
-                    if st.button(f"📤 Enviar Rascunho para WordPress ({st.session_state['marca_atual']})"):
-                        with st.spinner("Enviando via API..."):
-                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, wp_url_atual, wp_user_atual, wp_pwd_atual)
 
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
