@@ -1023,9 +1023,11 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
     schema_faq = meta_dict.get("schema_faq", {})
+    
     if schema_faq:
         script_schema = f'\n\n<script type="application/ld+json">\n{json.dumps(schema_faq, ensure_ascii=False, indent=2)}\n</script>'
         conteudo_html += script_schema
+        
     payload = {
         "title": titulo,
         "content": conteudo_html,
@@ -1035,10 +1037,20 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
             "_yoast_wpseo_metadesc": meta_desc
         }
     }
+    
+    # MÁSCARA PARA BYPASS DO CLOUDFRONT / FIREWALL
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+    
     try:
-        response = requests.post(wp_url, json=payload, auth=HTTPBasicAuth(wp_user, wp_pwd), timeout=20)
+        # Adicionado o parâmetro headers=headers na requisição
+        response = requests.post(wp_url, json=payload, headers=headers, auth=HTTPBasicAuth(wp_user, wp_pwd), timeout=25)
         return response
     except Exception as e:
+        # Tratamento seguro caso a conexão caia, a URL esteja incorreta ou dê timeout
         class ErrorResponse:
             status_code = 500
             text = f"Erro de Conexão com o servidor WordPress: {str(e)}"
