@@ -415,11 +415,16 @@ try:
 except Exception:
     SERPAPI_KEY = None
 
-WP_URL = st.secrets.get("WP_URL", "")
-WP_USER = st.secrets.get("WP_USER", "")
-WP_PWD = st.secrets.get("WP_APP_PASSWORD", "")
-WP_READY = bool(WP_URL and WP_USER and WP_PWD)
-
+# NOVA FUNÇÃO: Busca credenciais WP dinâmicas da marca selecionada
+def obter_credenciais_wp(marca):
+    """Busca as credenciais do WP específicas da marca nos secrets (seção [wordpress])."""
+    try:
+        if "wordpress" in st.secrets and marca in st.secrets["wordpress"]:
+            creds = st.secrets["wordpress"][marca]
+            return creds.get("WP_URL", ""), creds.get("WP_USER", ""), creds.get("WP_APP_PASSWORD", "")
+    except Exception:
+        pass
+    return "", "", ""
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
@@ -1016,7 +1021,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
         rag_chunks, evidence_density, information_gain
     )
 
-def publicar_wp(titulo, conteudo_html, meta_dict):
+def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
     schema_faq = meta_dict.get("schema_faq", {})
@@ -1032,7 +1037,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict):
             "_yoast_wpseo_metadesc": meta_desc
         }
     }
-    response = requests.post(WP_URL, json=payload, auth=HTTPBasicAuth(WP_USER, WP_PWD))
+    response = requests.post(wp_url, json=payload, auth=HTTPBasicAuth(wp_user, wp_pwd))
     return response
 
 # ==========================================
@@ -1087,10 +1092,13 @@ with tab1:
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
         st.markdown("---")
         
+        wp_url_marca, wp_user_marca, wp_pwd_marca = obter_credenciais_wp(marca_selecionada)
+        WP_READY = bool(wp_url_marca and wp_user_marca and wp_pwd_marca)
+
         if not WP_READY:
-            st.warning("🔌 Integração WordPress inativa. Faltam as credenciais no menu Secrets.")
+            st.warning(f"🔌 Integração WordPress inativa para a marca {marca_selecionada}. Faltam as credenciais no arquivo Secrets.")
         else:
-            st.success("🔌 Conectado ao WordPress (Pronto para Yoast).")
+            st.success(f"🔌 Conectado ao WordPress da marca: {marca_selecionada} (Pronto para Yoast).")
 
     # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
     if gerar_btn:
@@ -1237,14 +1245,11 @@ with tab1:
 
             with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
                 st.json(meta)
-                if WP_READY:
-                    if st.button("📤 Enviar Rascunho para WordPress (Yoast)"):
+                wp_url_atual, wp_user_atual, wp_pwd_atual = obter_credenciais_wp(st.session_state['marca_atual'])
+                if wp_url_atual and wp_user_atual and wp_pwd_atual:
+                    if st.button(f"📤 Enviar Rascunho para WordPress ({st.session_state['marca_atual']})"):
                         with st.spinner("Enviando via API..."):
-                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta)
-                            if res.status_code == 201:
-                                st.success(f"✅ Rascunho criado! Link: {res.json().get('link')}")
-                            else:
-                                st.error(f"❌ Falha ao enviar: {res.text}")
+                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, wp_url_atual, wp_user_atual, wp_pwd_atual)
 
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
