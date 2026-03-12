@@ -1040,13 +1040,14 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     credenciais = f"{wp_user}:{wp_pwd_clean}"
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
-    # MÁSCARA MINIMALISTA: Disfarce de ferramenta de desenvolvedor (Postman)
+   # MÁSCARA ROBUSTA: Disfarce de navegador real (Chrome no Windows)
     headers = {
-        'User-Agent': 'PostmanRuntime/7.36.3',
-        'Accept': '*/*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
         'Authorization': f'Basic {token_auth}',
-        'Connection': 'keep-alive'
+        'Connection': 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br'
     }
     
     try:
