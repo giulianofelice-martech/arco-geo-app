@@ -1021,19 +1021,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     import base64
-    from urllib.parse import urlparse
     
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
     
-    # 🚨 REMOVIDA a injeção da tag <script> no conteúdo. 
-    # Firewalls (como AWS WAF do CloudFront) bloqueiam QUALQUER requisição POST 
-    # via API que contenha a palavra "<script>" por acharem que é ataque hacker (XSS).
-    
+    # Payload limpo sem scripts
     payload = {
         "title": titulo,
-        # Substitua a variável conteudo_html por uma string simples de teste:
-        "content": "Este é um teste de API sem nenhuma tag HTML para verificar o firewall.",
+        "content": conteudo_html,
         "status": "draft",
         "meta": {
             "_yoast_wpseo_title": seo_title,
@@ -1041,25 +1036,16 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
         }
     }
     
-    # 1. Limpa espaços da senha (o WP gera com espaços, mas o base64 prefere sem)
     wp_pwd_clean = wp_pwd.replace(" ", "").strip()
     credenciais = f"{wp_user}:{wp_pwd_clean}"
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
-    # 2. Extrai o domínio base para o CORS
-    parsed_url = urlparse(wp_url)
-    dominio_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
-    
-    # 3. Cabeçalhos de Navegador Legítimo
+    # MÁSCARA MINIMALISTA: Disfarce de ferramenta de desenvolvedor (Postman)
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
+        'User-Agent': 'PostmanRuntime/7.36.3',
+        'Accept': '*/*',
         'Content-Type': 'application/json',
         'Authorization': f'Basic {token_auth}',
-        'Origin': dominio_base,
-        'Referer': f"{dominio_base}/",
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive'
     }
     
