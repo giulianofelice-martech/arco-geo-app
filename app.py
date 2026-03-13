@@ -952,6 +952,10 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
+ARTIGOS INTERNOS DISPONÍVEIS (RAG REVERSO):
+Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no meio do texto, linkando de forma natural as palavras-chave relacionadas.
+{contexto_wp}
+
 <checklist_de_seguranca_obrigatorio>
 1. A sua "Resposta rápida" está bem no início do texto e é super objetiva?
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
