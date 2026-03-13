@@ -504,6 +504,51 @@ def buscar_baseline_llm(palavra_chave):
     except Exception as e:
         return f"Erro ao buscar Baseline de IA: {e}"
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
+    """
+    RAG Reverso dinâmico: Busca artigos já publicados no WP da marca selecionada para linkagem interna.
+    Lida com URLs formatadas com /wp-json/ ou com ?rest_route= contornando CloudFront.
+    """
+    if not (wp_url and wp_user and wp_pwd):
+        return "Sem credenciais do WordPress configuradas para esta marca. Pule a linkagem interna."
+    
+    import base64
+    wp_pwd_clean = wp_pwd.replace(" ", "").strip()
+    credenciais = f"{wp_user}:{wp_pwd_clean}"
+    token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
+    
+    # Mesma Máscara Robusta que funcionou no POST
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': f'Basic {token_auth}',
+        'Connection': 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br'
+    }
+
+    # Adapta a URL dinamicamente garantindo que não quebre a query
+    separador = "&" if "?" in wp_url else "?"
+    search_url = f"{wp_url}{separador}search={urllib.parse.quote(palavra_chave)}&per_page=3&_fields=id,title,link"
+    
+    try:
+        response = requests.get(search_url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            posts = response.json()
+            if not posts:
+                return "Nenhum artigo interno altamente relacionado encontrado no WordPress desta marca."
+            
+            contexto_interno = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO):\n"
+            for p in posts:
+                titulo = p.get("title", {}).get("rendered", "Sem título")
+                link = p.get("link", "")
+                contexto_interno += f"- Título: {titulo}\n  URL: {link}\n"
+            return contexto_interno
+        else:
+            return f"Erro na busca WP (Status {response.status_code}): O Firewall bloqueou a leitura."
+    except Exception as e:
+        return f"Falha ao conectar com WP da marca para RAG Reverso: {e}"
+
 # ==========================================================
 # NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO (v5 e v6)
 # ==========================================================
@@ -752,11 +797,16 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
     from datetime import datetime
     ano_atual = datetime.now().year
 
-    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina) e IAs (Perplexity) em paralelo...")
+    # Puxa as chaves da marca para o RAG
+    wp_url_marca, wp_user_marca, wp_pwd_marca = obter_credenciais_wp(marca_alvo)
+
+    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso (WP)...")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
+        # Executa a busca interna no WP
+        futuro_wp_rag = executor.submit(buscar_artigos_relacionados_wp, palavra_chave, wp_url_marca, wp_user_marca, wp_pwd_marca)
         
         try:
             contexto_google = futuro_google.result(timeout=45)
@@ -770,6 +820,10 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
             reverse_queries = futuro_reverse.result(timeout=20)
         except:
             reverse_queries = "{}"
+        try:
+            contexto_wp = futuro_wp_rag.result(timeout=15)
+        except:
+            contexto_wp = "Erro de timeout ao buscar links internos."
 
     st.write("🔍 Fase 0.5: Analisando Entity Gap e Oportunidades Semânticas...")
     entity_gap = analisar_entity_gap(contexto_google, palavra_chave)
@@ -855,6 +909,7 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 11.1) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
 11.2) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a regra 11.3.
 11.3) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
+11.4) RAG REVERSO (LINKAGEM INTERNA ESTRATÉGICA): O usuário enviará uma lista de "ARTIGOS INTERNOS DISPONÍVEIS". Você é OBRIGADO a escolher 1 ou 2 desses artigos e criar links internos com contexto apontando para eles usando a tag <a href="[URL_DO_ARTIGO]" target="_blank">[ÂNCORA]</a>. Proibido âncoras como "clique aqui". Se a lista estiver vazia, ignore.
 13) ESTUDO DE CASO REAL SEM ALUCINAÇÃO: Inserir uma seção <h2>Estudo de Caso na Prática</h2> descrevendo a tecnologia/metodologia REAL da marca. É ESTRITAMENTE PROIBIDO inventar uma historinha sobre um cliente fictício, números de "antes e depois" ou métricas falsas.
 13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
@@ -1016,7 +1071,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
         score_originalidade, citabilidade, cluster, reverse_queries, 
         citation_score, entity_coverage, geo_score, retrieval_simulation, 
         hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-        rag_chunks, evidence_density, information_gain
+        rag_chunks, evidence_density, information_gain, contexto_wp
     )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
@@ -1135,7 +1190,7 @@ with tab1:
                             score_originalidade, citabilidade, cluster, reverse_queries, 
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-                            rag_chunks, evidence_density, information_gain
+                            rag_chunks, evidence_density, information_gain, contexto_wp
                         ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
                         
                         st.session_state['art_gerado'] = artigo_html
@@ -1158,6 +1213,7 @@ with tab1:
                         st.session_state['rag_chunks'] = rag_chunks
                         st.session_state['evidence_density'] = evidence_density
                         st.session_state['information_gain'] = information_gain
+                        st.session_state['contexto_wp'] = contexto_wp
                         
                         st.session_state['marca_atual'] = marca_selecionada
                         st.session_state['keyword_atual'] = palavra_chave_input
@@ -1240,6 +1296,10 @@ with tab1:
             with st.expander("🥇 Originalidade do Artigo (vs Concorrentes)", expanded=False):
                 st.caption("ℹ️ **O que é isso:** Parecer textual detalhando quais ângulos únicos e abordagens frescas o seu texto trouxe que não existem no Top 3 do Google atualmente.")
                 st.markdown(st.session_state.get('score_originalidade', '⚠️ Dados não encontrados.'))
+
+            with st.expander("🔗 RAG Reverso (Linkagem Interna Automática)", expanded=False):
+                st.caption("ℹ️ **O que é isso:** O motor vasculhou a API do WordPress desta marca buscando posts anteriores sobre o tema. Se encontrar, obriga o Claude a criar linkagem interna estratégica (Topical Authority).")
+                st.markdown(st.session_state.get('contexto_wp', '⚠️ Dados não encontrados.'))
                 
             with st.expander("🗺️ Sugestão de Content Cluster (Topical Authority)", expanded=False):
                 st.caption("ℹ️ **O que é isso:** Sugestão de 8 pautas satélites para você escrever no futuro, lincar para este artigo e criar uma 'teia de autoridade' no seu blog.")
