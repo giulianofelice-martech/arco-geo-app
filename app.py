@@ -1102,7 +1102,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     # MÁSCARA ATUALIZADA: Paramos de fingir ser o Chrome (o AWS WAF detecta a mentira).
     # Usamos uma identidade de ferramenta corporativa para dar bypass nas regras de "Falso Navegador".
     headers = {
-        'User-Agent': 'Arco-Motor-GEO/7.0 (API Integration)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': f'Basic {token_auth}',
