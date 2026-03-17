@@ -1084,13 +1084,6 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     seo_title = meta_dict.get("title", titulo)
     meta_desc = meta_dict.get("meta_description", "")
     
-    # 🚨 O WAF DA AWS BLOQUEIA TAGS <SCRIPT> VIA API ACHANDO QUE É ATAQUE. 
-    # DEIXAMOS COMENTADO PARA PODER PASSAR PELO FIREWALL.
-    # schema_faq = meta_dict.get("schema_faq", {})
-    # if schema_faq:
-    #     script_schema = f'\n\n<script type="application/ld+json">\n{json.dumps(schema_faq, ensure_ascii=False, indent=2)}\n</script>'
-    #     conteudo_html += script_schema
-
     # Payload limpo sem scripts
     payload = {
         "title": titulo,
@@ -1106,7 +1099,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
     credenciais = f"{wp_user}:{wp_pwd_clean}"
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
-    # Máscara do Chrome
+   # MÁSCARA ROBUSTA: Disfarce de navegador real (Chrome no Windows)
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*',
