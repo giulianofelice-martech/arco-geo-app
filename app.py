@@ -549,6 +549,36 @@ def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
     except Exception as e:
         return f"Falha ao conectar com WP da marca para RAG Reverso: {e}"
 
+@st.cache_data(ttl=300, show_spinner=False)
+def listar_posts_wp(wp_url, wp_user, wp_pwd):
+    """
+    Busca os últimos posts do WP para a aba de Revisão.
+    """
+    if not (wp_url and wp_user and wp_pwd):
+        return []
+    
+    import base64
+    wp_pwd_clean = wp_pwd.replace(" ", "").strip()
+    credenciais = f"{wp_user}:{wp_pwd_clean}"
+    token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
+    
+    headers = {
+        'User-Agent': 'Arco-Motor-GEO/7.0 (API Integration)',
+        'Accept': 'application/json',
+        'Authorization': f'Basic {token_auth}'
+    }
+
+    separador = "&" if "?" in wp_url else "?"
+    search_url = f"{wp_url}{separador}per_page=15&status=publish,draft&_fields=id,title,content"
+    
+    try:
+        res = requests.get(search_url, headers=headers, timeout=15)
+        if res.status_code == 200:
+            return res.json()
+    except Exception:
+        pass
+    return []
+
 # ==========================================================
 # NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO (v5 e v6)
 # ==========================================================
@@ -680,6 +710,48 @@ def simular_resposta_ai(keyword, artigo_html):
     """
     user = f"PERGUNTA:\n{keyword}\n\nFONTE:\n{artigo_html}"
     return chamar_llm(system, user, "openai/gpt-4o-mini", 0.2, response_format={"type":"json_object"})
+
+def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
+    df = st.session_state['brandbook_df']
+    marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
+    url_marca = marca_info.get('URL', '')
+
+    system = """Você é um Revisor Sênior de SEO e Engenheiro de Prompt GEO.
+    Sua missão é avaliar um artigo HTML antigo ou mal formatado e reescrevê-lo para atingir a nota máxima nos critérios E-E-A-T e nas heurísticas do Motor GEO.
+    
+    DIRETRIZES DE REVISÃO E REESCRITA OBRIGATÓRIAS:
+    1. ASSIMETRIA VISUAL EXTREMA: Destrua blocos de texto maciços. Intercale parágrafos "maiores" (3-4 linhas) com parágrafos de UMA ÚNICA FRASE (respiro visual profundo). É proibido que os parágrafos tenham tamanho simétrico.
+    2. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> logo no início e entregue a resposta mastigada em 2 linhas com a tag <p><strong>Resposta direta:</strong>.
+    3. CHUNK CITABILITY: Insira um <p><strong>Definição:</strong> com menos de 30 palavras no início. Limite listas (<ul>) a no máximo 2 em todo o artigo.
+    4. BRANDBOOK DA MARCA: Reescreva trechos fora de tom usando o Tom de Voz e Posicionamento exigidos no briefing. Garanta que o nome da marca seja linkado para a URL oficial.
+    5. PRESERVAÇÃO DE DADOS: Mantenha as informações e ideias do texto original. Não invente "Estudos da OCDE" ou dados matemáticos se eles não estiverem no texto original.
+    6. Mantenha os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>` onde achar pertinente para o novo esqueleto.
+    
+    RETORNE EXCLUSIVAMENTE UM JSON SEGUINDO ESTE FORMATO EXATO:
+    {
+        "diagnostico": "Resumo curto das falhas originais de SEO/GEO encontradas.",
+        "melhorias_aplicadas": ["Melhoria 1", "Melhoria 2"],
+        "html_novo": "O código HTML completo reescrito e otimizado"
+    }
+    """
+    
+    user = f"""
+    PALAVRA-CHAVE FOCO: '{palavra_chave}'
+    PÚBLICO-ALVO: {publico}
+    MARCA ALVO: {marca}
+    URL DA MARCA OBRIGATÓRIA: {url_marca}
+    
+    DIRETRIZES DA MARCA ({marca}):
+    - Posicionamento: {marca_info['Posicionamento']}
+    - Tom de Voz Exigido: {marca_info['TomDeVoz']}
+    - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
+    - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
+    
+    TEXTO ORIGINAL PARA AUDITORIA E REESCRITA (HTML):
+    {html_atual}
+    """
+    
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
 
 # ==========================================================
 # NOVAS MÉTRICAS MATEMÁTICAS RAG / GEO (V7.0)
@@ -1122,7 +1194,7 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
-tab1, tab2, tab3 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO"])
+tab1, tab2, tab3, tab4 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO", "📝 Revisor GEO WordPress"])
 
 with tab2:
     st.markdown("### Edite as regras, marcas e diretrizes:")
@@ -1486,3 +1558,99 @@ with tab3:
                     st.error(f"Ocorreu um erro ao processar a auditoria visual. Detalhe técnico: {e}")
                     with st.expander("Ver resposta bruta da IA"):
                         st.write(relatorio_bruto if 'relatorio_bruto' in locals() else "Nenhuma resposta obtida.")
+
+# ==========================================
+# 7. REVISOR GEO WORDPRESS (NOVA ABA 4)
+# ==========================================
+with tab4:
+    st.subheader("📝 Revisor GEO WordPress")
+    st.caption("Resgate um artigo publicado no blog ou cole manualmente para otimizá-lo aos padrões de leitura de IA (Chunk Citability, Answer-First, E-E-A-T) mantendo as regras do Brandbook.")
+    
+    col_rev_1, col_rev_2 = st.columns([1, 2])
+    
+    with col_rev_1:
+        marca_rev = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist(), key="marca_revisor")
+        
+        # --- Extração Dinâmica de Público para o Revisor ---
+        try:
+            publicos_da_marca_rev = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_rev]['PublicoAlvo'].iloc[0]
+            opcoes_publico_rev = [p.strip() for p in publicos_da_marca_rev.split('.') if p.strip()]
+            if not opcoes_publico_rev:
+                opcoes_publico_rev = ["Público Geral (Baseado na Keyword)"]
+            else:
+                opcoes_publico_rev.append("Público Geral (Baseado na Keyword)")
+        except:
+            opcoes_publico_rev = ["Público Geral (Baseado na Keyword)"]
+            
+        opcoes_publico_rev.append("✍️ Digitar outro público (Personalizado)...")
+        escolha_publico_rev = st.selectbox("🎯 Para quem o artigo original foi escrito?", opcoes_publico_rev, key="pub_revisor")
+        
+        if escolha_publico_rev == "✍️ Digitar outro público (Personalizado)...":
+            publico_rev = st.text_input("Qual é o público-alvo?", key="pub_manual_rev")
+        else:
+            publico_rev = escolha_publico_rev
+            
+        palavra_chave_rev = st.text_input("🔑 Palavra-chave principal do artigo", placeholder="Ex: metodologia bilíngue")
+    
+    with col_rev_2:
+        modo_input = st.radio("Origem do Artigo:", ["Puxar do WordPress", "Inserir Manualmente"], horizontal=True)
+        html_input = ""
+        
+        if modo_input == "Puxar do WordPress":
+            wp_url_r, wp_user_r, wp_pwd_r = obter_credenciais_wp(marca_rev)
+            if wp_url_r and wp_user_r and wp_pwd_r:
+                # Buscamos os posts dinamicamente usando a mesma lógica Antibloqueio
+                posts_wp = listar_posts_wp(wp_url_r, wp_user_r, wp_pwd_r)
+                if posts_wp:
+                    opcoes_posts = {f"{p['id']} - {p.get('title', {}).get('rendered', 'Sem Titulo')}": p.get('content', {}).get('rendered', '') for p in posts_wp}
+                    post_selecionado = st.selectbox("Selecione o Artigo para Revisão (Últimos 15 posts):", list(opcoes_posts.keys()))
+                    html_input = opcoes_posts[post_selecionado]
+                    with st.expander("👁️ Ver HTML Original (Pre-Revisão)"):
+                        st.code(html_input[:1000] + "...\n(código truncado para visualização)", language="html")
+                else:
+                    st.warning("⚠️ Nenhum post encontrado ou o Firewall bloqueou a leitura do WordPress.")
+            else:
+                st.warning("🔌 Credenciais do WordPress não configuradas para esta marca no painel de Secrets.")
+        else:
+            html_input = st.text_area("Cole o HTML Original Aqui:", height=200, placeholder="<h1>Meu Título Antigo</h1>\n<p>Parágrafo massivo...</p>")
+
+    if st.button("✨ Avaliar e Reescrever para Padrão GEO", type="primary", use_container_width=True):
+        if not TOKEN:
+            st.error("⚠️ Chave OPENROUTER_KEY não encontrada.")
+        elif not palavra_chave_rev or not html_input:
+            st.warning("⚠️ Preencha a palavra-chave e selecione/cole um artigo HTML para revisar.")
+        else:
+            with st.spinner("Analisando legado e reescrevendo código HTML... Isso pode levar alguns segundos."):
+                try:
+                    resultado_revisao = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, html_input)
+                    
+                    # Limpeza de formatação json vinda da IA
+                    json_rev_limpo = resultado_revisao.strip().removeprefix('```json').removesuffix('```').strip()
+                    dados_revisao = json.loads(json_rev_limpo)
+                    
+                    st.success("Revisão concluída com sucesso!")
+                    
+                    col_resultado_1, col_resultado_2 = st.columns(2)
+                    
+                    with col_resultado_1:
+                        st.markdown("### 📋 Diagnóstico do Revisor")
+                        st.info(f"**O que estava errado no original:**\n{dados_revisao.get('diagnostico', 'N/A')}")
+                        
+                        st.markdown("### 🛠️ Melhorias Aplicadas")
+                        melhorias = dados_revisao.get('melhorias_aplicadas', [])
+                        for m in melhorias:
+                            st.markdown(f"- ✅ {m}")
+                    
+                    with col_resultado_2:
+                        st.markdown("### 🚀 Novo Código HTML Otimizado")
+                        st.info("Passe o mouse no bloco abaixo e clique em 📋 para copiar seu artigo atualizado.")
+                        st.code(dados_revisao.get('html_novo', ''), language="html")
+                        
+                    st.markdown("---")
+                    st.markdown("### 👁️ Pré-visualização da Nova Estrutura")
+                    st.markdown(dados_revisao.get('html_novo', ''), unsafe_allow_html=True)
+                    
+                except Exception as e:
+                    st.error(f"Erro ao reescrever o artigo: {e}")
+                    with st.expander("Ver resposta bruta da IA"):
+                        st.write(resultado_revisao if 'resultado_revisao' in locals() else "Nenhuma resposta")
