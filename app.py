@@ -1338,14 +1338,37 @@ with tab1:
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
         st.markdown("---")
         
-        # Substitua o wp_url_marca, etc... por isso:
         cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
         WP_READY = bool(cms_u and cms_usr and cms_p)
 
         if not WP_READY:
-            st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais.")
+            st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais no painel de Secrets.")
         else:
-            st.success(f"🔌 Conectado ao {cms_t.upper()} da marca: {marca_selecionada}")
+            # Faz um Ping real na API para ver se o Firewall está bloqueando
+            with st.spinner(f"Verificando conexão com o Firewall do {cms_t.upper()}..."):
+                try:
+                    import base64
+                    token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+                    headers_teste = {
+                        'User-Agent': 'Arco-Motor-GEO/7.1', 
+                        'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
+                        'Authorization': f'Basic {token_teste}'
+                    }
+                    
+                    # Ping rápido puxando só 1 post (bem leve)
+                    url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
+                    res_ping = requests.get(url_ping, headers=headers_teste, timeout=5)
+                    
+                    if res_ping.status_code == 200:
+                        st.success(f"🔌 Conectado e Autorizado no {cms_t.upper()} da marca: {marca_selecionada}")
+                    elif res_ping.status_code in [403, 401]:
+                        st.error(f"🛑 Credenciais OK, mas o Firewall (WAF) bloqueou a leitura da marca {marca_selecionada} (Erro {res_ping.status_code}). Solicite whitelist do User-Agent para a TI.")
+                        WP_READY = False # Força o desativamento do botão de postagem direta mais abaixo
+                    else:
+                        st.warning(f"⚠️ API respondeu com Erro {res_ping.status_code}. O RAG Reverso pode falhar.")
+                except Exception:
+                    st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
+                    WP_READY = False
 
     # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
     if gerar_btn:
