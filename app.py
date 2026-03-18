@@ -564,7 +564,13 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
             ctx = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO DRUPAL):\n"
             for p in posts:
                 attrs = p.get("attributes", {})
-                ctx += f"- Título: {attrs.get('title', '')}\n  URL: {attrs.get('path', {}).get('alias', '')}\n"
+                titulo = attrs.get('title', '')
+                
+                # Proteção contra path nulo
+                path_data = attrs.get('path') or {}
+                link = path_data.get('alias', '') if isinstance(path_data, dict) else ""
+                
+                ctx += f"- Título: {titulo}\n  URL: {link}\n"
             return ctx
         return f"Erro Drupal RAG (Status {res.status_code})"
     except Exception as e:
@@ -611,9 +617,25 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
         res = requests.get(f"{d_url}?sort=-created&page[limit]=15", headers=headers, timeout=15)
         if res.status_code == 200:
             posts = res.json().get("data", [])
-            # Padroniza a saída do Drupal para ficar igual ao dict do WP
-            return [{"id": p.get("id"), "title": {"rendered": p.get("attributes", {}).get("title", "Sem Título")}, "content": {"rendered": p.get("attributes", {}).get("body", {}).get("value", "")}} for p in posts]
-    except Exception: pass
+            
+            lista_formatada = []
+            for p in posts:
+                attrs = p.get("attributes", {})
+                titulo = attrs.get("title") or "Sem Título"
+                
+                # Proteção contra body nulo
+                body_data = attrs.get("body") or {}
+                conteudo = body_data.get("value", "") if isinstance(body_data, dict) else ""
+                
+                lista_formatada.append({
+                    "id": p.get("id"),
+                    "title": {"rendered": titulo},
+                    "content": {"rendered": conteudo}
+                })
+            return lista_formatada
+    except Exception as e:
+        print(f"Erro no parser do Drupal: {e}")
+        pass
     return []
     
 # ==========================================================
