@@ -1248,11 +1248,20 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
         }
     }
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    headers = {
+        'User-Agent': 'Arco-Motor-GEO/7.1', 
+        'Accept': 'application/vnd.api+json', 
+        'Content-Type': 'application/vnd.api+json', 
+        'Authorization': f'Basic {token_auth}'
+    }
     try:
         return requests.post(d_url, json=payload, headers=headers, timeout=30)
     except Exception as e:
-        class ErrorRes: status_code, text = 500, str(e); def json(self): return {}
+        # Desempacotamos a classe de erro para respeitar a indentação do Python
+        class ErrorRes: 
+            status_code = 500
+            text = f"Erro interno de conexão: {str(e)}"
+            def json(self): return {}
         return ErrorRes()
         
 # ==========================================
