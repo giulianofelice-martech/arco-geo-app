@@ -53,3 +53,25 @@ WP_URL = "[https://www.classapp.com.br/wp-json/wp/v2/posts](https://www.classapp
 WP_USER = "usuario_api"
 WP_APP_PASSWORD = "app_password_do_wp"
 CMS_TYPE = "wp"
+
+---
+
+##  🛠️ Stack Tecnológico
+Linguagem Principal: Python 3.x
+
+Frontend: Streamlit
+
+Estruturação de Dados: Pydantic (Validação JSON e Schemas) e Pandas (Brandbook)
+
+LLMs: OpenAI GPT-4o (Planejamento, Auditoria e Simulações) e Anthropic Claude 3.7 Sonnet (Redação HTML de altíssima fidelidade). Acessados via OpenRouter.
+
+APIs Externas: Serper.dev (Google Search), Jina AI Reader (Raspagem Web), Unsplash (Mídia).
+
+---
+
+##🛡️ Guardrails e Segurança (Anti-Alucinação)
+Veto de Dados Órfãos: A IA é bloqueada de inventar estatísticas absolutas (ex: "aumento de 37%") caso o dado não possua uma URL referencial (href) comprovada no contexto orgânico.
+
+Assimetria Visual Obrigatória: Prevenção contra Wall of Text (textos massivos gerados por IA). O motor exige que parágrafos longos sejam intercalados com frases de impacto isoladas.
+
+Lazy Linking Banido: Todo link gerado deve ser um Deep Link (página específica do estudo/artigo) e nunca uma home page genérica.
