@@ -415,16 +415,15 @@ try:
 except Exception:
     SERPAPI_KEY = None
 
-# NOVA FUNÇÃO: Busca credenciais WP dinâmicas da marca selecionada
-def obter_credenciais_wp(marca):
-    """Busca as credenciais do WP específicas da marca nos secrets (seção [wordpress])."""
+def obter_credenciais_cms(marca):
+    """Busca as credenciais (WP ou Drupal) da marca nos secrets."""
     try:
         if "wordpress" in st.secrets and marca in st.secrets["wordpress"]:
             creds = st.secrets["wordpress"][marca]
-            return creds.get("WP_URL", ""), creds.get("WP_USER", ""), creds.get("WP_APP_PASSWORD", "")
+            return creds.get("WP_URL", ""), creds.get("WP_USER", ""), creds.get("WP_APP_PASSWORD", ""), creds.get("CMS_TYPE", "wp").lower()
     except Exception:
         pass
-    return "", "", ""
+    return "", "", "", "wp"
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
@@ -549,6 +548,28 @@ def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
     except Exception as e:
         return f"Falha ao conectar com WP da marca para RAG Reverso: {e}"
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
+    if not (d_url and d_user and d_pwd): return "Sem credenciais Drupal."
+    import base64
+    token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    
+    filtro = f"?filter[title-filter][condition][path]=title&filter[title-filter][condition][operator]=CONTAINS&filter[title-filter][condition][value]={urllib.parse.quote(palavra_chave)}&page[limit]=3"
+    try:
+        res = requests.get(f"{d_url}{filtro}", headers=headers, timeout=15)
+        if res.status_code == 200:
+            posts = res.json().get("data", [])
+            if not posts: return "Nenhum artigo encontrado no Drupal."
+            ctx = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO DRUPAL):\n"
+            for p in posts:
+                attrs = p.get("attributes", {})
+                ctx += f"- Título: {attrs.get('title', '')}\n  URL: {attrs.get('path', {}).get('alias', '')}\n"
+            return ctx
+        return f"Erro Drupal RAG (Status {res.status_code})"
+    except Exception as e:
+        return f"Erro Drupal RAG: {e}"
+
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_wp(wp_url, wp_user, wp_pwd):
     """
@@ -579,6 +600,22 @@ def listar_posts_wp(wp_url, wp_user, wp_pwd):
         pass
     return []
 
+
+@st.cache_data(ttl=300, show_spinner=False)
+def listar_posts_drupal(d_url, d_user, d_pwd):
+    if not (d_url and d_user and d_pwd): return []
+    import base64
+    token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    try:
+        res = requests.get(f"{d_url}?sort=-created&page[limit]=15", headers=headers, timeout=15)
+        if res.status_code == 200:
+            posts = res.json().get("data", [])
+            # Padroniza a saída do Drupal para ficar igual ao dict do WP
+            return [{"id": p.get("id"), "title": {"rendered": p.get("attributes", {}).get("title", "Sem Título")}, "content": {"rendered": p.get("attributes", {}).get("body", {}).get("value", "")}} for p in posts]
+    except Exception: pass
+    return []
+    
 # ==========================================================
 # NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO (v5 e v6)
 # ==========================================================
@@ -870,16 +907,20 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
     from datetime import datetime
     ano_atual = datetime.now().year
 
-    # Puxa as chaves da marca para o RAG
-    wp_url_marca, wp_user_marca, wp_pwd_marca = obter_credenciais_wp(marca_alvo)
+    # ROTEADOR DE CMS AQUI
+    cms_url, cms_user, cms_pwd, cms_type = obter_credenciais_cms(marca_alvo)
 
-    st.write("🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso (WP)...")
+    st.write(f"🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso ({cms_type.upper()})...")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
-        # Executa a busca interna no WP
-        futuro_wp_rag = executor.submit(buscar_artigos_relacionados_wp, palavra_chave, wp_url_marca, wp_user_marca, wp_pwd_marca)
+        
+        # O script decide qual CMS atacar
+        if cms_type == "drupal":
+            futuro_wp_rag = executor.submit(buscar_artigos_relacionados_drupal, palavra_chave, cms_url, cms_user, cms_pwd)
+        else:
+            futuro_wp_rag = executor.submit(buscar_artigos_relacionados_wp, palavra_chave, cms_url, cms_user, cms_pwd)
         
         try:
             contexto_google = futuro_google.result(timeout=45)
@@ -1192,6 +1233,28 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
             def json(self): return {}
         return ErrorResponse()
 
+def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
+    import base64
+    # Descobre o nome da rota dinamicamente (ex: node--quark_blog)
+    node_type = "node--" + d_url.rstrip('/').split('/')[-1] 
+    payload = {
+        "data": {
+            "type": node_type,
+            "attributes": {
+                "title": titulo,
+                "body": {"value": conteudo_html, "format": "full_html"},
+                "status": False
+            }
+        }
+    }
+    token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    try:
+        return requests.post(d_url, json=payload, headers=headers, timeout=30)
+    except Exception as e:
+        class ErrorRes: status_code, text = 500, str(e); def json(self): return {}
+        return ErrorRes()
+        
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
@@ -1244,13 +1307,14 @@ with tab1:
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
         st.markdown("---")
         
-        wp_url_marca, wp_user_marca, wp_pwd_marca = obter_credenciais_wp(marca_selecionada)
-        WP_READY = bool(wp_url_marca and wp_user_marca and wp_pwd_marca)
+        # Substitua o wp_url_marca, etc... por isso:
+        cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
+        WP_READY = bool(cms_u and cms_usr and cms_p)
 
         if not WP_READY:
-            st.warning(f"🔌 Integração WordPress inativa para a marca {marca_selecionada}. Faltam as credenciais no arquivo Secrets.")
+            st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais.")
         else:
-            st.success(f"🔌 Conectado ao WordPress da marca: {marca_selecionada} (Pronto para Yoast).")
+            st.success(f"🔌 Conectado ao {cms_t.upper()} da marca: {marca_selecionada}")
 
     # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
     if gerar_btn:
@@ -1400,20 +1464,22 @@ with tab1:
             st.code(st.session_state['art_gerado'], language="html")
             st.markdown("---")
 
-            # NOVO LUGAR DO BOTÃO DO WORDPRESS (Fora do expander evita o bug de clique do Streamlit)
-            wp_url_atual, wp_user_atual, wp_pwd_atual = obter_credenciais_wp(st.session_state['marca_atual'])
-            if wp_url_atual and wp_user_atual and wp_pwd_atual:
-                st.subheader("🌐 Publicação Direta")
-                if st.button(f"📤 Enviar Rascunho para WordPress ({st.session_state['marca_atual']})", type="primary", use_container_width=True):
-                    with st.spinner("Enviando via API para o WordPress... Isso pode levar alguns segundos."):
-                        res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, wp_url_atual, wp_user_atual, wp_pwd_atual)
-                        if res.status_code == 201:
-                            st.success(f"✅ Rascunho criado com sucesso! Link: {res.json().get('link')}")
+            # Substitua o bloco "# NOVO LUGAR DO BOTÃO DO WORDPRESS" inteiro por isso:
+            cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
+            if cms_u and cms_usr and cms_p:
+                st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
+                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", use_container_width=True):
+                    with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
+                        if cms_t == "drupal":
+                            res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                        else:
+                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                        
+                        if res.status_code in [200, 201]:
+                            link_retorno = res.json().get('link') or "Rascunho criado!"
+                            st.success(f"✅ Rascunho criado com sucesso! Code: {res.status_code} | {link_retorno}")
                         else:
                             st.error(f"❌ Falha ao enviar (Erro HTTP {res.status_code}): {res.text}")
-
-            with st.expander("🛠️ Metadados SEO & Schema", expanded=True):
-                st.json(meta)
 
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
@@ -1598,20 +1664,24 @@ with tab4:
         html_input = ""
         
         if modo_input == "Puxar do WordPress":
-            wp_url_r, wp_user_r, wp_pwd_r = obter_credenciais_wp(marca_rev)
-            if wp_url_r and wp_user_r and wp_pwd_r:
-                # Buscamos os posts dinamicamente usando a mesma lógica Antibloqueio
-                posts_wp = listar_posts_wp(wp_url_r, wp_user_r, wp_pwd_r)
-                if posts_wp:
-                    opcoes_posts = {f"{p['id']} - {p.get('title', {}).get('rendered', 'Sem Titulo')}": p.get('content', {}).get('rendered', '') for p in posts_wp}
+            url_r, user_r, pwd_r, type_r = obter_credenciais_cms(marca_rev)
+            if url_r and user_r and pwd_r:
+                # O Router define qual lista puxar
+                if type_r == "drupal":
+                    posts_cms = listar_posts_drupal(url_r, user_r, pwd_r)
+                else:
+                    posts_cms = listar_posts_wp(url_r, user_r, pwd_r)
+                
+                if posts_cms:
+                    opcoes_posts = {f"{p['id']} - {p.get('title', {}).get('rendered', 'Sem Titulo')}": p.get('content', {}).get('rendered', '') for p in posts_cms}
                     post_selecionado = st.selectbox("Selecione o Artigo para Revisão (Últimos 15 posts):", list(opcoes_posts.keys()))
                     html_input = opcoes_posts[post_selecionado]
                     with st.expander("👁️ Ver HTML Original (Pre-Revisão)"):
                         st.code(html_input[:1000] + "...\n(código truncado para visualização)", language="html")
                 else:
-                    st.warning("⚠️ Nenhum post encontrado ou o Firewall bloqueou a leitura do WordPress.")
+                    st.warning("⚠️ Nenhum post encontrado ou o Firewall bloqueou a leitura do CMS.")
             else:
-                st.warning("🔌 Credenciais do WordPress não configuradas para esta marca no painel de Secrets.")
+                st.warning("🔌 Credenciais do CMS não configuradas para esta marca no painel de Secrets.")
         else:
             html_input = st.text_area("Cole o HTML Original Aqui:", height=200, placeholder="<h1>Meu Título Antigo</h1>\n<p>Parágrafo massivo...</p>")
 
