@@ -41,37 +41,36 @@ OPENROUTER_KEY = "sk-or-v1-sua-chave-aqui"
 SERPAPI_KEY = "sua-chave-serper-aqui"
 UNSPLASH_KEY = "sua-chave-unsplash-aqui"
 
-# Integrações de CMS por Marca (Exemplo WP)
+# Integrações de CMS por Marca (Exemplo Drupal)
 [wordpress."SAS Educação"]
 WP_URL = "[https://www.saseducacao.com.br/jsonapi/node/quark_blog](https://www.saseducacao.com.br/jsonapi/node/quark_blog)"
 WP_USER = "usuario_api"
 WP_APP_PASSWORD = "senha_ou_app_password"
 CMS_TYPE = "drupal" # Define o roteamento: "drupal" ou "wp"
 
+# Integrações de CMS por Marca (Exemplo WP)
 [wordpress."ClassApp"]
 WP_URL = "[https://www.classapp.com.br/wp-json/wp/v2/posts](https://www.classapp.com.br/wp-json/wp/v2/posts)"
 WP_USER = "usuario_api"
 WP_APP_PASSWORD = "app_password_do_wp"
 CMS_TYPE = "wp"
+```
 
 ---
 
-##  🛠️ Stack Tecnológico
-Linguagem Principal: Python 3.x
+## 🛠️ Stack Tecnológico
 
-Frontend: Streamlit
-
-Estruturação de Dados: Pydantic (Validação JSON e Schemas) e Pandas (Brandbook)
-
-LLMs: OpenAI GPT-4o (Planejamento, Auditoria e Simulações) e Anthropic Claude 3.7 Sonnet (Redação HTML de altíssima fidelidade). Acessados via OpenRouter.
-
-APIs Externas: Serper.dev (Google Search), Jina AI Reader (Raspagem Web), Unsplash (Mídia).
+* **Linguagem Principal:** Python 3.x
+* **Frontend:** Streamlit
+* **Estruturação de Dados:** Pydantic (Validação JSON e Schemas) e Pandas (Brandbook)
+* **LLMs:** OpenAI GPT-4o (Planejamento, Auditoria e Simulações) e Anthropic Claude 3.7 Sonnet (Redação HTML de altíssima fidelidade). Acessados via OpenRouter.
+* **APIs Externas:** Serper.dev (Google Search), Jina AI Reader (Raspagem Web), Unsplash (Mídia).
 
 ---
 
-##🛡️ Guardrails e Segurança (Anti-Alucinação)
-Veto de Dados Órfãos: A IA é bloqueada de inventar estatísticas absolutas (ex: "aumento de 37%") caso o dado não possua uma URL referencial (href) comprovada no contexto orgânico.
+## 🛡️ Guardrails e Segurança (Anti-Alucinação)
 
-Assimetria Visual Obrigatória: Prevenção contra Wall of Text (textos massivos gerados por IA). O motor exige que parágrafos longos sejam intercalados com frases de impacto isoladas.
-
-Lazy Linking Banido: Todo link gerado deve ser um Deep Link (página específica do estudo/artigo) e nunca uma home page genérica.
+1. **Veto de Dados Órfãos:** A IA é bloqueada de inventar estatísticas absolutas (ex: "aumento de 37%") caso o dado não possua uma URL referencial (`href`) comprovada no contexto orgânico.
+2. **Assimetria Visual Obrigatória:** Prevenção contra *Wall of Text* (textos massivos gerados por IA). O motor exige que parágrafos longos sejam intercalados com frases de impacto isoladas.
+3. **Lazy Linking Banido:** Todo link gerado deve ser um *Deep Link* (página específica do estudo/artigo) e nunca uma home page genérica.
+4. **Proteção de Legado (Revisor):** Tags HTML estruturais preexistentes de SEO (mídia e links internos) não podem ser sobrescritas no módulo de revisão.
