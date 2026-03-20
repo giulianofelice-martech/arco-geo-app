@@ -1293,7 +1293,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook",
 
 with tab2:
     st.markdown("### Edite as regras, marcas e diretrizes:")
-    st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", use_container_width=True)
+    st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", width="stretch")
     st.info("💡 Dica: Adicione regras específicas na coluna 'RegrasPositivas'.")
 
 with tab1:
@@ -1335,7 +1335,7 @@ with tab1:
             publico_selecionado = escolha_publico
         # ----------------------------------------------
         palavra_chave_input = st.text_area("Palavra-Chave / Briefing", placeholder="Ex: metodologia bilíngue nas escolas")
-        gerar_btn = st.button("🚀 Gerar Artigo em HTML", use_container_width=True, type="primary")
+        gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
         st.markdown("---")
         
         cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
@@ -1526,7 +1526,7 @@ with tab1:
             cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
             if cms_u and cms_usr and cms_p:
                 st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
-                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", use_container_width=True):
+                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch"):
                     with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
                         if cms_t == "drupal":
                             res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
@@ -1743,7 +1743,7 @@ with tab4:
         else:
             html_input = st.text_area("Cole o HTML Original Aqui:", height=200, placeholder="<h1>Meu Título Antigo</h1>\n<p>Parágrafo massivo...</p>")
 
-    if st.button("✨ Avaliar e Reescrever para Padrão GEO", type="primary", use_container_width=True):
+    if st.button("✨ Avaliar e Reescrever para Padrão GEO", type="primary", width="stretch"):
         if not TOKEN:
             st.error("⚠️ Chave OPENROUTER_KEY não encontrada.")
         elif not palavra_chave_rev or not html_input:
