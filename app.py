@@ -1861,14 +1861,20 @@ with tab5:
             with st.status("🕵️‍♂️ Iniciando Auditoria GEO Avançada...", expanded=True) as status_aud:
                 
                 # Passo 1: Engenharia Reversa (Search Intent)
-                st.write("1️⃣ Analisando Intenção de Busca e gerando variações...")
+                st.write("1️⃣ Analisando Intenção de Busca e gerando variações profundas...")
                 rev_queries_str = gerar_reverse_queries(palavra_chave_auditor)
                 
                 try:
                     rev_data = json.loads(rev_queries_str)
-                    todas_buscas = rev_data.get("user_questions", []) + rev_data.get("llm_reasoning_questions", [])
-                    # Seleciona a keyword base + as 2 melhores variações para não demorar muito
-                    buscas_alvo = [palavra_chave_auditor] + todas_buscas[:2]
+                    
+                    # Pega a primeira pergunta do usuário e a primeira de profundidade técnica
+                    q1 = rev_data.get("user_questions", [""])[0] if rev_data.get("user_questions") else ""
+                    q2 = rev_data.get("semantic_depth_questions", [""])[0] if rev_data.get("semantic_depth_questions") else ""
+                    
+                    # Filtra caso a IA não tenha retornado alguma delas
+                    buscas_extras = [q for q in [q1, q2] if q and len(q) > 5]
+                    
+                    buscas_alvo = [palavra_chave_auditor] + buscas_extras
                 except:
                     buscas_alvo = [palavra_chave_auditor]
                     rev_data = {"Erro": "Não foi possível expandir as buscas. Usando palavra-chave original."}
@@ -1892,14 +1898,14 @@ with tab5:
                             g_res, ia_res = future.result(timeout=45)
                             resultados_google_agregados += f"\n\n--- Busca: '{q}' ---\n{g_res}"
                             resultados_ia_agregados += f"\n\n--- Busca: '{q}' ---\n{ia_res}"
-                        except:
-                            st.write(f"⚠️ Timeout ao buscar o termo: {q}")
+                        except Exception as e:
+                            st.write(f"⚠️ Timeout/Erro ao buscar o termo '{q}': {e}")
 
                 # Passo 3: Varrer os resultados procurando a URL
                 st.write("3️⃣ Cruzando dados e procurando a URL fornecida...")
                 
                 url_limpa = url_auditor.lower().replace("https://", "").replace("http://", "").replace("www.", "").strip()
-                # Tira a barra final se existir para não falhar no match
+                # Tira a barra final se existir para não falhar no match do Google
                 if url_limpa.endswith('/'): url_limpa = url_limpa[:-1] 
                 
                 marca_limpa = marca_auditor.lower().replace(" ", "")
