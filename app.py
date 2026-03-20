@@ -579,7 +579,7 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_wp(wp_url, wp_user, wp_pwd):
     """
-    Busca os últimos posts do WP para a aba de Revisão.
+    Busca os últimos posts do WP para a aba de Revisão e Auditoria.
     """
     if not (wp_url and wp_user and wp_pwd):
         return []
@@ -590,13 +590,15 @@ def listar_posts_wp(wp_url, wp_user, wp_pwd):
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
     headers = {
-        'User-Agent': 'Arco-Motor-GEO/7.0 (API Integration)',
+        'User-Agent': 'Arco-Motor-GEO/7.1 (API Integration)',
         'Accept': 'application/json',
         'Authorization': f'Basic {token_auth}'
     }
 
     separador = "&" if "?" in wp_url else "?"
-    search_url = f"{wp_url}{separador}per_page=15&status=publish,draft&_fields=id,title,content"
+    
+    # O SEGREDO ESTÁ AQUI: Adicionamos o ',link' no final dos fields!
+    search_url = f"{wp_url}{separador}per_page=15&status=publish,draft&_fields=id,title,content,link"
     
     try:
         res = requests.get(search_url, headers=headers, timeout=15)
@@ -605,7 +607,6 @@ def listar_posts_wp(wp_url, wp_user, wp_pwd):
     except Exception:
         pass
     return []
-
 
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_drupal(d_url, d_user, d_pwd):
