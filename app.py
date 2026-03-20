@@ -1513,11 +1513,14 @@ with tab1:
 
             with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?", expanded=False):
                 st.caption("ℹ️ **O que é isso:** O texto cru (sem filtro) que o nosso motor leu dos seus concorrentes no Google e nos consensos de Inteligência Artificial para basear a escrita.")
+                
                 st.markdown("**Google (Serper + Jina Reader):**")
-                st.info(st.session_state.get('google_ctx', 'Sem dados.'))
+                # Trocamos st.info por st.code para não renderizar imagens quebradas
+                st.code(st.session_state.get('google_ctx', 'Sem dados.'), language="markdown")
+                
                 st.markdown("**IA (Perplexity Baseline):**")
-                st.info(st.session_state.get('ia_ctx', 'Sem dados.'))
-
+                st.code(st.session_state.get('ia_ctx', 'Sem dados.'), language="markdown")
+                
             with st.expander("👁️ Pré-visualização do Artigo (Visual)", expanded=False):
                 st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
                 
@@ -1953,6 +1956,7 @@ with tab5:
 
             with st.expander("🕵️‍♂️ Auditoria Bruta: O que ranqueia hoje (Google & IA)?"):
                 st.markdown("**O que os Robôs do Google leram no Top 3 durante as buscas:**")
-                st.info(resultados_google_agregados if resultados_google_agregados else "Sem dados.")
+                st.code(resultados_google_agregados if resultados_google_agregados else "Sem dados.", language="markdown")
+                
                 st.markdown("**Como as IAs responderam às perguntas hoje:**")
-                st.info(resultados_ia_agregados if resultados_ia_agregados else "Sem dados.")
+                st.code(resultados_ia_agregados if resultados_ia_agregados else "Sem dados.", language="markdown")
