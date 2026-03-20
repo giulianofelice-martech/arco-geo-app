@@ -646,10 +646,10 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
 def gerar_reverse_queries(palavra_chave):
     system = """
     Você é um analista de comportamento de LLMs e SearchGPT.
-    Dada uma keyword principal, gere perguntas que mecanismos de IA provavelmente fazem internamente para construir respostas (Search Intent).
+    Dada uma keyword principal, gere perguntas que mecanismos de IA provavelmente fazem internamente para construir respostas e as perguntas mais comuns e básicas feitas por usuários reais no Google.
     Retorne APENAS um JSON estrito:
     {
-     "user_questions": ["pergunta1", "pergunta2"],
+     "user_questions": ["pergunta1", "pergunta2", "pergunta3", "pergunta4"],
      "llm_reasoning_questions": ["pergunta1", "pergunta2"],
      "semantic_depth_questions": ["pergunta1", "pergunta2"]
     }
@@ -1870,24 +1870,16 @@ with tab5:
                 try:
                     rev_data = json.loads(rev_queries_str)
                     
-                    # Pega as 2 melhores perguntas de CADA categoria do JSON
-                    uq = rev_data.get("user_questions", [])[:2]
-                    lrq = rev_data.get("llm_reasoning_questions", [])[:2]
-                    sdq = rev_data.get("semantic_depth_questions", [])[:2]
+                    # Pega as 4 primeiras perguntas que os usuários reais fazem
+                    uq = rev_data.get("user_questions", [])[:4]
                     
-                    todas_extras = uq + lrq + sdq
+                    # Pega 1 pergunta do LLM só para garantir o contexto semântico
+                    lrq = rev_data.get("llm_reasoning_questions", [])[:1]
                     
-                    # Filtro de Qualidade: Remove perguntas genéricas ou muito curtas
-                    buscas_extras = []
-                    for q in todas_extras:
-                        q_lower = q.lower()
-                        # Se a pergunta for muito boba, o Python pula ela e pega a próxima
-                        if not q or len(q) < 10 or "o que é" in q_lower or "quais são os" in q_lower:
-                            continue
-                        buscas_extras.append(q)
+                    buscas_extras = uq + lrq
                     
-                    # Remove duplicatas e limita a 5 perguntas extras para não estourar o Rate Limit da API de uma vez
-                    buscas_extras = list(set(buscas_extras))[:5]
+                    # Remove duplicatas e limpa vazios
+                    buscas_extras = [q for q in list(set(buscas_extras)) if q]
                     
                     buscas_alvo = [palavra_chave_auditor] + buscas_extras
                 except Exception as e:
