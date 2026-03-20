@@ -1289,7 +1289,13 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
-tab1, tab2, tab3, tab4 = st.tabs(["✍️ Gerador de Artigos", "📚 Brandbook", "🔍 Monitor de GEO", "📝 Revisor GEO WordPress"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "✍️ Gerador de Artigos", 
+    "📚 Brandbook", 
+    "🔍 Monitor de GEO", 
+    "📝 Revisor GEO WordPress", 
+    "📊 Auditor de Artigos"
+])
 
 with tab2:
     st.markdown("### Edite as regras, marcas e diretrizes:")
@@ -1783,3 +1789,105 @@ with tab4:
                     st.error(f"Erro ao reescrever o artigo: {e}")
                     with st.expander("Ver resposta bruta da IA"):
                         st.write(resultado_revisao if 'resultado_revisao' in locals() else "Nenhuma resposta")
+
+# ==========================================
+# 8. AUDITOR DE ARTIGOS (NOVA ABA 5)
+# ==========================================
+with tab5:
+    st.subheader("📊 Auditor de Visibilidade GEO")
+    st.caption("Verifique se um artigo publicado está ranqueando no Google ou sendo recomendado espontaneamente pelas IAs.")
+
+    col_aud_1, col_aud_2 = st.columns([1, 2])
+    
+    with col_aud_1:
+        marca_auditor = st.selectbox("Marca Analisada", st.session_state['brandbook_df']['Marca'].tolist(), key="marca_auditor_tab5")
+        palavra_chave_auditor = st.text_input("🔑 Palavra-chave Alvo", placeholder="Ex: metodologia bilíngue")
+        url_auditor = st.text_input("🔗 URL do Artigo Publicado (Opcional mas Recomendado)", placeholder="Ex: https://www.saseducacao.com.br/artigo-teste")
+        
+    with col_aud_2:
+        st.info("""
+        💡 **Como o Auditor funciona?**
+        1. Ele faz uma engenharia reversa das buscas (Search Intent).
+        2. Pesquisa a palavra-chave em tempo real no Google e nos LLMs.
+        3. Varre os resultados procurando a **URL** do seu artigo ou o **Nome da Marca**.
+        4. Avalia se o conteúdo precisa ir para a Revisão GEO.
+        """)
+        
+    if st.button("🚀 Auditar Visibilidade no Google e IA", type="primary", width="stretch"):
+        if not TOKEN or not SERPAPI_KEY:
+            st.error("⚠️ As chaves de API (OpenRouter ou Serper) estão faltando nos Secrets.")
+        elif not palavra_chave_auditor:
+            st.warning("⚠️ Preencha a palavra-chave para que o auditor saiba o que pesquisar.")
+        else:
+            with st.spinner("Varrendo o Top 3 do Google e o consenso das IAs... Isso leva cerca de 20 segundos."):
+                # 1. Buscas Concorrentes (Assíncronas para ser rápido)
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    f_google = executor.submit(buscar_contexto_google, palavra_chave_auditor)
+                    f_ia = executor.submit(buscar_baseline_llm, palavra_chave_auditor)
+                    f_rev = executor.submit(gerar_reverse_queries, palavra_chave_auditor)
+                    
+                    try:
+                        ctx_google = f_google.result(timeout=45)
+                    except:
+                        ctx_google = ""
+                    try:
+                        ctx_ia = f_ia.result(timeout=45)
+                    except:
+                        ctx_ia = ""
+                    try:
+                        rev_queries = json.loads(f_rev.result(timeout=20))
+                    except:
+                        rev_queries = {"Erro": "Não foi possível gerar as perguntas reversas."}
+
+                # 2. Lógica de Match (Cruzamento de Dados)
+                marca_limpa = marca_auditor.lower().replace(" ", "")
+                # Limpa a URL para facilitar o match (tira http, https, www)
+                url_limpa = url_auditor.lower().replace("https://", "").replace("http://", "").replace("www.", "").strip() if url_auditor else ""
+                
+                # Verifica menção da marca ignorando espaços para não ter erro de digitação
+                google_menciona_marca = marca_limpa in ctx_google.lower().replace(" ", "")
+                ia_menciona_marca = marca_limpa in ctx_ia.lower().replace(" ", "")
+                
+                # Verifica URL (só se o usuário preencheu)
+                google_ranqueia_url = (url_limpa in ctx_google.lower()) if url_limpa else False
+                
+                # 3. Exibição de Resultados (Gamificada)
+                st.markdown("---")
+                st.subheader("🎯 Veredito da Auditoria")
+                
+                c_res1, c_res2 = st.columns(2)
+                with c_res1:
+                    st.markdown("### 🌐 Google Search (Top 3 Orgânico)")
+                    if url_limpa and google_ranqueia_url:
+                        st.success("✅ **SUCESSO EXTREMO!** A URL do seu artigo está ranqueando no Top 3 orgânico ou no Featured Snippet.")
+                    elif google_menciona_marca:
+                        st.info("⚠️ **MENÇÃO DE MARCA.** Seu artigo não foi encontrado, mas o Google cita a sua marca em outros links do Top 3.")
+                    else:
+                        st.error("❌ **NÃO RANQUEIA.** O Google não está mostrando sua URL nem sua marca no Top 3 da SERP para esta palavra.")
+                
+                with c_res2:
+                    st.markdown("### 🤖 Consenso de IA (Share of Voice)")
+                    if ia_menciona_marca:
+                        st.success("✅ **AUTORIDADE RECONHECIDA!** As IAs estão citando a sua marca espontaneamente ao responder sobre este assunto.")
+                    else:
+                        st.error("❌ **PONTO CEGO DE IA.** O consenso das inteligências artificiais não cita a sua marca como uma autoridade neste nicho.")
+                
+                # 4. Call to Action / Direcionamento para o Revisor
+                st.markdown("<br>", unsafe_allow_html=True)
+                if not google_ranqueia_url and not ia_menciona_marca:
+                    st.error("🚨 **ALERTA DE DESEMPENHO:** Este conteúdo está invisível para os motores gerativos e tradicionais.")
+                    st.markdown(f"> **Ação Recomendada:** Vá para a aba **📝 Revisor GEO WordPress**, cole a URL ou o HTML deste artigo lá, e peça para o Motor reescrevê-lo aplicando as métricas de *Chunk Citability* e *Answer-First*.")
+                elif google_ranqueia_url and ia_menciona_marca:
+                    st.success("🏆 **BLINDAGEM TOTAL:** Seu artigo é uma fortaleza E-E-A-T. Nenhuma ação de revisão é necessária no momento.")
+
+                # 5. Mapa de Intenção e Dados Brutos
+                st.markdown("---")
+                st.markdown("### 🔄 Mapa de Intenção de Busca (Search Intent Gap)")
+                st.caption("Se o seu artigo não responde a essas exatas perguntas abaixo, os LLMs vão preferir a concorrência. Use isso como pauta para atualizar o seu texto.")
+                st.json(rev_queries)
+
+                with st.expander("🕵️‍♂️ Ver Dados Brutos do Google e IA (Evidence Log)"):
+                    st.markdown("**O que os Robôs do Google leram no Top 3:**")
+                    st.info(ctx_google if ctx_google else "Falha ao ler o Google.")
+                    st.markdown("**Como a Inteligência Artificial responde à pergunta hoje:**")
+                    st.info(ctx_ia if ctx_ia else "Falha ao simular IA.")
