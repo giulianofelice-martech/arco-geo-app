@@ -1349,10 +1349,14 @@ with tab1:
                 try:
                     import base64
                     token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+                    # Máscara de Chrome para WP e Robô para Drupal
+                    user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' if cms_t == 'wp' else 'Arco-Motor-GEO/7.1'
+                    
                     headers_teste = {
-                        'User-Agent': 'Arco-Motor-GEO/7.1', 
+                        'User-Agent': user_agent_ping, 
                         'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
-                        'Authorization': f'Basic {token_teste}'
+                        'Authorization': f'Basic {token_teste}',
+                        'Connection': 'keep-alive'
                     }
                     
                     # Ping rápido puxando só 1 post (bem leve)
