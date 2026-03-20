@@ -1870,17 +1870,29 @@ with tab5:
                 try:
                     rev_data = json.loads(rev_queries_str)
                     
-                    # Pega a primeira pergunta do usuário e a primeira de profundidade técnica
-                    q1 = rev_data.get("user_questions", [""])[0] if rev_data.get("user_questions") else ""
-                    q2 = rev_data.get("semantic_depth_questions", [""])[0] if rev_data.get("semantic_depth_questions") else ""
+                    # Pega as 2 melhores perguntas de CADA categoria do JSON
+                    uq = rev_data.get("user_questions", [])[:2]
+                    lrq = rev_data.get("llm_reasoning_questions", [])[:2]
+                    sdq = rev_data.get("semantic_depth_questions", [])[:2]
                     
-                    # Filtra caso a IA não tenha retornado alguma delas
-                    buscas_extras = [q for q in [q1, q2] if q and len(q) > 5]
+                    todas_extras = uq + lrq + sdq
+                    
+                    # Filtro de Qualidade: Remove perguntas genéricas ou muito curtas
+                    buscas_extras = []
+                    for q in todas_extras:
+                        q_lower = q.lower()
+                        # Se a pergunta for muito boba, o Python pula ela e pega a próxima
+                        if not q or len(q) < 10 or "o que é" in q_lower or "quais são os" in q_lower:
+                            continue
+                        buscas_extras.append(q)
+                    
+                    # Remove duplicatas e limita a 5 perguntas extras para não estourar o Rate Limit da API de uma vez
+                    buscas_extras = list(set(buscas_extras))[:5]
                     
                     buscas_alvo = [palavra_chave_auditor] + buscas_extras
-                except:
+                except Exception as e:
                     buscas_alvo = [palavra_chave_auditor]
-                    rev_data = {"Erro": "Não foi possível expandir as buscas. Usando palavra-chave original."}
+                    rev_data = {"Erro": f"Não foi possível expandir as buscas. Detalhe: {e}"}
                 
                 st.write(f"🎯 Buscas que serão rastreadas: *{', '.join(buscas_alvo)}*")
                 
