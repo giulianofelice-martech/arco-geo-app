@@ -1320,19 +1320,19 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     4. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário/problema e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
     5. O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. É ESTRITAMENTE PROIBIDO usar um tom de "interrogatório" com perguntas seguidas que testem o leitor. 
        -> Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema do PDF] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos do que deve ser feito e descubra como você pode se destacar com essas mudanças."
-    6. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML (use aspas simples nos atributos para não quebrar o JSON): 
+    6. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML: 
        <div style='background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;'><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
     
     REGRAS DE GEO E HTML:
     7. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
     8. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com uma resposta direta e instigante em 2 linhas, alinhada com a promessa do E-book.
-    9. HTML PURO E PREVENÇÃO DE ERROS (CRÍTICO): Retorne apenas tags estruturais. Como seu retorno é um JSON, você é OBRIGADO a usar aspas simples (') em todos os atributos HTML (ex: <a href='link'>) e NUNCA aspas duplas ("), para evitar quebrar o parser do sistema. Escape as quebras de linha corretamente.
+    9. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
     {
         "diagnostico": "Explique brevemente qual spoiler do PDF você escolheu.",
         "melhorias_aplicadas": ["Técnica do Spoiler", "Gatilho Consultivo", "Sem Exageros"],
-        "html_novo": "O código HTML completo usando aspas simples"
+        "html_novo": "O código HTML completo usando aspas simples e escapando aspas duplas internas"
     }
     """
     
@@ -1845,15 +1845,31 @@ with tab4:
                     else:
                         resultado_processamento = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
                     
-                    # Tenta capturar apenas o conteúdo que está entre as chaves { } (ignora textos de introdução da IA)
-                    match_json = re.search(r'\{.*\}', resultado_processamento, re.DOTALL)
-                    if match_json:
-                        json_limpo = match_json.group(0)
-                    else:
-                        json_limpo = resultado_processamento.strip().removeprefix('```json').removesuffix('```').strip()
+                    # Tenta capturar apenas o conteúdo que está entre as chaves { }
+                    match_json = re.search(r'\{.*\}', resultado_processamento.strip(), re.DOTALL)
+                    json_limpo = match_json.group(0) if match_json else resultado_processamento.strip().removeprefix('```json').removesuffix('```').strip()
                     
-                    # O 'strict=False' é o segredo aqui! Ele permite que o Python ignore quebras de linha ou caracteres de controle invisíveis gerados pela IA dentro das strings.
-                    dados_processados = json.loads(json_limpo, strict=False)
+                    # TENTATIVA 1: O caminho feliz (Leitura JSON Padrão)
+                    try:
+                        dados_processados = json.loads(json_limpo, strict=False)
+                    except json.JSONDecodeError:
+                        # TENTATIVA 2: O Plano B (Regex Rescue)
+                        # Se a IA colocou aspas duplas sem escapar e quebrou o JSON, resgatamos o HTML à força!
+                        st.toast("⚠️ Corrigindo aspas duplas mal formatadas pela IA...", icon="🔧")
+                        html_match = re.search(r'"html_novo"\s*:\s*"(.*?)"\s*\}?\s*$', json_limpo, re.DOTALL)
+                        
+                        html_resgatado = ""
+                        if html_match:
+                            html_resgatado = html_match.group(1).replace('\\"', '"').replace('\\n', '\n')
+                            # Limpa lixos residuais do fim do arquivo
+                            if html_resgatado.endswith('"}'): html_resgatado = html_resgatado[:-2]
+                            elif html_resgatado.endswith('"'): html_resgatado = html_resgatado[:-1]
+                        
+                        dados_processados = {
+                            "diagnostico": "JSON recuperado via fallback de Regex.",
+                            "melhorias_aplicadas": ["Correção forçada de formatação"],
+                            "html_novo": html_resgatado if html_resgatado else "<p>Erro crítico de formatação da IA. Tente gerar novamente.</p>"
+                        }
                     
                     st.success("Adaptação concluída com sucesso!")
                     
