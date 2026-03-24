@@ -1304,26 +1304,33 @@ def extrair_texto_pdf(arquivo_pdf):
         return f"Erro ao ler PDF: {e}"
 
 def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
-    """Transforma o texto bruto de um PDF em um artigo GEO formatado para a marca."""
+    """Transforma o texto bruto de um PDF em um artigo 'Teaser' para geração de Leads."""
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
 
-    system = """Você é um Copywriter Especialista em GEO e Repurposing de Conteúdo Corporativo.
-    Sua missão é ler o texto bruto de um E-book/Guia em PDF e transformá-lo em um artigo de blog em HTML altamente otimizado e persuasivo.
+    system = """Você é um Copywriter Especialista em Inbound Marketing, GEO e Repurposing de Conteúdo.
+    Sua missão é ler o texto bruto de um E-book/Guia em PDF e transformá-lo em um "Artigo Resumo / Teaser" em HTML. 
+    O objetivo deste artigo NÃO é entregar todo o conteúdo, mas sim gerar curiosidade e atuar como uma página de atração para que o leitor baixe o material completo.
     
-    REGRAS INVIOLÁVEIS:
-    1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis, números e exemplos presentes no texto do PDF fornecido. É terminantemente proibido inventar dados externos. Se o PDF fala sobre "ECA Digital", use apenas as regras citadas nele.
-    2. BRANDING: Reescreva o conteúdo aplicando rigorosamente o Tom de Voz e as Diretrizes da marca solicitada. Inclua um hiperlink para a URL oficial da marca quando citá-la.
-    3. ASSIMETRIA VISUAL (GEO): Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    4. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com a resposta direta em 2 linhas.
-    5. HTML PURO: Retorne apenas tags estruturais (<h1>, <h2>, <p>, <ul>, <strong>). Não gere markdown.
+    REGRAS INVIOLÁVEIS DE COPYWRITING E CONVERSÃO:
+    1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis e exemplos presentes no texto do PDF fornecido. Não invente nada fora dele.
+    2. BRANDING E TOM: Aplique rigorosamente o Tom de Voz da marca solicitada. A marca é a autora e autoridade deste material.
+    3. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário/problema e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
+    4. O GATILHO PARA O DOWNLOAD: No final do texto, crie um ou dois parágrafos persuasivos avisando que este artigo é apenas um "gostinho" e instigando o leitor a baixar o material rico para ter acesso à lista completa (ex: "Para conhecer os outros 3 pilares...", ou "Baixe o guia prático para ver as penalidades...").
+    5. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML para marcar onde o time de Growth colocará o formulário: 
+       <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;"><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
+    
+    REGRAS DE GEO E HTML:
+    6. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
+    7. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com uma resposta direta e instigante em 2 linhas, alinhada com a promessa do E-book.
+    8. HTML PURO: Retorne apenas tags estruturais (<h1>, <h2>, <h3>, <p>, <ul>, <strong>, <div>). Não gere markdown fora do JSON.
     
     RETORNE EXCLUSIVAMENTE UM JSON:
     {
-        "diagnostico": "Resumo de como você adaptou o PDF para a voz desta marca específica.",
-        "melhorias_aplicadas": ["Estratégia 1", "Estratégia 2"],
-        "html_novo": "O código HTML completo do novo artigo baseado no PDF"
+        "diagnostico": "Explique brevemente qual spoiler do PDF você escolheu revelar e como usou a curiosidade para incentivar o download.",
+        "melhorias_aplicadas": ["Técnica do Spoiler Aplicada", "Gatilho de Escassez/Curiosidade", "Formatação GEO"],
+        "html_novo": "O código HTML completo do artigo teaser"
     }
     """
     
@@ -1339,11 +1346,11 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
     - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
     
-    TEXTO BRUTO EXTRAÍDO DO PDF (E-BOOK/GUIA) PARA SER ADAPTADO:
+    TEXTO BRUTO EXTRAÍDO DO PDF (E-BOOK/GUIA) PARA SER TRANSFORMADO EM TEASER:
     {texto_base_pdf}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.35, response_format={"type": "json_object"})
     
 # ==========================================
 # 5. INTERFACE PRINCIPAL
