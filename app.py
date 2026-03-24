@@ -1325,7 +1325,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS DE GEO E HTML:
     7. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    8. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com uma resposta direta e instigante em 2 linhas, alinhada com a promessa do E-book.
+    8. ESTRUTURA DE TÍTULOS E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo para o Teaser. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
     9. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
