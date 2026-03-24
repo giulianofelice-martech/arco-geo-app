@@ -1315,21 +1315,24 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS INVIOLÁVEIS DE COPYWRITING E CONVERSÃO:
     1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis e exemplos presentes no texto do PDF fornecido. Não invente nada fora dele.
-    2. BRANDING E TOM: Aplique rigorosamente o Tom de Voz da marca solicitada. A marca é a autora e autoridade deste material.
-    3. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário/problema e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
-    4. O GATILHO PARA O DOWNLOAD: No final do texto, crie um ou dois parágrafos persuasivos avisando que este artigo é apenas um "gostinho" e instigando o leitor a baixar o material rico para ter acesso à lista completa (ex: "Para conhecer os outros 3 pilares...", ou "Baixe o guia prático para ver as penalidades...").
-    5. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML para marcar onde o time de Growth colocará o formulário: 
+    2. BRANDING E TOM: Aplique rigorosamente o Tom de Voz da marca solicitada. A marca atua como uma parceira e consultora do leitor, nunca com tom de superioridade.
+    3. BLACKLIST DE EXAGEROS (TOLERÂNCIA ZERO): É estritamente proibido usar termos hiperbólicos, sensacionalistas ou jargões vazios de IA. NUNCA use palavras como: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental". Seja factual, maduro, direto e elegante.
+    4. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário/problema e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
+    5. O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. É ESTRITAMENTE PROIBIDO usar um tom de "interrogatório" com perguntas seguidas que testem o leitor (ex: "Você sabe quais são os outros pilares? Conhece o plano de ação?"). 
+       -> Em vez disso, use uma abordagem consultiva e focada em oportunidades. 
+       -> Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema do PDF] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos do que deve ser feito e descubra como você pode se destacar com essas mudanças."
+    6. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML para marcar onde o time de Growth colocará o formulário: 
        <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;"><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
     
     REGRAS DE GEO E HTML:
-    6. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    7. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com uma resposta direta e instigante em 2 linhas, alinhada com a promessa do E-book.
-    8. HTML PURO: Retorne apenas tags estruturais (<h1>, <h2>, <h3>, <p>, <ul>, <strong>, <div>). Não gere markdown fora do JSON.
+    7. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
+    8. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com uma resposta direta e instigante em 2 linhas, alinhada com a promessa do E-book.
+    9. HTML PURO: Retorne apenas tags estruturais (<h1>, <h2>, <h3>, <p>, <ul>, <strong>, <div>). Não gere markdown fora do JSON.
     
     RETORNE EXCLUSIVAMENTE UM JSON:
     {
         "diagnostico": "Explique brevemente qual spoiler do PDF você escolheu revelar e como usou a curiosidade para incentivar o download.",
-        "melhorias_aplicadas": ["Técnica do Spoiler Aplicada", "Gatilho de Escassez/Curiosidade", "Formatação GEO"],
+        "melhorias_aplicadas": ["Técnica do Spoiler Aplicada", "Gatilho Consultivo", "Remoção de Exageros", "Formatação GEO"],
         "html_novo": "O código HTML completo do artigo teaser"
     }
     """
