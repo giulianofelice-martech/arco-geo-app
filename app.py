@@ -1286,7 +1286,65 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
             text = f"Erro interno de conexão: {str(e)}"
             def json(self): return {}
         return ErrorRes()
-        
+
+
+import PyPDF2
+
+def extrair_texto_pdf(arquivo_pdf):
+    """Lê um arquivo PDF carregado no Streamlit e extrai todo o texto."""
+    try:
+        leitor = PyPDF2.PdfReader(arquivo_pdf)
+        texto_completo = ""
+        for pagina in leitor.pages:
+            texto_extrato = pagina.extract_text()
+            if texto_extrato:
+                texto_completo += texto_extrato + "\n"
+        return texto_completo
+    except Exception as e:
+        return f"Erro ao ler PDF: {e}"
+
+def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
+    """Transforma o texto bruto de um PDF em um artigo GEO formatado para a marca."""
+    df = st.session_state['brandbook_df']
+    marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
+    url_marca = marca_info.get('URL', '')
+
+    system = """Você é um Copywriter Especialista em GEO e Repurposing de Conteúdo Corporativo.
+    Sua missão é ler o texto bruto de um E-book/Guia em PDF e transformá-lo em um artigo de blog em HTML altamente otimizado e persuasivo.
+    
+    REGRAS INVIOLÁVEIS:
+    1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis, números e exemplos presentes no texto do PDF fornecido. É terminantemente proibido inventar dados externos. Se o PDF fala sobre "ECA Digital", use apenas as regras citadas nele.
+    2. BRANDING: Reescreva o conteúdo aplicando rigorosamente o Tom de Voz e as Diretrizes da marca solicitada. Inclua um hiperlink para a URL oficial da marca quando citá-la.
+    3. ASSIMETRIA VISUAL (GEO): Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
+    4. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> no topo com a resposta direta em 2 linhas.
+    5. HTML PURO: Retorne apenas tags estruturais (<h1>, <h2>, <p>, <ul>, <strong>). Não gere markdown.
+    
+    RETORNE EXCLUSIVAMENTE UM JSON:
+    {
+        "diagnostico": "Resumo de como você adaptou o PDF para a voz desta marca específica.",
+        "melhorias_aplicadas": ["Estratégia 1", "Estratégia 2"],
+        "html_novo": "O código HTML completo do novo artigo baseado no PDF"
+    }
+    """
+    
+    user = f"""
+    PALAVRA-CHAVE FOCO: '{palavra_chave}'
+    PÚBLICO-ALVO: {publico}
+    MARCA ALVO: {marca}
+    URL DA MARCA OBRIGATÓRIA: {url_marca}
+    
+    DIRETRIZES DA MARCA ({marca}):
+    - Posicionamento: {marca_info['Posicionamento']}
+    - Tom de Voz Exigido: {marca_info['TomDeVoz']}
+    - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
+    - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
+    
+    TEXTO BRUTO EXTRAÍDO DO PDF (E-BOOK/GUIA) PARA SER ADAPTADO:
+    {texto_base_pdf}
+    """
+    
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    
 # ==========================================
 # 5. INTERFACE PRINCIPAL
 # ==========================================
@@ -1695,46 +1753,43 @@ with tab3:
                         st.write(relatorio_bruto if 'relatorio_bruto' in locals() else "Nenhuma resposta obtida.")
 
 # ==========================================
-# 7. REVISOR GEO WORDPRESS (NOVA ABA 4)
+# 7. ADAPTADOR DE PDF & REVISOR GEO (ABA 4)
 # ==========================================
 with tab4:
-    st.subheader("📝 Revisor GEO WordPress")
-    st.caption("Resgate um artigo publicado no blog ou cole manualmente para otimizá-lo aos padrões de leitura de IA (Chunk Citability, Answer-First, E-E-A-T) mantendo as regras do Brandbook.")
+    st.subheader("♻️ Adaptador & Revisor GEO")
+    st.caption("Adapte um E-book/PDF proprietário para a voz de qualquer marca ou revise um artigo antigo do WordPress.")
     
     col_rev_1, col_rev_2 = st.columns([1, 2])
     
     with col_rev_1:
         marca_rev = st.selectbox("Selecione a Marca", st.session_state['brandbook_df']['Marca'].tolist(), key="marca_revisor")
         
-        # --- Extração Dinâmica de Público para o Revisor ---
+        # --- Extração Dinâmica de Público ---
         try:
             publicos_da_marca_rev = st.session_state['brandbook_df'][st.session_state['brandbook_df']['Marca'] == marca_rev]['PublicoAlvo'].iloc[0]
             opcoes_publico_rev = [p.strip() for p in publicos_da_marca_rev.split('.') if p.strip()]
-            if not opcoes_publico_rev:
-                opcoes_publico_rev = ["Público Geral (Baseado na Keyword)"]
-            else:
-                opcoes_publico_rev.append("Público Geral (Baseado na Keyword)")
+            if not opcoes_publico_rev: opcoes_publico_rev = ["Público Geral"]
+            else: opcoes_publico_rev.append("Público Geral")
         except:
-            opcoes_publico_rev = ["Público Geral (Baseado na Keyword)"]
+            opcoes_publico_rev = ["Público Geral"]
             
         opcoes_publico_rev.append("✍️ Digitar outro público (Personalizado)...")
-        escolha_publico_rev = st.selectbox("🎯 Para quem o artigo original foi escrito?", opcoes_publico_rev, key="pub_revisor")
+        escolha_publico_rev = st.selectbox("🎯 Para quem o artigo será adaptado?", opcoes_publico_rev, key="pub_revisor")
         
         if escolha_publico_rev == "✍️ Digitar outro público (Personalizado)...":
             publico_rev = st.text_input("Qual é o público-alvo?", key="pub_manual_rev")
         else:
             publico_rev = escolha_publico_rev
             
-        palavra_chave_rev = st.text_input("🔑 Palavra-chave principal do artigo", placeholder="Ex: metodologia bilíngue")
+        palavra_chave_rev = st.text_input("🔑 Palavra-chave foco", placeholder="Ex: eca digital")
     
     with col_rev_2:
-        modo_input = st.radio("Origem do Artigo:", ["Puxar do WordPress", "Inserir Manualmente"], horizontal=True)
-        html_input = ""
+        modo_input = st.radio("Origem do Conteúdo:", ["Puxar do WordPress", "Inserir HTML Manualmente", "Upload de PDF (E-book/Guia)"], horizontal=True)
+        conteudo_input = ""
         
         if modo_input == "Puxar do WordPress":
             url_r, user_r, pwd_r, type_r = obter_credenciais_cms(marca_rev)
             if url_r and user_r and pwd_r:
-                # O Router define qual lista puxar
                 if type_r == "drupal":
                     posts_cms = listar_posts_drupal(url_r, user_r, pwd_r)
                 else:
@@ -1742,57 +1797,70 @@ with tab4:
                 
                 if posts_cms:
                     opcoes_posts = {f"{p['id']} - {p.get('title', {}).get('rendered', 'Sem Titulo')}": p.get('content', {}).get('rendered', '') for p in posts_cms}
-                    post_selecionado = st.selectbox("Selecione o Artigo para Revisão (Últimos 15 posts):", list(opcoes_posts.keys()))
-                    html_input = opcoes_posts[post_selecionado]
-                    with st.expander("👁️ Ver HTML Original (Pre-Revisão)"):
-                        st.code(html_input[:1000] + "...\n(código truncado para visualização)", language="html")
+                    post_selecionado = st.selectbox("Selecione o Artigo (Últimos 15 posts):", list(opcoes_posts.keys()))
+                    conteudo_input = opcoes_posts[post_selecionado]
+                    with st.expander("👁️ Ver HTML Original"):
+                        st.code(conteudo_input[:1000] + "...\n(truncado)", language="html")
                 else:
-                    st.warning("⚠️ Nenhum post encontrado ou o Firewall bloqueou a leitura do CMS.")
+                    st.warning("⚠️ Nenhum post encontrado no CMS.")
             else:
-                st.warning("🔌 Credenciais do CMS não configuradas para esta marca no painel de Secrets.")
-        else:
-            html_input = st.text_area("Cole o HTML Original Aqui:", height=200, placeholder="<h1>Meu Título Antigo</h1>\n<p>Parágrafo massivo...</p>")
+                st.warning("🔌 Credenciais do CMS não configuradas.")
+                
+        elif modo_input == "Inserir HTML Manualmente":
+            conteudo_input = st.text_area("Cole o HTML/Texto Original Aqui:", height=200)
+            
+        elif modo_input == "Upload de PDF (E-book/Guia)":
+            arquivo_pdf = st.file_uploader("📄 Arraste seu E-book, Guia ou Pesquisa em PDF", type=['pdf'])
+            if arquivo_pdf:
+                with st.spinner("Lendo páginas do PDF..."):
+                    texto_pdf_extraido = extrair_texto_pdf(arquivo_pdf)
+                if "Erro ao ler" in texto_pdf_extraido:
+                    st.error(texto_pdf_extraido)
+                else:
+                    st.success(f"✅ PDF lido com sucesso! ({len(texto_pdf_extraido)} caracteres extraídos). O Motor usará este texto como Fonte da Verdade.")
+                    conteudo_input = texto_pdf_extraido
+                    with st.expander("Ver Texto Bruto Extraído"):
+                        st.text(texto_pdf_extraido[:2000] + "\n\n... (truncado)")
 
-    if st.button("✨ Avaliar e Reescrever para Padrão GEO", type="primary", width="stretch"):
+    if st.button("✨ Adaptar e Formatrar para Padrão GEO", type="primary", width="stretch"):
         if not TOKEN:
             st.error("⚠️ Chave OPENROUTER_KEY não encontrada.")
-        elif not palavra_chave_rev or not html_input:
-            st.warning("⚠️ Preencha a palavra-chave e selecione/cole um artigo HTML para revisar.")
+        elif not palavra_chave_rev or not conteudo_input:
+            st.warning("⚠️ Preencha a palavra-chave e forneça o conteúdo (PDF ou HTML).")
         else:
-            with st.spinner("Analisando legado e reescrevendo código HTML... Isso pode levar alguns segundos."):
+            with st.spinner("Analisando conteúdo e adaptando para a marca... Isso pode levar alguns segundos."):
                 try:
-                    resultado_revisao = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, html_input)
+                    # Decide qual prompt usar baseado na origem (PDF usa lógica de Repurposing, WP usa Cirurgia de Legado)
+                    if modo_input == "Upload de PDF (E-book/Guia)":
+                        resultado_processamento = executar_adaptacao_pdf(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
+                    else:
+                        resultado_processamento = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
                     
-                    # Limpeza de formatação json vinda da IA
-                    json_rev_limpo = resultado_revisao.strip().removeprefix('```json').removesuffix('```').strip()
-                    dados_revisao = json.loads(json_rev_limpo)
+                    json_limpo = resultado_processamento.strip().removeprefix('```json').removesuffix('```').strip()
+                    dados_processados = json.loads(json_limpo)
                     
-                    st.success("Revisão concluída com sucesso!")
+                    st.success("Adaptação concluída com sucesso!")
                     
                     col_resultado_1, col_resultado_2 = st.columns(2)
                     
                     with col_resultado_1:
-                        st.markdown("### 📋 Diagnóstico do Revisor")
-                        st.info(f"**O que estava errado no original:**\n{dados_revisao.get('diagnostico', 'N/A')}")
+                        st.markdown("### 📋 Diagnóstico da Adaptação")
+                        st.info(f"**O que foi feito:**\n{dados_processados.get('diagnostico', 'N/A')}")
                         
                         st.markdown("### 🛠️ Melhorias Aplicadas")
-                        melhorias = dados_revisao.get('melhorias_aplicadas', [])
-                        for m in melhorias:
+                        for m in dados_processados.get('melhorias_aplicadas', []):
                             st.markdown(f"- ✅ {m}")
                     
                     with col_resultado_2:
-                        st.markdown("### 🚀 Novo Código HTML Otimizado")
-                        st.info("Passe o mouse no bloco abaixo e clique em 📋 para copiar seu artigo atualizado.")
-                        st.code(dados_revisao.get('html_novo', ''), language="html")
+                        st.markdown("### 🚀 Novo Código HTML")
+                        st.code(dados_processados.get('html_novo', ''), language="html")
                         
                     st.markdown("---")
-                    st.markdown("### 👁️ Pré-visualização da Nova Estrutura")
-                    st.markdown(dados_revisao.get('html_novo', ''), unsafe_allow_html=True)
+                    st.markdown("### 👁️ Pré-visualização do Artigo")
+                    st.markdown(dados_processados.get('html_novo', ''), unsafe_allow_html=True)
                     
                 except Exception as e:
-                    st.error(f"Erro ao reescrever o artigo: {e}")
-                    with st.expander("Ver resposta bruta da IA"):
-                        st.write(resultado_revisao if 'resultado_revisao' in locals() else "Nenhuma resposta")
+                    st.error(f"Erro ao processar: {e}")
 
 # ==========================================
 # 8. AUDITOR DE ARTIGOS (NOVA ABA 5)
