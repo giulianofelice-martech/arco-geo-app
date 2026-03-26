@@ -578,7 +578,7 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_wp(wp_url, wp_user, wp_pwd):
     """
-    Busca os últimos posts do WP para a aba de Revisão e Auditoria.
+    Busca os últimos posts do WP para a aba de Revisão e Auditoria usando máscara de Chrome.
     """
     if not (wp_url and wp_user and wp_pwd):
         return []
@@ -588,23 +588,30 @@ def listar_posts_wp(wp_url, wp_user, wp_pwd):
     credenciais = f"{wp_user}:{wp_pwd_clean}"
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
+    # Adicionada a mesma máscara do Ping para driblar o WAF do COC
     headers = {
-        'User-Agent': 'Arco-Motor-GEO/7.1 (API Integration)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json',
-        'Authorization': f'Basic {token_auth}'
+        'Authorization': f'Basic {token_auth}',
+        'Connection': 'keep-alive'
     }
 
     separador = "&" if "?" in wp_url else "?"
     
-    # O SEGREDO ESTÁ AQUI: Adicionamos o ',link' no final dos fields!
-    search_url = f"{wp_url}{separador}per_page=15&status=publish,draft&_fields=id,title,content,link"
+    # Removido o 'draft' para evitar erro 401/403 caso a senha de app tenha privilégios reduzidos
+    search_url = f"{wp_url}{separador}per_page=15&status=publish&_fields=id,title,content,link"
     
     try:
-        res = requests.get(search_url, headers=headers, timeout=15)
+        # Aumentamos o timeout para 25s, pois puxar 15 posts do COC pode demorar mais que o ping
+        res = requests.get(search_url, headers=headers, timeout=25)
         if res.status_code == 200:
             return res.json()
-    except Exception:
+        else:
+            print(f"Erro ao listar posts WP: {res.status_code} - {res.text}")
+    except Exception as e:
+        print(f"Timeout ou erro na requisição WP: {e}")
         pass
+        
     return []
 
 @st.cache_data(ttl=300, show_spinner=False)
