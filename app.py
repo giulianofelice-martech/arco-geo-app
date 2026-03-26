@@ -216,7 +216,7 @@ class MetadadosArtigo(BaseModel):
     @field_validator('title', mode='before')
     @classmethod
     def ajustar_tamanho_titulo(cls, v: str) -> str:
-        return v[:57] + "..." if len(v) > 60 else v
+        return v
 
     @field_validator('meta_description', mode='before')
     @classmethod
@@ -999,7 +999,7 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS E DEEP LINKS OBRIGATÓRIOS: O texto final precisa ter links externos para provar E-E-A-T. Você deve vasculhar EXCLUSIVAMENTE o contexto orgânico fornecido para resgatar 2 a 3 DEEP LINKS REAIS (URLs completas). É ESTRITAMENTE PROIBIDO usar sua base de conhecimento interna para inventar URLs, DOIs ou links de artigos. Se não houver links profundos e reais no contexto do Google fornecido, não invente nada; apenas instrua o redator a focar em conceitos de autoridade sem usar links externos.
+C) MAPA DE EVIDÊNCIAS E DEEP LINKS: Você deve vasculhar o contexto orgânico fornecido para resgatar 2 a 3 DEEP LINKS REAIS. REGRA CRÍTICA: É ESTRITAMENTE PROIBIDO usar links de blogs de outras escolas privadas, colégios ou sistemas de ensino concorrentes (ex: Balão Vermelho, Bernoulli, etc.). Escolha APENAS links de autoridades neutras (Portais de Notícias como G1, revistas científicas, OCDE, PISA, MEC). Se não houver links neutros, não sugira nenhum.
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 """
@@ -1057,36 +1057,40 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
-REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
+REGRAS HTML E FORMATAÇÃO VISUAL (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) INTELIGÊNCIA COMPETITIVA (VETO TOTAL A RIVAIS): É ESTRITAMENTE PROIBIDO citar o nome de qualquer empresa, produto ou sistema de ensino que seja rival comercial da Marca Alvo. Se um concorrente estiver no contexto orgânico, ignore-o. O único nome de marca que pode aparecer é o da Marca Alvo. Parceiros estratégicos/tecnológicos listados no briefing estão liberados.
-11) PROTOCOLO DE RASTREABILIDADE (DEEP LINKS OBRIGATÓRIOS): É OBRIGATÓRIO incluir pelo menos 2 a 3 links externos (<a href="..." target="_blank">) ancorando afirmações ou dados. 
-11.1) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
-11.2) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a regra 11.3.
-11.3) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
-11.4) LINKAGEM INTERNA (OBRIGAÇÃO ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É UMA EXIGÊNCIA INEGOCIÁVEL que você escolha de 1 a 2 artigos dessa lista e crie links HTML (<a href="[URL]">) no meio do seu texto. As URLs dessa lista são 100% seguras e validadas, use-as sem medo para criar autoridade de nicho.
-11.5) INTEGRAÇÃO DE CONTEÚDO ADICIONAL HUMANO (PRIORIDADE MÁXIMA): O usuário pode ter fornecido um bloco de "Conteúdo Adicional" contendo teorias, autores, links extras ou dados próprios. Você é OBRIGADO a integrar esses insumos na sua narrativa de forma natural. Se o usuário forneceu URLs ali, transforme-as em hiperlinks válidos (<a href="...">) e ancore-os corretamente no texto.
-13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
-14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
-14.1) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
-15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
-16) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
+10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES (cerca de 6 a 8 palavras) para não ser cortado no Google. Seja criativo, mas extremamente conciso.
+11) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
+12) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
+13) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
 Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural drástica:
 - Misture frases normais com frases de altíssimo impacto e curtas.
 - É OBRIGATÓRIO que a estrutura visual do texto oscile entre blocos maiores e blocos bem curtos.
-17) OBSERVAÇÃO OPERACIONAL (ANTI-TEXTO GENÉRICO):
+14) LISTAS COM CONTEXTO E LIMITE: O texto não pode parecer uma apresentação de slides. Se usar uma lista (respeitando o limite máximo de 3 no texto todo), é obrigatório introduzi-la com contexto e concluí-la com forte interpretação analítica.
+
+REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
+15) VETO TOTAL A RIVAIS E OUTRAS ESCOLAS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil ou no mundo (ex: Balão Vermelho, Anglo, Bernoulli, etc.). Se o contexto do Google trouxer o blog de uma escola, IGNORE-O. A única marca privada do setor educacional que pode ser citada é a Marca Alvo.
+16) PROTOCOLO DE RASTREABILIDADE (DEEP LINKS OBRIGATÓRIOS): É OBRIGATÓRIO incluir pelo menos 2 a 3 links externos (<a href="..." target="_blank">) ancorando afirmações ou dados. 
+17) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
+18) FONTES NEUTRAS E DEEP LINKING: Todo link externo deve ir para páginas específicas (slugs longos), nunca homepages genéricas. Os links externos DEVEM ser exclusivamente de órgãos oficiais (MEC, OCDE), institutos de pesquisa ou portais de notícias sérios (G1, Porvir). Jamais faça link building para blogs de outras escolas.
+19) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a Regra de Ouro dos Dados Citados abaixo.
+20) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
+21) LINKAGEM INTERNA (OBRIGAÇÃO ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É UMA EXIGÊNCIA INEGOCIÁVEL que você escolha de 1 a 2 artigos dessa lista e crie links HTML (<a href="[URL]">) no meio do seu texto. As URLs dessa lista são 100% seguras e validadas, use-as sem medo para criar autoridade de nicho.
+
+ESTRATÉGIA EDITORIAL, NARRATIVA E VOZ:
+22) DIRECIONAMENTO ESTRATÉGICO DO ESPECIALISTA (BÚSSOLA DO ARTIGO): O usuário pode fornecer um bloco de "Conteúdo Adicional" contendo teorias, autores, insumos próprios ou links. Você não precisa fazer um "copia e cola" literal e engessado, mas DEVE usar esses elementos como a base principal da sua argumentação. Use seu conhecimento interno para expandir as teorias ou autores citados, aprofunde os conceitos sugeridos e costure essas referências de forma fluida e inteligente para enriquecer o texto.
+23) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
+24) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
+25) VOZ EDITORIAL DE ANALISTA: Escreva como um analista que observa padrões do setor educacional.
+26) OBSERVAÇÃO OPERACIONAL (ANTI-TEXTO GENÉRICO):
 -Sempre que explicar um conceito , inclua uma observação concreta da situação ou implementação.
 -Evite abstrações vagas. Prefira descrições operacionais.
-18) CONTRAPONTO ANALÍTICO (OBRIGATÓRIO EM PELO MENOS 1 H2):
+27) CONTRAPONTO ANALÍTICO (OBRIGATÓRIO EM PELO MENOS 1 H2):
 Inclua pelo menos um momento do texto onde uma crença comum do setor é questionada ou refinada.
-19) MICRO-ANÁLISE CAUSAL:
+28) MICRO-ANÁLISE CAUSAL:
 Sempre que apresentar um benefício ou prática, explique rapidamente o mecanismo por trás.
-20) LISTAS COM CONTEXTO E LIMITE: O texto não pode parecer uma apresentação de slides. Se usar uma lista (respeitando o limite máximo de 3 no texto todo), é obrigatório introduzi-la com contexto e concluí-la com forte interpretação analítica.
-21) VOZ EDITORIAL DE ANALISTA:
-Escreva como um analista que observa padrões do setor educacional.
-22) MICRO-SÍNTESE:
+29) MICRO-SÍNTESE:
 Após alguns blocos analíticos, inclua uma frase curta que consolide a ideia.
-23) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
 """
 
     user_2 = f"""
@@ -1122,13 +1126,15 @@ Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no me
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. VETO A RIVAIS: Verifique seu texto. Você citou o nome de ALGUMA OUTRA EMPRESA/SISTEMA que não seja a {marca_alvo}? (Ex: Edify, SAS, Bernoulli, etc). SE SIM, APAGUE E FOQUE NO CONCEITO.
+5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo} (ex: Escola Balão Vermelho, Colégio X, Edify)? SE SIM, remova o link imediatamente, apague o nome da escola e mantenha apenas a explicação do conceito de forma neutra.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
 8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se o texto não contiver as URLs daquela lista, refaça o parágrafo e insira.
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério (ex: MEC) ou Órgão Governamental no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente. Não tente consertar, apenas apague a afirmação.
+11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda? Se o texto estiver genérico e não estiver se apoiando na linha de raciocínio pedida pelo humano, ajuste a narrativa para incorporar e expandir esses conceitos agora.
+12. O seu título <h1> tem menos de 60 caracteres? Conte as letras. Se passar de 60, resuma o título agora antes de me entregar.
 </checklist_de_seguranca_obrigatorio>
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
