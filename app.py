@@ -1051,8 +1051,8 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 4) LINK OFICIAL DA MARCA (OBRIGATÓRIO): A marca alvo e sua URL serão enviadas a você. Toda vez que você citar o nome da marca no texto, você É OBRIGADO a transformá-la em um hiperlink para o site oficial. Exemplo: <a href="[URL_AQUI]" target="_blank">[NOME_DA_MARCA]</a>.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
-4) BLOCO DE DEFINIÇÃO CONCISA: Insira um parágrafo contendo: <p><strong>Definição:</strong> ...</p>. A explicação DEVE ter menos de 30 palavras. IAs odeiam definições longas.
-5) ANSWER ANCHOR: Logo após a introdução, crie: <h2>Resposta rápida para: [insira a palavra-chave]</h2><p><strong>Resposta direta:</strong> ...</p>. Vá direto ao ponto e seja objetivo.
+4) BLOCO DE DEFINIÇÃO ORGÂNICA (SEM ETIQUETAS): Logo no início do texto, você DEVE explicar o conceito central da palavra-chave em menos de 30 palavras. Faça isso de forma natural e fluida no meio de um parágrafo. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Definição:" ou "O que é:". Apenas explique o conceito grifando o termo em negrito.
+5) ANSWER ANCHOR (RESPOSTA RÁPIDA SUAVIZADA): Logo após a introdução, crie um <h2>Resposta rápida para: [insira a palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta e mastigada em no máximo 2 linhas. NÃO USE etiquetas como "Resposta direta:". Apenas escreva o parágrafo indo direto ao ponto, como um jornalista experiente faria.
 6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
@@ -1361,7 +1361,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS DE GEO E HTML:
     8. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo, que OBRIGATORIAMENTE una o tema do PDF com a essência/posicionamento da marca. É PROIBIDO capitalizar todas as palavras. Use Sentence Case (Ex: "O impacto do ECA digital nas escolas"). Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
+    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST SUAVIZADO: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo o título chamativo em Sentence Case. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta em 2 linhas, de forma fluida e natural. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Resposta direta:" ou "Definição:". Vá direto ao ponto como um texto corrido.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
