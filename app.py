@@ -552,7 +552,11 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
     if not (d_url and d_user and d_pwd): return "Sem credenciais Drupal."
     import base64
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
+        'Accept': 'application/vnd.api+json', 
+        'Authorization': f'Basic {token_auth}'
+    }
     
     filtro = f"?filter[title-filter][condition][path]=title&filter[title-filter][condition][operator]=CONTAINS&filter[title-filter][condition][value]={urllib.parse.quote(palavra_chave)}&page[limit]=3"
     try:
@@ -619,7 +623,11 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
     if not (d_url and d_user and d_pwd): return []
     import base64
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-    headers = {'User-Agent': 'Arco-Motor-GEO/7.1', 'Accept': 'application/vnd.api+json', 'Authorization': f'Basic {token_auth}'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
+        'Accept': 'application/vnd.api+json', 
+        'Authorization': f'Basic {token_auth}'
+    }
     try:
         res = requests.get(f"{d_url}?sort=-created&page[limit]=15", headers=headers, timeout=15)
         if res.status_code == 200:
@@ -1288,7 +1296,7 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     }
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
-        'User-Agent': 'Arco-Motor-GEO/7.1', 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
         'Accept': 'application/vnd.api+json', 
         'Content-Type': 'application/vnd.api+json', 
         'Authorization': f'Basic {token_auth}'
@@ -1455,8 +1463,8 @@ with tab1:
                 try:
                     import base64
                     token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-                    # Máscara de Chrome para WP e Robô para Drupal
-                    user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' if cms_t == 'wp' else 'Arco-Motor-GEO/7.1'
+                    # Máscara de Chrome para TODOS (WP e Drupal)
+                    user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                     
                     headers_teste = {
                         'User-Agent': user_agent_ping, 
