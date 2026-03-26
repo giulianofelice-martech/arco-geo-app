@@ -787,6 +787,7 @@ def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
     5. PRESERVAÇÃO DE DADOS: Mantenha as informações e ideias do texto original. Não invente "Estudos da OCDE" ou dados matemáticos se eles não estiverem no texto original.
     6. Mantenha os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>` onde achar pertinente para o novo esqueleto.
     7. PRESERVAÇÃO DE LINKS E IMAGENS (REGRA INTOCÁVEL): É ESTRITAMENTE PROIBIDO remover, alterar URLs, ou deletar tags `<a>` (hiperlinks), `<img>` e `<figure>` que já estão no HTML original. Você deve reposicioná-las logicamente no novo texto, mantendo os atributos `href`, `src` e classes intactos. O seu trabalho é melhorar o copywriting e a estrutura em volta da mídia, NUNCA apagar o trabalho de linkagem interna/externa e imagens que o redator original já fez.
+    8. CORREÇÃO DE CAPITALIZAÇÃO (CRÍTICO): Revise todos os títulos (H1, H2, H3). Se eles estiverem em "Title Case" (Todas As Iniciais Maiúsculas), reescreva-os IMEDIATAMENTE para o padrão brasileiro "Sentence Case" (Apenas a primeira letra e nomes próprios em maiúscula).
     
     RETORNE EXCLUSIVAMENTE UM JSON SEGUINDO ESTE FORMATO EXATO:
     {
@@ -923,7 +924,7 @@ def calcular_information_gain(artigo_html, google_ctx):
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional=""):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -990,9 +991,12 @@ F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no ter�
 """
 
     user_1 = f"""
-Palavra-chave: '{palavra_chave}'
+Palavra-chave ou Consulta: '{palavra_chave}'
 
 Público-Alvo Foco Deste Artigo: {publico_alvo}
+    
+CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO):
+{conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido."}
 
 Contexto extraído do Google (Serper + Jina):
 {contexto_google}
@@ -1047,8 +1051,10 @@ REGRAS HTML E E-E-A-T (CRÍTICAS E ABSOLUTAS):
 11.2) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a regra 11.3.
 11.3) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
 11.4) LINKAGEM INTERNA (OBRIGAÇÃO ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É UMA EXIGÊNCIA INEGOCIÁVEL que você escolha de 1 a 2 artigos dessa lista e crie links HTML (<a href="[URL]">) no meio do seu texto. As URLs dessa lista são 100% seguras e validadas, use-as sem medo para criar autoridade de nicho.
+11.5) INTEGRAÇÃO DE CONTEÚDO ADICIONAL HUMANO (PRIORIDADE MÁXIMA): O usuário pode ter fornecido um bloco de "Conteúdo Adicional" contendo teorias, autores, links extras ou dados próprios. Você é OBRIGADO a integrar esses insumos na sua narrativa de forma natural. Se o usuário forneceu URLs ali, transforme-as em hiperlinks válidos (<a href="...">) e ancore-os corretamente no texto.
 13.1) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
 14) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML.
+14.1) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
 15) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
 16) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
 Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural drástica:
@@ -1070,10 +1076,14 @@ Após alguns blocos analíticos, inclua uma frase curta que consolide a ideia.
 """
 
     user_2 = f"""
-Palavra-chave: '{palavra_chave}'
+Palavra-chave ou Consulta: '{palavra_chave}'
 
 CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-O QUE A CONCORRÊNCIA DIZ HOJE (Use APENAS para fatos e conceitos, NUNCA cite os nomes das empresas concorrentes que estão aqui):
+    
+CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO OBRIGATÓRIO):
+{conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido. Siga apenas o briefing."}
+
+O QUE A CONCORRÊNCIA DIZ HOJE:
 {contexto_google}
 
 SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
@@ -1328,7 +1338,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS DE GEO E HTML:
     8. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    9. ESTRUTURA DE TÍTULOS E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo, que OBRIGATORIAMENTE una o tema do PDF com a essência/posicionamento da marca. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
+    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo, que OBRIGATORIAMENTE una o tema do PDF com a essência/posicionamento da marca. É PROIBIDO capitalizar todas as palavras. Use Sentence Case (Ex: "O impacto do ECA digital nas escolas"). Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
@@ -1412,7 +1422,19 @@ with tab1:
         else:
             publico_selecionado = escolha_publico
         # ----------------------------------------------
-        palavra_chave_input = st.text_area("Palavra-Chave / Briefing", placeholder="Ex: metodologia bilíngue nas escolas")
+        # NOVOS INPUTS DO GERADOR
+        # ----------------------------------------------
+        palavra_chave_input = st.text_area(
+            "🔑 Palavra-chave ou Consulta/Query de Pesquisa", 
+            placeholder="Ex: metodologia bilíngue nas escolas OU como implementar a cultura maker no ensino médio?"
+        )
+        
+        conteudo_adicional_input = st.text_area(
+            "📚 Conteúdo Adicional (Opcional)", 
+            height=120,
+            placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
+        )
+        
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
         st.markdown("---")
         
@@ -1468,7 +1490,7 @@ with tab1:
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
                             rag_chunks, evidence_density, information_gain, contexto_wp
-                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado)
+                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado, conteudo_adicional_input)
                         
                         st.session_state['art_gerado'] = artigo_html
                         st.session_state['metas_geradas'] = dicas_json
