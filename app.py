@@ -1520,119 +1520,119 @@ with tab1:
                         status.update(label="❌ Erro durante a geração", state="error")
                         st.error(f"Erro Crítico: {e}")
 
-   if 'art_gerado' in st.session_state:
-        with col2:
-            st.success("✨ Tudo pronto! Seu artigo foi gerado e estruturado com sucesso.")
-            
-            # --- TÍTULO E MÉTRICA PRINCIPAL ---
-            kpi_c1, kpi_c2 = st.columns(2)
-            with kpi_c1:
-                st.metric("🎯 Nota Geral de Estrutura (GEO)", st.session_state.get('citation_score', 'N/A'), help="Baseado em 5 critérios que o Google e as IAs mais valorizam hoje.")
-            
-            try:
-                string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
-                meta_validada = MetadadosArtigo.model_validate_json(string_json_limpa)
-                meta = meta_validada.model_dump()
-                st.subheader(meta.get("title", "Artigo Gerado"))
-            except Exception:
-                meta = {"title": "Artigo Gerado (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
-                st.subheader("Artigo Gerado")
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS
-            # ==========================================
-            sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
-                "📊 Dashboard Rápido", 
-                "🧠 Raio-X Técnico de SEO", 
-                "🤖 Como as IAs Enxergam", 
-                "👁️ Ver e Copiar HTML"
-            ])
-
-            # --- SUB-ABA 1: DASHBOARD RÁPIDO ---
-            with sub_tab1:
-                st.info("**O que é esta aba?** Aqui estão as métricas essenciais para garantir que o seu texto será lido por humanos e ranqueado pelo Google.")
-                
-                with st.expander("🚀 Qualidade Global do Texto (GEO Score)", expanded=True):
-                    st.markdown("Uma nota de 0 a 100 que resume se o texto está direto ao ponto, original e bem estruturado. **Acima de 80 é excelente.**")
-                    st.json(st.session_state.get('geo_score', '{}'))
+           if 'art_gerado' in st.session_state:
+                with col2:
+                    st.success("✨ Tudo pronto! Seu artigo foi gerado e estruturado com sucesso.")
                     
-                with st.expander("📑 O texto está fácil de ler? (Chunk Citability)", expanded=True):
-                    st.markdown("IAs odeiam blocos gigantes de texto. Aqui medimos se o artigo tem **parágrafos curtos, listas e respostas diretas** logo no início (Answer-First).")
-                    st.json(st.session_state.get('chunk_citability', '{}'))
-                    st.json(st.session_state.get('answer_first', '{}'))
-
-                with st.expander("🥇 O texto traz novidades? (Originalidade e Dados)", expanded=True):
-                    st.markdown("O Google pune textos que só 'reciclam' o que já existe. Avaliamos se você trouxe **links de pesquisa, dados reais (Densidade de Evidências)** e palavras novas em relação aos concorrentes.")
-                    st.json(st.session_state.get('evidence_density', '{}'))
-                    st.json(st.session_state.get('information_gain', '{}'))
-                    st.markdown(st.session_state.get('score_originalidade', '⚠️ Sem dados.'))
-
-            # --- SUB-ABA 2: RAIO-X TÉCNICO DE SEO ---
-            with sub_tab2:
-                st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
-                
-                with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
-                    st.markdown("Avaliamos se o texto contém as 'Entidades' (termos técnicos e jargões) que provam para o Google que você é especialista no assunto, cobrindo buracos que os concorrentes deixaram (Entity Gap).")
-                    st.json(st.session_state.get('entity_coverage', '{}'))
-                    st.markdown(st.session_state.get('entity_gap', '⚠️ Sem dados.'))
-
-                with st.expander("🗺️ Pautas Futuras (Content Cluster)", expanded=False):
-                    st.markdown("Ideias de novos artigos que você pode escrever para linkar com este, criando uma 'Teia de Autoridade' no seu blog.")
-                    st.markdown(st.session_state.get('cluster', '⚠️ Sem dados.'))
+                    # --- TÍTULO E MÉTRICA PRINCIPAL ---
+                    kpi_c1, kpi_c2 = st.columns(2)
+                    with kpi_c1:
+                        st.metric("🎯 Nota Geral de Estrutura (GEO)", st.session_state.get('citation_score', 'N/A'), help="Baseado em 5 critérios que o Google e as IAs mais valorizam hoje.")
                     
-                with st.expander("🔗 Linkagem Interna Automática", expanded=False):
-                    st.markdown("O Motor vasculhou seu WordPress e obrigou a IA a linkar este artigo novo com posts antigos da sua marca para fortalecer seu SEO.")
-                    st.markdown(st.session_state.get('contexto_wp', '⚠️ Sem dados.'))
-
-            # --- SUB-ABA 3: COMO AS IAS ENXERGAM ---
-            with sub_tab3:
-                st.info("**O que é esta aba?** Descubra se o ChatGPT ou o Perplexity usariam o seu texto como fonte oficial para responder a um usuário.")
-                
-                with st.expander("🔎 Chance de virar Fonte Oficial (Retrieval Simulation)", expanded=True):
-                    st.markdown("A nossa simulação testa se o seu texto é neutro e confiável o suficiente para ser citado com link por uma Inteligência Artificial.")
-                    st.json(st.session_state.get('retrieval_simulation', '{}'))
-                    st.markdown(st.session_state.get('citabilidade', '⚠️ Sem dados.'))
-                    
-                with st.expander("⚠️ Risco de perder o leitor (Hijacking)", expanded=False):
-                    st.markdown("Se o seu texto enrolar muito para explicar um conceito, uma IA concorrente pode 'roubar' sua citação simplesmente por ser mais didática. Avaliamos esse risco aqui.")
-                    st.json(st.session_state.get('hijacking_risk', '{}'))
-                    
-                with st.expander("🤖 Teste Real: Como a resposta apareceria no ChatGPT", expanded=False):
-                    st.markdown("Simulamos a tela do usuário final. Se ele perguntasse sobre esse tema para uma IA, é assim que a resposta seria gerada usando apenas o seu artigo como base.")
-                    st.json(st.session_state.get('ai_simulation', '{}'))
-                    
-                with st.expander("🔄 O que as pessoas realmente perguntam? (Search Intent)", expanded=False):
-                    st.markdown("Engenharia reversa: mapeamos as perguntas exatas que usuários leigos digitam no Google e as dúvidas profundas que a IA tenta resolver.")
-                    st.json(st.session_state.get('reverse_queries', '{}'))
-
-            # --- SUB-ABA 4: O ENTREGÁVEL ---
-            with sub_tab4:
-                st.info("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone 📋 para copiar tudo.")
-                st.code(st.session_state['art_gerado'], language="html")
-                
-                with st.expander("👁️ Pré-visualização de como ficará no Blog", expanded=True):
-                    st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
-            
-            st.markdown("---")
-            
-            # --- BOTÃO DE PUBLICAÇÃO NO WORDPRESS ---
-            cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
-            if cms_u and cms_usr and cms_p:
-                st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
-                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch"):
-                    with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
-                        if cms_t == "drupal":
-                            res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
-                        else:
-                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                    try:
+                        string_json_limpa = st.session_state['metas_geradas'].strip().removeprefix('```json').removesuffix('```').strip()
+                        meta_validada = MetadadosArtigo.model_validate_json(string_json_limpa)
+                        meta = meta_validada.model_dump()
+                        st.subheader(meta.get("title", "Artigo Gerado"))
+                    except Exception:
+                        meta = {"title": "Artigo Gerado (JSON Fallback)", "meta_description": "", "dicas_imagens": [], "schema_faq": {}}
+                        st.subheader("Artigo Gerado")
+        
+                    st.markdown("<br>", unsafe_allow_html=True)
+        
+                    # ==========================================
+                    # AS NOVAS SUB-ABAS DIDÁTICAS
+                    # ==========================================
+                    sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+                        "📊 Dashboard Rápido", 
+                        "🧠 Raio-X Técnico de SEO", 
+                        "🤖 Como as IAs Enxergam", 
+                        "👁️ Ver e Copiar HTML"
+                    ])
+        
+                    # --- SUB-ABA 1: DASHBOARD RÁPIDO ---
+                    with sub_tab1:
+                        st.info("**O que é esta aba?** Aqui estão as métricas essenciais para garantir que o seu texto será lido por humanos e ranqueado pelo Google.")
                         
-                        if hasattr(res, 'status_code') and res.status_code in [200, 201]:
-                            link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
-                            st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
-                        else:
-                            st.error(f"❌ Falha ao enviar. Verifique o console ou firewall.")
+                        with st.expander("🚀 Qualidade Global do Texto (GEO Score)", expanded=True):
+                            st.markdown("Uma nota de 0 a 100 que resume se o texto está direto ao ponto, original e bem estruturado. **Acima de 80 é excelente.**")
+                            st.json(st.session_state.get('geo_score', '{}'))
+                            
+                        with st.expander("📑 O texto está fácil de ler? (Chunk Citability)", expanded=True):
+                            st.markdown("IAs odeiam blocos gigantes de texto. Aqui medimos se o artigo tem **parágrafos curtos, listas e respostas diretas** logo no início (Answer-First).")
+                            st.json(st.session_state.get('chunk_citability', '{}'))
+                            st.json(st.session_state.get('answer_first', '{}'))
+        
+                        with st.expander("🥇 O texto traz novidades? (Originalidade e Dados)", expanded=True):
+                            st.markdown("O Google pune textos que só 'reciclam' o que já existe. Avaliamos se você trouxe **links de pesquisa, dados reais (Densidade de Evidências)** e palavras novas em relação aos concorrentes.")
+                            st.json(st.session_state.get('evidence_density', '{}'))
+                            st.json(st.session_state.get('information_gain', '{}'))
+                            st.markdown(st.session_state.get('score_originalidade', '⚠️ Sem dados.'))
+        
+                    # --- SUB-ABA 2: RAIO-X TÉCNICO DE SEO ---
+                    with sub_tab2:
+                        st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
+                        
+                        with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
+                            st.markdown("Avaliamos se o texto contém as 'Entidades' (termos técnicos e jargões) que provam para o Google que você é especialista no assunto, cobrindo buracos que os concorrentes deixaram (Entity Gap).")
+                            st.json(st.session_state.get('entity_coverage', '{}'))
+                            st.markdown(st.session_state.get('entity_gap', '⚠️ Sem dados.'))
+        
+                        with st.expander("🗺️ Pautas Futuras (Content Cluster)", expanded=False):
+                            st.markdown("Ideias de novos artigos que você pode escrever para linkar com este, criando uma 'Teia de Autoridade' no seu blog.")
+                            st.markdown(st.session_state.get('cluster', '⚠️ Sem dados.'))
+                            
+                        with st.expander("🔗 Linkagem Interna Automática", expanded=False):
+                            st.markdown("O Motor vasculhou seu WordPress e obrigou a IA a linkar este artigo novo com posts antigos da sua marca para fortalecer seu SEO.")
+                            st.markdown(st.session_state.get('contexto_wp', '⚠️ Sem dados.'))
+        
+                    # --- SUB-ABA 3: COMO AS IAS ENXERGAM ---
+                    with sub_tab3:
+                        st.info("**O que é esta aba?** Descubra se o ChatGPT ou o Perplexity usariam o seu texto como fonte oficial para responder a um usuário.")
+                        
+                        with st.expander("🔎 Chance de virar Fonte Oficial (Retrieval Simulation)", expanded=True):
+                            st.markdown("A nossa simulação testa se o seu texto é neutro e confiável o suficiente para ser citado com link por uma Inteligência Artificial.")
+                            st.json(st.session_state.get('retrieval_simulation', '{}'))
+                            st.markdown(st.session_state.get('citabilidade', '⚠️ Sem dados.'))
+                            
+                        with st.expander("⚠️ Risco de perder o leitor (Hijacking)", expanded=False):
+                            st.markdown("Se o seu texto enrolar muito para explicar um conceito, uma IA concorrente pode 'roubar' sua citação simplesmente por ser mais didática. Avaliamos esse risco aqui.")
+                            st.json(st.session_state.get('hijacking_risk', '{}'))
+                            
+                        with st.expander("🤖 Teste Real: Como a resposta apareceria no ChatGPT", expanded=False):
+                            st.markdown("Simulamos a tela do usuário final. Se ele perguntasse sobre esse tema para uma IA, é assim que a resposta seria gerada usando apenas o seu artigo como base.")
+                            st.json(st.session_state.get('ai_simulation', '{}'))
+                            
+                        with st.expander("🔄 O que as pessoas realmente perguntam? (Search Intent)", expanded=False):
+                            st.markdown("Engenharia reversa: mapeamos as perguntas exatas que usuários leigos digitam no Google e as dúvidas profundas que a IA tenta resolver.")
+                            st.json(st.session_state.get('reverse_queries', '{}'))
+        
+                    # --- SUB-ABA 4: O ENTREGÁVEL ---
+                    with sub_tab4:
+                        st.info("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone 📋 para copiar tudo.")
+                        st.code(st.session_state['art_gerado'], language="html")
+                        
+                        with st.expander("👁️ Pré-visualização de como ficará no Blog", expanded=True):
+                            st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
+                    
+                    st.markdown("---")
+                    
+                    # --- BOTÃO DE PUBLICAÇÃO NO WORDPRESS ---
+                    cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
+                    if cms_u and cms_usr and cms_p:
+                        st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
+                        if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch"):
+                            with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
+                                if cms_t == "drupal":
+                                    res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                                else:
+                                    res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                                
+                                if hasattr(res, 'status_code') and res.status_code in [200, 201]:
+                                    link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
+                                    st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
+                                else:
+                                    st.error(f"❌ Falha ao enviar. Verifique o console ou firewall.")
                             
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
