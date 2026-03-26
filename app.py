@@ -1653,7 +1653,10 @@ with tab1:
                             link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
                             st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
                         else:
-                            st.error(f"❌ Falha ao enviar. Verifique o console ou firewall.")
+                            # AGORA O MOTOR VAI MOSTRAR O ERRO REAL DO SERVIDOR
+                            erro_status = res.status_code if hasattr(res, 'status_code') else 'Desconhecido'
+                            erro_texto = res.text if hasattr(res, 'text') else 'Sem detalhes'
+                            st.error(f"❌ Falha ao enviar (Erro HTTP {erro_status}). Resposta do Servidor: {erro_texto}")
                             
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
