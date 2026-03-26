@@ -1290,16 +1290,20 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     import base64
     # Descobre o nome da rota dinamicamente (ex: node--quark_blog)
     node_type = "node--" + d_url.rstrip('/').split('/')[-1] 
+    
     payload = {
         "data": {
             "type": node_type,
             "attributes": {
                 "title": titulo,
                 "body": {"value": conteudo_html, "format": "full_html"},
-                "status": False
+                "status": False,
+                # TENTATIVA DE BYPASS: Preenchendo o campo obrigatório do SAS com um placeholder genérico
+                "field_quark_blog_featured_image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" 
             }
         }
     }
+    
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
@@ -1310,7 +1314,6 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     try:
         return requests.post(d_url, json=payload, headers=headers, timeout=30)
     except Exception as e:
-        # Desempacotamos a classe de erro para respeitar a indentação do Python
         class ErrorRes: 
             status_code = 500
             text = f"Erro interno de conexão: {str(e)}"
