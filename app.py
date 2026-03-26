@@ -143,68 +143,67 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# PIPELINE COM TOOLTIPS (ATUALIZADO V7.0)
+# PIPELINE COM TOOLTIPS TRADUZIDOS E SIMPLIFICADOS
 # ==========================================
 pipeline_html = """
 <div class="pipeline-container">
-    <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">Pipeline GEO v7.0:</strong> 
-    <span title="Busca dados reais no Google (Serper + Jina) e IAs." class="pipeline-step">1. Search</span> ➔ 
-    <span title="Engenharia reversa das dúvidas de usuários e LLMs." class="pipeline-step">2. Intent Map</span> ➔ 
-    <span title="Mapeia buracos semânticos e nós de autoridade." class="pipeline-step">3. Entity Graph</span> ➔ 
-    <span title="Redação HTML E-E-A-T com proteção anti-alucinação." class="pipeline-step">4. Writer</span> ➔ 
-    <span title="Criação de dados ocultos Schema/JSON-LD." class="pipeline-step">5. Schema</span> ➔ 
-    <span title="Cálculos Python: Chunk Citability, Answer-First e Evidence Density." class="pipeline-step">6. Math Heuristics</span> ➔ 
-    <span title="Simulação LLM: Retrieval, Risco de Hijacking e Coverage." class="pipeline-step">7. RAG Simulation</span>
+    <strong style="color: #111827; font-family: 'Montserrat', sans-serif;">O Caminho do Conteúdo:</strong> 
+    <span title="1. Pesquisa: Espiona o Top 3 do Google e o que as IAs (como ChatGPT) já dizem sobre o tema." class="pipeline-step">1. Pesquisa</span> ➔ 
+    <span title="2. Intenção: Descobre a verdadeira dúvida por trás das buscas (o que o leitor realmente quer saber)." class="pipeline-step">2. Intenção</span> ➔ 
+    <span title="3. Vocabulário: Mapeia os jargões e conceitos obrigatórios que provam que sua marca é especialista no assunto." class="pipeline-step">3. Vocabulário</span> ➔ 
+    <span title="4. Escrita: Redige o texto usando o tom de voz da marca, quebrando blocos longos para não cansar o leitor." class="pipeline-step">4. Escrita</span> ➔ 
+    <span title="5. Código SEO: Cria os 'dados ocultos' (Schema) que ajudam o Google a ler a página mais rápido." class="pipeline-step">5. Código SEO</span> ➔ 
+    <span title="6. Auditoria: Calcula notas baseadas na facilidade de leitura e na quantidade de dados e links reais usados." class="pipeline-step">6. Auditoria</span> ➔ 
+    <span title="7. Teste das IAs: Simula se o seu texto está bom o suficiente para ser citado como 'Fonte Oficial' por uma IA." class="pipeline-step">7. Teste de IAs</span>
 </div>
 """
 st.markdown(pipeline_html, unsafe_allow_html=True)
 
 # ==========================================
-# MENU LATERAL (GUIA DO USUÁRIO)
+# MENU LATERAL (GUIA DO USUÁRIO TRADUZIDO)
 # ==========================================
 with st.sidebar:
-    st.header("📖 Guia do Motor GEO")
-    st.markdown("Bem-vindo à v7.0. Este sistema utiliza uma arquitetura **multi-agentes aliada a heurísticas matemáticas** para criar conteúdo nativamente otimizado para Motores Gerativos (Perplexity, SearchGPT, SGE).")
+    st.header("📖 Guia Prático do Motor")
+    st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
     
-    with st.expander("✍️ 1. Como funciona o Motor?", expanded=False):
+    with st.expander("🚀 Como usar as 5 Abas?", expanded=False):
         st.markdown("""
-        **O Pipeline de 7 Passos:**
-        1. **Search:** Escaneia o Top 3 do Google e o baseline de IAs.
-        2. **Reverse Query:** Descobre as perguntas ocultas dos usuários.
-        3. **Entity Strategy:** Mapeia os jargões que provam autoridade.
-        4. **Writer:** Redige usando Copywriting corporativo e blocos GEO.
-        5. **Media & Schema:** Injeta imagens e código JSON-LD.
-        6. **Math Heuristics:** Algoritmos Python calculam densidade de evidências, tamanho de parágrafos e facilidade de citação.
-        7. **RAG Simulation:** Simula se uma IA real usaria seu texto como fonte.
+        **1. Gerador:** Cria artigos completos do zero. Você dá o tema (e links de referência se quiser), ele pesquisa o mercado e redige.
+        
+        **2. Brandbook:** O 'cérebro' do sistema. É aqui que dizemos o que cada marca da Arco pode ou não falar.
+        
+        **3. Monitor:** Ferramenta de auditoria. Cole um texto qualquer aqui para a IA dar uma nota de confiabilidade e sugerir melhorias.
+        
+        **4. Adaptador & Revisor:** Transforme seus E-books/PDFs em artigos "Teaser" para captar Leads, ou conserte textos antigos do blog para voltarem a ranquear.
+        
+        **5. Auditor de Visibilidade:** Coloque o link de um artigo seu e descubra se o Google ou as IAs já estão recomendando ele.
         """)
         
-    with st.expander("📚 2. Brandbook (Base de Dados)", expanded=False):
+    with st.expander("📚 O que significam as Notas Matemáticas?", expanded=False):
         st.markdown("""
-        O cérebro da sua marca. Altere os dados aqui para injetar **inteligência proprietária** e cases reais. O motor tem regras absolutas para sempre usar os dados institucionais daqui sem alucinar estatísticas concorrentes.
+        O nosso motor avalia seu texto em duas frentes: **Estrutura** e **Autoridade**.
+        
+        **Notas de Estrutura:**
+        * **Chunk Citability (Legibilidade):** Mede se o texto é fácil de ler. Parágrafos curtos, listas e frases de impacto aumentam a nota.
+        * **Answer-First:** Avalia se você enrolou ou se entregou a resposta principal logo no começo do texto.
+        
+        **Notas de Autoridade:**
+        * **Evidence Density (Evidências):** Mede se você usou números, estatísticas reais e links para provar o que diz.
+        * **Information Gain (Ineditismo):** Calcula o quanto de informação nova você trouxe em relação ao que já existe no Top 3 do Google.
+        * **Entity Coverage:** Avalia se você usou o vocabulário que todo especialista do seu nicho deveria usar.
         """)
         
-    with st.expander("🔍 3. Monitor de GEO e E-E-A-T", expanded=False):
+    with st.expander("🤖 O que são os Testes de IA?", expanded=False):
         st.markdown("""
-        Um simulador do algoritmo do Google, movido pelo **GPT-4o**. Ele funciona como um inspetor implacável: se você inventar um dado de mercado sem link, ele zera sua nota E-E-A-T.
-        """)
-
-    with st.expander("📖 Dicionário de Métricas (v7.0)", expanded=False):
-        st.markdown("""
-        **Métricas Matemáticas (Python):**
-        * **Chunk Citability:** Mede a formatação (listas, parágrafos curtos). Quanto mais estruturado, mais fácil a IA ler e te citar.
-        * **Answer-First:** Checa se a resposta direta está nos primeiros 800 caracteres.
-        * **Evidence Density:** Conta links e números exatos para validar E-E-A-T.
-        * **Information Gain:** Subtrai as palavras do seu texto pelas do Top 3 do Google para ver o quanto de vocabulário "inédito" você trouxe.
+        Nós simulamos como o ChatGPT ou Perplexity julgariam o seu texto:
         
-        **Métricas Semânticas (IA):**
-        * **Entity Coverage:** Quais jargões obrigatórios você usou e quais esqueceu.
-        * **RAG Chunk Ranking:** Quais trechos do seu texto a IA recortaria para gerar um resumo.
-        * **AI Hijacking Risk:** Avalia se seu texto dá "voltas demais" e pode perder o clique para um concorrente mais direto.
+        * **Retrieval Simulation:** É a chance de uma IA escolher o seu texto como fonte oficial para responder a um usuário.
+        * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
         """)
         
     st.divider()
-    st.caption("⚙️ **Stack:** Python | Streamlit | Pydantic\n🧠 **LLMs:** GPT-4o | Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev | Jina AI | Unsplash")
-
+    st.caption("⚙️ **Feito para simplificar o complexo.**\nCriação otimizada para humanos e novos motores de busca.\n⚙️ **Stack:** Python | Streamlit | Pydantic\n🧠 **LLMs:** GPT-4o | Claude 3.7 Sonnet\n🔌 **APIs:** Serper.dev | Jina AI | Unsplash")
+    
 # ==========================================
 # ESTRUTURAS PYDANTIC
 # ==========================================
