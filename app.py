@@ -1315,23 +1315,26 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     REGRAS INVIOLÁVEIS DE COPYWRITING E CONVERSÃO:
     1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis e exemplos presentes no texto do PDF fornecido. Não invente nada fora dele.
-    2. BRANDING E TOM: Aplique rigorosamente o Tom de Voz da marca solicitada. A marca atua como uma parceira e consultora do leitor, nunca com tom de superioridade.
-    3. BLACKLIST DE EXAGEROS (TOLERÂNCIA ZERO): É estritamente proibido usar termos hiperbólicos, sensacionalistas ou jargões vazios de IA. NUNCA use palavras como: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental". Seja factual, maduro, direto e elegante.
-    4. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário/problema e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
-    5. O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. É ESTRITAMENTE PROIBIDO usar um tom de "interrogatório" com perguntas seguidas que testem o leitor. 
+    2. DIFERENCIAÇÃO EXTREMA DE MARCA (CRÍTICO): O seu texto, o seu TÍTULO (H1) e a sua escolha de "Spoiler" DEVEM ser guiados 100% pelo Posicionamento e Territórios da Marca Alvo. É ESTRITAMENTE PROIBIDO gerar um título ou ângulo genérico. 
+       -> Se a marca foca em "Família", o ângulo do artigo deve ser a parceria Escola-Família no ambiente digital.
+       -> Se a marca foca em "Gestão/Alta Performance", o ângulo deve ser eficiência e mitigação de riscos.
+    3. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Não deixe para citar a marca apenas no final! Integre o nome da marca, seus diferenciais e seu propósito (listados nas Diretrizes) no MEIO do texto. Quando explicar o problema ou o "spoiler" do PDF, conecte isso com a forma como a marca enxerga o mercado ou com as soluções que ela já oferece. A autoridade e a história da marca devem estar costuradas na narrativa desde os primeiros parágrafos.
+    4. BLACKLIST DE EXAGEROS (TOLERÂNCIA ZERO): É estritamente proibido usar termos hiperbólicos, sensacionalistas ou jargões vazios de IA. NUNCA use palavras como: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental". Seja factual, maduro, direto e elegante.
+    5. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material (que faça sentido para o Território da Marca) para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
+    6. O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. É ESTRITAMENTE PROIBIDO usar um tom de "interrogatório" com perguntas seguidas que testem o leitor. 
        -> Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema do PDF] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos do que deve ser feito e descubra como você pode se destacar com essas mudanças."
-    6. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML: 
+    7. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML: 
        <div style='background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;'><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
     
     REGRAS DE GEO E HTML:
-    7. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    8. ESTRUTURA DE TÍTULOS E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo para o Teaser. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
-    9. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
+    8. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
+    9. ESTRUTURA DE TÍTULOS E ANSWER-FIRST: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo um título chamativo, que OBRIGATORIAMENTE una o tema do PDF com a essência/posicionamento da marca. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2> com uma resposta direta em 2 linhas.
+    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
     
     RETORNE EXCLUSIVAMENTE UM JSON:
     {
-        "diagnostico": "Explique brevemente qual spoiler do PDF você escolheu.",
-        "melhorias_aplicadas": ["Técnica do Spoiler", "Gatilho Consultivo", "Sem Exageros"],
+        "diagnostico": "Explique qual spoiler você escolheu e como aplicou o 'Brand Weaving' para inserir os diferenciais da marca no meio do texto.",
+        "melhorias_aplicadas": ["Diferenciação de Ângulo", "Brand Weaving", "Técnica do Spoiler", "Gatilho Consultivo", "Sem Exageros"],
         "html_novo": "O código HTML completo usando aspas simples e escapando aspas duplas internas"
     }
     """
@@ -1344,6 +1347,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     
     DIRETRIZES DA MARCA ({marca}):
     - Posicionamento: {marca_info['Posicionamento']}
+    - Territórios Estratégicos: {marca_info.get('Territorios', 'Educação')}
     - Tom de Voz Exigido: {marca_info['TomDeVoz']}
     - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
     - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
@@ -1352,7 +1356,7 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     {texto_base_pdf}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.35, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.4, response_format={"type": "json_object"})
     
 # ==========================================
 # 5. INTERFACE PRINCIPAL
