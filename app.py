@@ -3,7 +3,7 @@ import pandas as pd
 from openai import OpenAI
 import time
 import requests
-from requests.auth import HTTPBasicAuthf
+from requests.auth import HTTPBasicAuth
 import json
 import re
 import concurrent.futures
@@ -1611,62 +1611,35 @@ with tab1:
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-           # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS
             # ==========================================
-            # 1. Declarando as abas (A de Leitura/Edição é a PRIMEIRA)
+            # AS NOVAS SUB-ABAS DIDÁTICAS (REORGANIZADAS)
+            # ==========================================
             tab_html, tab_dash, tab_seo, tab_ia = st.tabs([
-                "👁️ Ler e Editar Artigo", 
+                "👁️ Ler e Copiar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
                 "🤖 Como as IAs Enxergam"
             ])
 
-            # --- SUB-ABA 1 (A PRIMEIRA): LER, EDITAR E COPIAR ---
+            # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
             with tab_html:
-                # O SELETOR DE MODO DE LEITURA VS EDIÇÃO
-                modo_visualizacao = st.radio("O que você deseja fazer?", ["📖 Modo de Leitura", "✏️ Modo de Edição Manual"], horizontal=True, label_visibility="collapsed")
+                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
                 
-                if modo_visualizacao == "📖 Modo de Leitura":
-                    # Botão mágico para baixar o arquivo perfeitamente formatado para o Word/Docs
-                    st.download_button(
-                        label="📄 Baixar Formato de Leitura (Perfeito para Word e Google Docs)",
-                        data=st.session_state['art_gerado'],
-                        file_name=f"artigo_revisao_{st.session_state['marca_atual'].lower()}.html",
-                        mime="text/html",
-                        type="secondary",
-                        use_container_width=True,
-                        help="Baixe este arquivo e arraste para o Google Drive ou abra no Word. Ele mantém todas as formatações, negritos e imagens perfeitas para enviar para revisão!"
-                    )
+                # 1. PRÉVIA DO TEXTO (PRIMEIRO)
+                st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
+                
+                # CORREÇÃO: Juntando a <div> e o artigo em uma única string
+                html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
+                st.markdown(html_preview, unsafe_allow_html=True)
+                
+                st.markdown("---")
+                
+                # 2. CÓDIGO HTML (DEPOIS)
+                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
+                    st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
+                    st.code(st.session_state['art_gerado'], language="html")
                     
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    st.markdown("### 👁️ Pré-visualização do Blog")
-                    
-                    # A caixa envelopando o texto perfeitamente
-                    html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF; color: #111827;'>{st.session_state['art_gerado']}</div>"
-                    st.markdown(html_preview, unsafe_allow_html=True)
-                    
-                    st.markdown("---")
-                    
-                    # O código HTML fica escondidinho embaixo para quem quiser copiar
-                    with st.expander("📋 Ver Código Fonte (HTML para colar no CMS)"):
-                        st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar as tags HTML.")
-                        st.code(st.session_state['art_gerado'], language="html")
-
-                else:
-                    # MODO DE EDIÇÃO MANUAL DO CÓDIGO
-                    st.markdown("### ✏️ Edição Manual de Texto/HTML")
-                    st.caption("Faça as alterações que desejar no texto ou nas tags abaixo e clique em Salvar.")
-                    
-                    html_editado = st.text_area("Edite o conteúdo diretamente abaixo:", value=st.session_state['art_gerado'], height=450, label_visibility="collapsed")
-                    
-                    if st.button("💾 Salvar Edições Manuais", type="primary"):
-                        st.session_state['art_gerado'] = html_editado
-                        st.success("✅ Edições salvas com sucesso! Alterne para o 'Modo de Leitura' para ver o resultado.")
-                        time.sleep(1.5)
-                        st.rerun()
-
-                # BOTÃO DE PUBLICAÇÃO DIRETA (Sempre visível no fundo da aba principal)
+                # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
                 st.markdown("<br>", unsafe_allow_html=True)
                 cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
                 if cms_u and cms_usr and cms_p:
