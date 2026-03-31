@@ -684,6 +684,20 @@ def analisar_entity_gap(contexto_google, palavra_chave):
     user = f"Palavra-chave: {palavra_chave}\nConteúdo dos Concorrentes:\n{contexto_google}"
     return chamar_llm(system, user, "openai/gpt-4o-mini", 0.1)
 
+def refinar_artigo_html(html_atual, instrucoes):
+    """Permite que a IA edite apenas partes específicas de um artigo já gerado."""
+    system = """Você é um Revisor Sênior e Editor de HTML.
+    Sua tarefa é modificar um artigo HTML existente ESTRITAMENTE de acordo com as instruções do usuário.
+    
+    REGRAS CRÍTICAS:
+    1. APLIQUE APENAS A MUDANÇA SOLICITADA. Não reescreva o tom de voz e não altere partes do texto que não foram mencionadas na instrução.
+    2. MANTENHA TODO O CÓDIGO HTML INTACTO. Preserve todas as tags (<h1>, <h2>, <p>, <ul>), links (<a href...>) e imagens (<img>) exatamente como estão, a menos que a instrução peça para alterá-las.
+    3. Retorne EXCLUSIVAMENTE o código HTML finalizado. Pare de gerar texto imediatamente após a última tag HTML. Nada de introduções ou marcações (```html).
+    """
+    user = f"INSTRUÇÃO DE ALTERAÇÃO:\n{instrucoes}\n\nARTIGO ORIGINAL (HTML):\n{html_atual}"
+    
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+
 def avaliar_originalidade(artigo_html, contexto_google):
     system = """
     Você é um auditor de plágio semântico e originalidade E-E-A-T.
@@ -1544,7 +1558,72 @@ with tab1:
                     st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
                     WP_READY = False
 
-    # 2. DIRECIONANDO O CARREGAMENTO PARA A CAIXA DO TOPO
+    # --- FINAL DA COL1 (ESQUERDA) ---
+        gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
+        st.markdown("---")
+        
+        cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
+        WP_READY = bool(cms_u and cms_usr and cms_p)
+
+        if not WP_READY:
+            st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais no painel de Secrets.")
+        else:
+            with st.spinner(f"Verificando conexão com o Firewall do {cms_t.upper()}..."):
+                try:
+                    import base64
+                    token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+                    user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    headers_teste = {
+                        'User-Agent': user_agent_ping, 
+                        'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
+                        'Authorization': f'Basic {token_teste}',
+                        'Connection': 'keep-alive'
+                    }
+                    url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
+                    res_ping = requests.get(url_ping, headers=headers_teste, timeout=5)
+                    
+                    if res_ping.status_code == 200:
+                        st.success(f"🔌 Conectado e Autorizado no {cms_t.upper()} da marca: {marca_selecionada}")
+                    elif res_ping.status_code in [403, 401]:
+                        st.error(f"🛑 O Firewall (WAF) bloqueou a leitura da marca {marca_selecionada} (Erro {res_ping.status_code}).")
+                        WP_READY = False
+                    else:
+                        st.warning(f"⚠️ API respondeu com Erro {res_ping.status_code}. O RAG Reverso pode falhar.")
+                except Exception:
+                    st.error(f"🔌 O domínio da marca {marca_selecionada} não respondeu a tempo (Timeout).")
+                    WP_READY = False
+
+        # NOVO RECURSO: CAIXA DE COMENTÁRIOS E REFINAMENTO PÓS-GERAÇÃO (FICA NA ESQUERDA)
+        if 'art_gerado' in st.session_state:
+            st.markdown("---")
+            st.markdown("### 🪄 Micro-Ajustes no Texto")
+            st.caption("Faça um comentário para a IA alterar apenas um trecho específico do texto gerado, sem perder o resto do artigo.")
+            
+            instrucao_ajuste = st.text_area("O que você deseja mudar?", placeholder="Ex: Remova o segundo parágrafo. / Troque a palavra 'alunos' por 'estudantes'. / Adicione que nossa escola tem 50 anos de tradição na introdução.", height=100)
+            
+            if st.button("🔄 Aplicar Ajuste Rápido", type="secondary", width="stretch"):
+                if not instrucao_ajuste:
+                    st.warning("⚠️ Digite o que deseja alterar.")
+                else:
+                    with st.spinner("Cirurgia em andamento... Reescrevendo apenas o trecho solicitado..."):
+                        try:
+                            novo_html = refinar_artigo_html(st.session_state['art_gerado'], instrucao_ajuste)
+                            # Guilhotina de segurança
+                            novo_html = re.sub(r'^```html\n|```$', '', novo_html, flags=re.MULTILINE).strip()
+                            if '<' in novo_html and '>' in novo_html:
+                                novo_html = novo_html[novo_html.find('<') : novo_html.rfind('>') + 1]
+                            
+                            # Substitui o artigo antigo pelo novo ajustado e recarrega a tela
+                            st.session_state['art_gerado'] = novo_html
+                            st.success("✅ Ajuste aplicado com sucesso!")
+                            time.sleep(1)
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Erro ao refinar: {e}")
+
+    # ==========================================
+    # LÓGICA DE PROCESSAMENTO E GERAÇÃO DA COL2
+    # ==========================================
     if gerar_btn:
         if not TOKEN:
             st.error("⚠️ Erro: A chave OPENROUTER_KEY não foi encontrada nos Secrets.")
@@ -1612,34 +1691,56 @@ with tab1:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS (REORGANIZADAS)
+            # AS NOVAS SUB-ABAS DIDÁTICAS
             # ==========================================
             tab_html, tab_dash, tab_seo, tab_ia = st.tabs([
-                "👁️ Ler e Copiar Artigo", 
+                "👁️ Ler e Editar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
                 "🤖 Como as IAs Enxergam"
             ])
 
-            # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
+            # --- SUB-ABA 1 (AGORA A PRIMEIRA): O ENTREGÁVEL ---
             with tab_html:
-                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
+                # O SELETOR DE MODO DE LEITURA VS EDIÇÃO (NOVO RECURSO)
+                modo_visualizacao = st.radio("Selecione o modo:", ["📖 Pré-visualização Limpa", "✏️ Editar Código Manualmente"], horizontal=True, label_visibility="collapsed")
                 
-                # 1. PRÉVIA DO TEXTO (PRIMEIRO)
-                st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
-                
-                # CORREÇÃO: Juntando a <div> e o artigo em uma única string
-                html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
-                st.markdown(html_preview, unsafe_allow_html=True)
-                
-                st.markdown("---")
-                
-                # 2. CÓDIGO HTML (DEPOIS)
-                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
-                    st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
-                    st.code(st.session_state['art_gerado'], language="html")
+                if modo_visualizacao == "📖 Pré-visualização Limpa":
+                    st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
+                    html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
+                    st.markdown(html_preview, unsafe_allow_html=True)
                     
-                # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
+                    st.markdown("---")
+                    
+                    # NOVO RECURSO: BOTÃO DE DOWNLOAD NATIVO (PARA O DOCS)
+                    col_export1, col_export2 = st.columns(2)
+                    with col_export1:
+                        st.download_button(
+                            label="📥 Baixar Formato de Leitura (Para Word/Docs)",
+                            data=st.session_state['art_gerado'],
+                            file_name=f"artigo_revisao.html",
+                            mime="text/html",
+                            type="primary",
+                            use_container_width=True,
+                            help="Baixe o arquivo .html e arraste para o Google Drive ou abra no Word. Ele mantém todas as formatações, negritos e imagens perfeitas para enviar para revisão!"
+                        )
+                    with col_export2:
+                        with st.expander("📋 Ver Código Fonte (Para Copiar)"):
+                            st.caption("Passe o mouse no canto e clique no ícone para copiar as tags HTML.")
+                            st.code(st.session_state['art_gerado'], language="html")
+
+                else:
+                    # MODO DE EDIÇÃO MANUAL DO CÓDIGO
+                    st.markdown("### ✏️ Edição Manual de Texto/HTML")
+                    html_editado = st.text_area("Edite o conteúdo diretamente abaixo:", value=st.session_state['art_gerado'], height=450)
+                    
+                    if st.button("💾 Salvar Edições Manuais", type="primary"):
+                        st.session_state['art_gerado'] = html_editado
+                        st.success("Edições salvas com sucesso! Alterne para a 'Pré-visualização Limpa' para ver o resultado.")
+                        time.sleep(1.5)
+                        st.rerun()
+
+                # 3. BOTÃO DE PUBLICAÇÃO DIRETA
                 st.markdown("<br>", unsafe_allow_html=True)
                 cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
                 if cms_u and cms_usr and cms_p:
