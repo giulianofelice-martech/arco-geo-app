@@ -1623,20 +1623,22 @@ with tab1:
 
             # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
             with tab_html:
-                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e publique diretamente ou copie o código.")
+                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
                 
                 # 1. PRÉVIA DO TEXTO (PRIMEIRO)
                 st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
-                st.markdown("<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>", unsafe_allow_html=True)
-                st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+                
+                # CORREÇÃO: Juntando a <div> e o artigo em uma única string
+                html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
+                st.markdown(html_preview, unsafe_allow_html=True)
                 
                 st.markdown("---")
                 
                 # 2. CÓDIGO HTML (DEPOIS)
-                with st.expander("📋 Ver e Copiar Código HTML Bruto", expanded=False):
+                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
                     st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
                     st.code(st.session_state['art_gerado'], language="html")
+Ao fazer o f"<div>{artigo}</div>", o Streamlit entende que é
                     
                 # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
                 st.markdown("<br>", unsafe_allow_html=True)
