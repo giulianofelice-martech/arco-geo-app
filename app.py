@@ -1612,18 +1612,18 @@ with tab1:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS
+            # AS NOVAS SUB-ABAS DIDÁTICAS (REORGANIZADAS)
             # ==========================================
-            sub_tab4, sub_tab1, sub_tab2, sub_tab3 = st.tabs([
+            tab_html, tab_dash, tab_seo, tab_ia = st.tabs([
                 "👁️ Ler e Copiar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
                 "🤖 Como as IAs Enxergam"
             ])
 
-            # --- SUB-ABA 4 (AGORA A PRIMEIRA): O ENTREGÁVEL ---
-            with sub_tab4:
-                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
+            # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
+            with tab_html:
+                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e publique diretamente ou copie o código.")
                 
                 # 1. PRÉVIA DO TEXTO (PRIMEIRO)
                 st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
@@ -1634,12 +1634,32 @@ with tab1:
                 st.markdown("---")
                 
                 # 2. CÓDIGO HTML (DEPOIS)
-                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
+                with st.expander("📋 Ver e Copiar Código HTML Bruto", expanded=False):
                     st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
                     st.code(st.session_state['art_gerado'], language="html")
+                    
+                # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
+                st.markdown("<br>", unsafe_allow_html=True)
+                cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
+                if cms_u and cms_usr and cms_p:
+                    st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
+                    if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch", key="btn_pub_principal"):
+                        with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
+                            if cms_t == "drupal":
+                                res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                            else:
+                                res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                            
+                            if hasattr(res, 'status_code') and res.status_code in [200, 201]:
+                                link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
+                                st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
+                            else:
+                                erro_status = res.status_code if hasattr(res, 'status_code') else 'Desconhecido'
+                                erro_texto = res.text if hasattr(res, 'text') else 'Sem detalhes'
+                                st.error(f"❌ Falha ao enviar (Erro HTTP {erro_status}). Resposta do Servidor: {erro_texto}")
 
-            # --- SUB-ABA 1: DASHBOARD RÁPIDO ---
-            with sub_tab1:
+            # --- SUB-ABA 2: DASHBOARD RÁPIDO ---
+            with tab_dash:
                 st.info("**O que é esta aba?** Aqui estão as métricas essenciais para garantir que o seu texto será lido por humanos e ranqueado pelo Google.")
                 
                 with st.expander("🚀 Qualidade Global do Texto (GEO Score)", expanded=True):
@@ -1657,8 +1677,8 @@ with tab1:
                     st.json(st.session_state.get('information_gain', '{}'))
                     st.markdown(st.session_state.get('score_originalidade', '⚠️ Sem dados.'))
 
-            # --- SUB-ABA 2: RAIO-X TÉCNICO DE SEO ---
-            with sub_tab2:
+            # --- SUB-ABA 3: RAIO-X TÉCNICO DE SEO ---
+            with tab_seo:
                 st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
                 
                 with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
@@ -1674,8 +1694,8 @@ with tab1:
                     st.markdown("O Motor vasculhou seu WordPress e obrigou a IA a linkar este artigo novo com posts antigos da sua marca para fortalecer seu SEO.")
                     st.markdown(st.session_state.get('contexto_wp', '⚠️ Sem dados.'))
 
-            # --- SUB-ABA 3: COMO AS IAS ENXERGAM ---
-            with sub_tab3:
+            # --- SUB-ABA 4: COMO AS IAS ENXERGAM ---
+            with tab_ia:
                 st.info("**O que é esta aba?** Descubra se o ChatGPT ou o Perplexity usariam o seu texto como fonte oficial para responder a um usuário.")
                 
                 with st.expander("🔎 Chance de virar Fonte Oficial (Retrieval Simulation)", expanded=True):
