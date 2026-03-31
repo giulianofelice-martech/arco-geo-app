@@ -1638,7 +1638,6 @@ with tab1:
                 with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
                     st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
                     st.code(st.session_state['art_gerado'], language="html")
-Ao fazer o f"<div>{artigo}</div>", o Streamlit entende que é
                     
                 # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
                 st.markdown("<br>", unsafe_allow_html=True)
