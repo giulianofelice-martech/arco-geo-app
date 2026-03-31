@@ -659,6 +659,7 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
 
 def gerar_reverse_queries(palavra_chave):
     system = """
+    
     Você é um analista de comportamento de LLMs e SearchGPT.
     Dada uma keyword principal, gere perguntas que mecanismos de IA provavelmente fazem internamente para construir respostas e as perguntas mais comuns e básicas feitas por usuários reais no Google.
     Retorne APENAS um JSON estrito:
@@ -1613,12 +1614,29 @@ with tab1:
             # ==========================================
             # AS NOVAS SUB-ABAS DIDÁTICAS
             # ==========================================
-            sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+            sub_tab4, sub_tab1, sub_tab2, sub_tab3 = st.tabs([
+                "👁️ Ler e Copiar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
-                "🤖 Como as IAs Enxergam", 
-                "👁️ Ver e Copiar HTML"
+                "🤖 Como as IAs Enxergam"
             ])
+
+            # --- SUB-ABA 4 (AGORA A PRIMEIRA): O ENTREGÁVEL ---
+            with sub_tab4:
+                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
+                
+                # 1. PRÉVIA DO TEXTO (PRIMEIRO)
+                st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
+                st.markdown("<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>", unsafe_allow_html=True)
+                st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                st.markdown("---")
+                
+                # 2. CÓDIGO HTML (DEPOIS)
+                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
+                    st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
+                    st.code(st.session_state['art_gerado'], language="html")
 
             # --- SUB-ABA 1: DASHBOARD RÁPIDO ---
             with sub_tab1:
@@ -1676,36 +1694,6 @@ with tab1:
                 with st.expander("🔄 O que as pessoas realmente perguntam? (Search Intent)", expanded=False):
                     st.markdown("Engenharia reversa: mapeamos as perguntas exatas que usuários leigos digitam no Google e as dúvidas profundas que a IA tenta resolver.")
                     st.json(st.session_state.get('reverse_queries', '{}'))
-
-            # --- SUB-ABA 4: O ENTREGÁVEL ---
-            with sub_tab4:
-                st.info("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone 📋 para copiar tudo.")
-                st.code(st.session_state['art_gerado'], language="html")
-                
-                with st.expander("👁️ Pré-visualização de como ficará no Blog", expanded=True):
-                    st.markdown(st.session_state['art_gerado'], unsafe_allow_html=True)
-            
-            st.markdown("---")
-            
-            # --- BOTÃO DE PUBLICAÇÃO NO WORDPRESS ---
-            cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
-            if cms_u and cms_usr and cms_p:
-                st.subheader(f"🌐 Publicação Direta ({cms_t.upper()})")
-                if st.button(f"📤 Enviar Rascunho para {cms_t.upper()} ({st.session_state['marca_atual']})", type="primary", width="stretch"):
-                    with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
-                        if cms_t == "drupal":
-                            res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
-                        else:
-                            res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
-                        
-                        if hasattr(res, 'status_code') and res.status_code in [200, 201]:
-                            link_retorno = res.json().get('link') if hasattr(res, 'json') else "Rascunho criado!"
-                            st.success(f"✅ Rascunho criado com sucesso! | {link_retorno}")
-                        else:
-                            # AGORA O MOTOR VAI MOSTRAR O ERRO REAL DO SERVIDOR
-                            erro_status = res.status_code if hasattr(res, 'status_code') else 'Desconhecido'
-                            erro_texto = res.text if hasattr(res, 'text') else 'Sem detalhes'
-                            st.error(f"❌ Falha ao enviar (Erro HTTP {erro_status}). Resposta do Servidor: {erro_texto}")
                             
 # ==========================================
 # 6. MONITOR DE GEO (GAMIFICAÇÃO E AUDITORIA)
