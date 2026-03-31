@@ -402,6 +402,25 @@ if 'brandbook_df' not in st.session_state:
     st.session_state['brandbook_df'] = pd.DataFrame(dados_iniciais)
 
 # ==========================================
+# 2.1 BASE DE DADOS DOS ESPECIALISTAS (GHOSTWRITING)
+# ==========================================
+if 'especialistas_df' not in st.session_state:
+    dados_especialistas = [
+        {"Especialista": "Professor Idelfranio Moreira De Sousa", "Link do Artigo": "https://exemplo.com"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/alunos-mais-ricos-do-brasil-t%25C3%25AAm-notas-inferiores-aos-celed%25C3%25B4nio-g-jr-eav6f/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/como-atualidades-podem-ser-cobradas-enem-ademar-celed%25C3%25B4nio-g-jr-cjedf/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/como-educa%25C3%25A7%25C3%25A3o-do-futuro-pode-ser-moldada-partir-uso-celed%25C3%25B4nio-g-jr-4cl7f/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/l%25C3%25ADderes-que-moldam-vidas-celebrando-o-dia-do-diretor-celed%25C3%25B4nio-g-jr-iyizf/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/vacinas-de-mrna-da-rejei%25C3%25A7%25C3%25A3o-acad%25C3%25AAmica-ao-pr%25C3%25AAmio-nobel-ademar/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/5-formas-de-investir-na-educa%25C3%25A7%25C3%25A3o-do-seu-filho-e-o-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/construindo-repert%25C3%25B3rio-cultural-para-o-enem-e-fuvest-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/bncc-e-educa%25C3%25A7%25C3%25A3o-midi%25C3%25A1tica-ferramentas-cruciais-em-um-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/quanto-maior-o-investimento-em-tecnologia-ser%25C3%25A1-de-celed%25C3%25B4nio-g-jr/"},
+        {"Especialista": "Professor Ademar Celedonio Guimaraes Junior", "Link do Artigo": "https://www.linkedin.com/pulse/censo-escolar-2025-brasil-perde-11-milh%C3%A3o-de-alunos-ademar-m1oae/"}
+    ]
+    st.session_state['especialistas_df'] = pd.DataFrame(dados_especialistas)
+    
+# ==========================================
 # 3. CONEXÃO SEGURA E CREDENCIAIS
 # ==========================================
 try:
@@ -578,6 +597,29 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
         return f"Erro Drupal RAG (Status {res.status_code})"
     except Exception as e:
         return f"Erro Drupal RAG: {e}"
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_estilo_especialista(nome_especialista, df_especialistas):
+    """Puxa até 3 artigos do especialista via Jina AI para a IA clonar o estilo de escrita."""
+    if not nome_especialista: return ""
+    
+    links = df_especialistas[df_especialistas['Especialista'] == nome_especialista]['Link do Artigo'].tolist()
+    import random
+    links_selecionados = random.sample(links, min(3, len(links))) # Pega 3 aleatórios para não estourar limite
+    
+    contexto = f"📚 CLONAGEM DE PERSONA E REFERÊNCIAS: {nome_especialista}\n"
+    
+    for link in links_selecionados:
+        try:
+            jina_headers = {'User-Agent': 'Mozilla/5.0', 'X-Return-Format': 'markdown', 'Accept': 'text/plain'}
+            res = requests.get(f"https://r.jina.ai/{link}", headers=jina_headers, timeout=12)
+            if res.status_code == 200:
+                contexto += f"\n--- Artigo Anterior Escrito por {nome_especialista} ---\n"
+                contexto += res.text[:1500] + "...\n" # Pega os primeiros 1500 chars (o ouro do tom de voz)
+        except Exception:
+            pass
+            
+    return contexto
 
 @st.cache_data(ttl=300, show_spinner=False)
 def listar_posts_wp(wp_url, wp_user, wp_pwd):
@@ -936,10 +978,24 @@ def calcular_information_gain(artigo_html, google_ctx):
     score = min(len(novas) / 8, 100) # Matemático bruto
     return {"information_gain_score": round(score, 2), "palavras_unicas_trazidas": len(novas)}
 
+def refinar_artigo_html(html_atual, instrucoes):
+    """Permite que a IA edite apenas partes específicas de um artigo já gerado."""
+    system = """Você é um Revisor Sênior e Editor de HTML.
+    Sua tarefa é modificar um artigo HTML existente ESTRITAMENTE de acordo com as instruções do usuário.
+    
+    REGRAS CRÍTICAS:
+    1. APLIQUE APENAS A MUDANÇA SOLICITADA. Não reescreva o tom de voz e não altere partes do texto que não foram mencionadas na instrução.
+    2. MANTENHA TODO O CÓDIGO HTML INTACTO. Preserve todas as tags (<h1>, <h2>, <p>, <ul>), links (<a href...>) e imagens (<img>) exatamente como estão, a menos que a instrução peça para alterá-las.
+    3. Retorne EXCLUSIVAMENTE o código HTML finalizado e completo. Pare de gerar texto imediatamente após a última tag HTML. Nada de introduções, comentários ou marcações (```html).
+    """
+    user = f"INSTRUÇÃO DE ALTERAÇÃO:\n{instrucoes}\n\nARTIGO ORIGINAL (HTML):\n{html_atual}"
+    
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", modo_humanizado=False):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -950,6 +1006,13 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
     cms_url, cms_user, cms_pwd, cms_type = obter_credenciais_cms(marca_alvo)
 
     st.write(f"🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso ({cms_type.upper()})...")
+    
+    # EXTRAI O ESTILO DO ESPECIALISTA SE ELE FOI SELECIONADO
+    contexto_ghostwriting = ""
+    if especialista_nome:
+        st.write(f"👔 Lendo artigos do autor: {especialista_nome}...")
+        contexto_ghostwriting = buscar_estilo_especialista(especialista_nome, st.session_state['especialistas_df'])
+        
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
@@ -1143,6 +1206,10 @@ CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
 CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO OBRIGATÓRIO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido. Siga apenas o briefing."}
 
+CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL (COPIAR E COLAR EXATAMENTE COMO ESTÁ):
+{conteudo_proprietario if conteudo_proprietario else "Nenhum conteúdo proprietário exigido."}
+ATENÇÃO: Se houver texto no bloco acima, você é OBRIGADO a encontrar um espaço lógico no artigo e transcrever essa frase ou bloco de texto LITERALMENTE, palavra por palavra, sem resumir ou alterar nenhuma vírgula.
+
 O QUE A CONCORRÊNCIA DIZ HOJE:
 {contexto_google}
 
@@ -1168,16 +1235,19 @@ Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no me
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo} (ex: Escola Balão Vermelho, Colégio X, Edify)? SE SIM, remova o link imediatamente, apague o nome da escola e mantenha apenas a explicação do conceito de forma neutra.
+5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
-7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais (com caminho completo/slug, ex: /artigos/nome-do-estudo), ou você fez lazy linking para uma página inicial (ex: .com.br/)? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico de um relatório ou apague o link.
+7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
-8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se o texto não contiver as URLs daquela lista, refaça o parágrafo e insira.
+8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se não, insira.
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
-10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério (ex: MEC) ou Órgão Governamental no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente. Não tente consertar, apenas apague a afirmação.
-11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda? Se o texto estiver genérico e não estiver se apoiando na linha de raciocínio pedida pelo humano, ajuste a narrativa para incorporar e expandir esses conceitos agora.
-12. O seu título <h1> tem menos de 60 caracteres? Conte as letras. Se passar de 60, resuma o título agora antes de me entregar.
+10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente.
+11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda?
+12. O seu título <h1> tem menos de 60 caracteres? Conte as letras.
+13. CONTEÚDO PROPRIETÁRIO (CRÍTICO): Verifique se foi fornecido algum "CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL". Se sim, procure no seu texto gerado. A frase está EXACTAMENTE igual ao original, sem nenhuma palavra alterada? Se você resumiu ou alterou a frase, corrija agora colando a frase original.
 </checklist_de_seguranca_obrigatorio>
+14. DIRETRIZ DE GHOSTWRITING E AUTORIA (CRÍTICO):{contexto_ghostwriting if contexto_ghostwriting else "Nenhum autor específico selecionado. Use o tom da marca padrão."}
+ATENÇÃO: Se o bloco acima contiver artigos de um especialista, você assumirá a IDENTIDADE dele. Absorva o vocabulário, o ritmo e o nível de formalidade que ele usa nos artigos fornecidos. Integre o seu conhecimento sobre a palavra-chave com os conceitos que ele costuma defender. 
 
 Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
 <br>Resumo Estratégico<br>
@@ -1185,7 +1255,6 @@ Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os
 
 ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
-
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     
@@ -1445,9 +1514,14 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab2:
-    st.markdown("### Edite as regras, marcas e diretrizes:")
+    st.markdown("### 🏢 Edite as regras, marcas e diretrizes:")
     st.session_state['brandbook_df'] = st.data_editor(st.session_state['brandbook_df'], num_rows="dynamic", width="stretch")
     st.info("💡 Dica: Adicione regras específicas na coluna 'RegrasPositivas'.")
+    
+    st.markdown("---")
+    st.markdown("### ✍️ Especialistas e Autores (Ghostwriting)")
+    st.caption("Adicione o nome do especialista e o link de um artigo escrito por ele (LinkedIn, Blog, etc). O Motor lerá os links para clonar o tom de voz do autor.")
+    st.session_state['especialistas_df'] = st.data_editor(st.session_state['especialistas_df'], num_rows="dynamic", width="stretch", key="editor_esp")
 
 with tab1:
     # 1. CRIANDO A "CAIXA" NO TOPO ANTES DAS COLUNAS
@@ -1500,12 +1574,28 @@ with tab1:
             placeholder="Exemplos do que inserir aqui:\n- Links de referência: https://site.com/pesquisa-recente\n- Autores/Teorias: Cite a teoria de Vygotsky sobre o assunto.\n- Insumos próprios: 'Nossa escola parceira aumentou as matrículas em 20%...'\n- Restrições: Não fale sobre provas do MEC neste texto."
         )
         
+        # ---> NOVO CAMPO: CONTEÚDO PROPRIETÁRIO <---
+        conteudo_proprietario_input = st.text_area(
+            "🔒 Conteúdo Proprietário Inegociável (Opcional)", 
+            height=100,
+            help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
+            placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
+        )
+        
         # O NOSSO NOVO INTERRUPTOR A/B
         st.markdown("<br>", unsafe_allow_html=True)
-        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo. Se desativado, usa o motor GEO restrito clássico.")
+        modo_humanizado = st.toggle("✨ Ativar Escrita Empática / Mentoria (Beta)", value=False, help="Se ativado, a IA usa um prompt focado em fluidez humana e cadência vocal, reduzindo o tom corporativo.")
+        
+        # --- NOVO RECURSO: GHOSTWRITING ---
+        modo_especialista = st.toggle("👔 Ativar Escrita de Especialista", value=False, help="A IA vai ler os artigos do especialista no Brandbook e escrever o texto usando o tom de voz, maneirismos e referências dele.")
+        especialista_selecionado = None
+        if modo_especialista:
+            lista_autores = st.session_state['especialistas_df']['Especialista'].unique().tolist()
+            especialista_selecionado = st.selectbox("Selecione o Autor/Especialista:", lista_autores)
         st.markdown("<br>", unsafe_allow_html=True)
 
         gerar_btn = st.button("🚀 Gerar Artigo em HTML", width="stretch", type="primary")
+    
         st.markdown("---")
         
         cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
@@ -1560,7 +1650,10 @@ with tab1:
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
                             rag_chunks, evidence_density, information_gain, contexto_wp
-                        ) = executar_geracao_completa(palavra_chave_input, marca_selecionada, publico_selecionado, conteudo_adicional_input, modo_humanizado)
+                        ) = executar_geracao_completa(
+                            palavra_chave_input, marca_selecionada, publico_selecionado, 
+                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado
+                        )
                         
                         st.session_state['art_gerado'] = artigo_html
                         st.session_state['metas_geradas'] = dicas_json
@@ -1612,34 +1705,119 @@ with tab1:
             st.markdown("<br>", unsafe_allow_html=True)
 
             # ==========================================
-            # AS NOVAS SUB-ABAS DIDÁTICAS (REORGANIZADAS)
+            # AS NOVAS SUB-ABAS DIDÁTICAS
             # ==========================================
+            # 1. Declarando as abas (A de Leitura/Edição é a PRIMEIRA)
             tab_html, tab_dash, tab_seo, tab_ia = st.tabs([
-                "👁️ Ler e Copiar Artigo", 
+                "👁️ Ler e Editar Artigo", 
                 "📊 Dashboard Rápido", 
                 "🧠 Raio-X Técnico de SEO", 
                 "🤖 Como as IAs Enxergam"
             ])
 
-            # --- SUB-ABA 1: O ENTREGÁVEL (HTML) E PUBLICAÇÃO ---
+            # --- SUB-ABA 1 (A PRIMEIRA): LER, EDITAR E COPIAR ---
             with tab_html:
-                st.info("Aqui está o resultado final do seu artigo. Leia a prévia e copie o código no final da página.")
+                # O SELETOR DE MODO DE LEITURA VS EDIÇÃO
+                modo_visualizacao = st.radio("O que você deseja fazer?", ["📖 Modo de Leitura", "✏️ Modo de Edição Manual"], horizontal=True, label_visibility="collapsed")
                 
-                # 1. PRÉVIA DO TEXTO (PRIMEIRO)
-                st.markdown("### 👁️ Pré-visualização de como ficará no Blog")
-                
-                # CORREÇÃO: Juntando a <div> e o artigo em uma única string
-                html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF;'>{st.session_state['art_gerado']}</div>"
-                st.markdown(html_preview, unsafe_allow_html=True)
-                
-                st.markdown("---")
-                
-                # 2. CÓDIGO HTML (DEPOIS)
-                with st.expander("📋 Ver e Copiar Código HTML para Publicação", expanded=False):
-                    st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar tudo.")
-                    st.code(st.session_state['art_gerado'], language="html")
+                if modo_visualizacao == "📖 Modo de Leitura":
                     
-                # 3. BOTÃO DE PUBLICAÇÃO DIRETA (AGORA FICA AQUI!)
+                    # O BOTÃO MÁGICO DE COPIAR TEXTO FORMATADO (JS CUSTOMIZADO)
+                    componente_copiar = f"""
+                    <div style="font-family: 'Inter', sans-serif;">
+                        <button id="copy-btn" onclick="copyText()" style="background-color: #111827; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s;">
+                            📋 Copiar Texto Formatado (Para colar no Docs/Word)
+                        </button>
+                        <div id="content-to-copy" style="position: absolute; left: -9999px;">
+                            {st.session_state['art_gerado']}
+                        </div>
+                        <script>
+                            function copyText() {{
+                                var content = document.getElementById("content-to-copy");
+                                var range = document.createRange();
+                                range.selectNodeContents(content);
+                                var selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                try {{
+                                    document.execCommand("copy");
+                                    var btn = document.getElementById("copy-btn");
+                                    btn.innerHTML = "✅ Texto copiado com sucesso! Agora é só dar Ctrl+V no Docs.";
+                                    btn.style.backgroundColor = "#10B981"; // Fica Verde
+                                    setTimeout(function() {{
+                                        btn.innerHTML = "📋 Copiar Texto Formatado (Para colar no Docs/Word)";
+                                        btn.style.backgroundColor = "#111827"; // Volta pro Preto
+                                    }}, 3000);
+                                }} catch (err) {{
+                                    console.error("Erro ao copiar: ", err);
+                                }}
+                                selection.removeAllRanges();
+                            }}
+                        </script>
+                    </div>
+                    """
+                    # Renderiza o botão JS no Streamlit
+                    st.components.v1.html(componente_copiar, height=65)
+                    
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("### 👁️ Pré-visualização do Blog")
+                    
+                    # A caixa envelopando o texto perfeitamente
+                    html_preview = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF; color: #111827;'>{st.session_state['art_gerado']}</div>"
+                    st.markdown(html_preview, unsafe_allow_html=True)
+                    
+                    st.markdown("---")
+                    
+                    # O código HTML fica escondidinho embaixo para quem quiser colar no painel do WordPress/Drupal
+                    with st.expander("📋 Ver Código Fonte (HTML puro)"):
+                        st.caption("Passe o mouse no canto superior direito da caixa preta abaixo e clique no ícone para copiar as tags HTML.")
+                        st.code(st.session_state['art_gerado'], language="html")
+
+                    # ==========================================
+                    # NOVO RECURSO: CAIXA DE COMENTÁRIOS DA IA
+                    # ==========================================
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("### 🪄 Comentários para edição com IA")
+                    st.caption("Escreva o que você deseja alterar no texto acima. A IA vai modificar apenas o trecho solicitado e manter o resto do artigo intacto.")
+                    
+                    # O campo de input em branco
+                    instrucao_ajuste = st.text_area("Instruções:", placeholder="Ex: Substitua a palavra 'alunos' por 'estudantes' no segundo parágrafo... ou Remova o último tópico.", label_visibility="collapsed")
+                    
+                    # O botão só fica habilitado (clicável) se tiver algum texto na caixa
+                    botao_habilitado = bool(instrucao_ajuste.strip())
+                    
+                    if st.button("✨ Refinar Texto com IA", type="secondary", disabled=not botao_habilitado, use_container_width=True):
+                        with st.spinner("Cirurgia em andamento... A IA está reescrevendo apenas o trecho solicitado..."):
+                            try:
+                                novo_html = refinar_artigo_html(st.session_state['art_gerado'], instrucao_ajuste)
+                                
+                                # Guilhotina de segurança para limpar o markdown
+                                novo_html = re.sub(r'^```html\n|```$', '', novo_html, flags=re.MULTILINE).strip()
+                                if '<' in novo_html and '>' in novo_html:
+                                    novo_html = novo_html[novo_html.find('<') : novo_html.rfind('>') + 1]
+                                
+                                # Atualiza o estado com o novo texto e recarrega a tela instantaneamente
+                                st.session_state['art_gerado'] = novo_html
+                                st.success("✅ Ajuste aplicado com sucesso!")
+                                time.sleep(1)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Erro ao tentar refinar o texto: {e}")
+
+                else:
+                    # MODO DE EDIÇÃO MANUAL DO CÓDIGO
+                    st.markdown("### ✏️ Edição Manual de Texto/HTML")
+                    st.caption("Faça as alterações que desejar no texto ou nas tags abaixo e clique em Salvar.")
+                    
+                    html_editado = st.text_area("Edite o conteúdo diretamente abaixo:", value=st.session_state['art_gerado'], height=450, label_visibility="collapsed")
+                    
+                    if st.button("💾 Salvar Edições Manuais", type="primary"):
+                        st.session_state['art_gerado'] = html_editado
+                        st.success("✅ Edições salvas com sucesso! Alterne para o 'Modo de Leitura' para ver o resultado.")
+                        time.sleep(1.5)
+                        st.rerun()
+
+                # BOTÃO DE PUBLICAÇÃO DIRETA (Sempre visível no fundo da aba principal)
                 st.markdown("<br>", unsafe_allow_html=True)
                 cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(st.session_state['marca_atual'])
                 if cms_u and cms_usr and cms_p:
