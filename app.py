@@ -765,11 +765,21 @@ def gerar_cluster(palavra_chave):
 
 def calcular_citation_score(artigo_html):
     score = 0
-    if "<strong>Definição:" in artigo_html or "<strong>Definição" in artigo_html: score += 1
-    if "<strong>Resposta direta:" in artigo_html or "<strong>Resposta direta" in artigo_html: score += 1
-    if "Resumo Estratégico" in artigo_html or "Resumo estratégico" in artigo_html: score += 1
-    if "Segundo especialistas" in artigo_html or "Especialistas" in artigo_html: score += 1
-    if "Perguntas Frequentes" in artigo_html: score += 1
+    
+    # Isola o primeiro parágrafo para analisar
+    primeiro_paragrafo = artigo_html.split("</p>")[0] if "</p>" in artigo_html else artigo_html[:500]
+    
+    # Se a IA usou negrito no início (destacando o termo/resposta), ganha os 2 pontos da estrutura Answer-First
+    if "<strong>" in primeiro_paragrafo: 
+        score += 2 
+        
+    if "Resumo Estratégico" in artigo_html or "Resumo estratégico" in artigo_html: 
+        score += 1
+    if "Segundo especialistas" in artigo_html or "Especialistas" in artigo_html: 
+        score += 1
+    if "Perguntas Frequentes" in artigo_html: 
+        score += 1
+        
     return f"{score}/5"
 
 def calcular_entity_coverage(artigo_html, entity_gap_text):
@@ -1174,13 +1184,15 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
 2.1) VETO DE VOCABULÁRIO IA APRIMORADO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as seguintes expressões e suas variações: "cenário em transformação", "transcendeu o status", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "mergulhar em", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar".
 2.2) ESTILO JORNALÍSTICO (SHOW, DON'T TELL): Não diga que algo é "inovador" ou "fundamental". Apresente o fato técnico e deixe o leitor concluir isso. Escreva como um analista de dados da McKinsey ou um jornalista investigativo focado em negócios B2B.
+2.3) PROIBIÇÃO DE INTRODUÇÕES CONTEXTUAIS: Nunca comece um artigo situando o tempo ou o espaço (Ex: "No cenário educacional brasileiro", "Hoje em dia", "Historicamente"). Comece com um fato impactante, um dado do briefing ou uma afirmação direta sobre a dor do cliente.
+2.4) BANIMENTO DO TOM "REDENTOR": É estritamente proibido usar palavras com tom de revelação ou dramatismo acadêmico, como: "Desvendar", "Revolução silenciosa", "Jornada", "Vanguarda", "Transformação significativa". Use vocabulário de negócios: "Implementação", "Gargalo", "Métrica", "Otimização".
+2.5) ASSIMETRIA ESTRUTURAL E FRICÇÃO: O texto NÃO PODE ser uma sequência perfeita de "Introdução > Benefício 1 > Benefício 2 > Conclusão". Em algum momento do texto, insira um H2 que apresente um PROBLEMA ou uma PRÁTICA QUE DÁ ERRADO no mercado hoje, antes de apresentar a solução. Textos humanos têm atrito; mostre o que as escolas fazem de errado antes de dizer como acertar.
 3) Não explique o óbvio; entregue leitura avançada.
 4) LINK OFICIAL DA MARCA (OBRIGATÓRIO): A marca alvo e sua URL serão enviadas a você. Toda vez que você citar o nome da marca no texto, você É OBRIGADO a transformá-la em um hiperlink para o site oficial. Exemplo: <a href="[URL_AQUI]" target="_blank">[NOME_DA_MARCA]</a>.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
-4) BLOCO DE DEFINIÇÃO ORGÂNICA (SEM ETIQUETAS): Logo no início do texto, você DEVE explicar o conceito central da palavra-chave em menos de 30 palavras. Faça isso de forma natural e fluida no meio de um parágrafo. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Definição:" ou "O que é:". Apenas explique o conceito grifando o termo em negrito.
-5) ANSWER ANCHOR (RESPOSTA RÁPIDA SUAVIZADA): Logo após a introdução, crie um <h2>Resposta rápida para: [insira a palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta e mastigada em no máximo 2 linhas. NÃO USE etiquetas como "Resposta direta:". Apenas escreva o parágrafo indo direto ao ponto, como um jornalista experiente faria.
-6) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
+4) INTRODUÇÃO DIRETA (ANSWER-FIRST INTEGRADO): Logo no primeiro parágrafo, você DEVE explicar o conceito central e entregar a resposta principal em no máximo 4 linhas. Faça isso de forma orgânica e fluida. É ESTRITAMENTE PROIBIDO usar cabeçalhos como 'Resposta rápida para:' ou etiquetas como 'Definição:' e 'Resposta direta:'. Apenas explique o conceito e responda à dor do usuário de uma vez, garantindo que a palavra-chave principal esteja em <strong>negrito</strong>.
+5) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
 
@@ -1202,7 +1214,9 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 18) FONTES NEUTRAS E DEEP LINKING: Todo link externo deve ir para páginas específicas (slugs longos), nunca homepages genéricas. Os links externos DEVEM ser exclusivamente de órgãos oficiais (MEC, OCDE), institutos de pesquisa ou portais de notícias sérios (G1, Porvir). Jamais faça link building para blogs de outras escolas.
 19) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a Regra de Ouro dos Dados Citados abaixo.
 20) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
-21) LINKAGEM INTERNA (OBRIGAÇÃO ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É UMA EXIGÊNCIA INEGOCIÁVEL que você escolha de 1 a 2 artigos dessa lista e crie links HTML (<a href="[URL]">) no meio do seu texto. As URLs dessa lista são 100% seguras e validadas, use-as sem medo para criar autoridade de nicho.
+21) LINKAGEM INTERNA (OBRIGAÇÃO ESTRUTURAL ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É ESTRITAMENTE OBRIGATÓRIO que você escolha 1 ou 2 artigos dessa lista e crie links para eles. PARA GARANTIR QUE VOCÊ NÃO ESQUEÇA, você DEVE usar obrigatoriamente a seguinte estrutura HTML em um parágrafo isolado, como uma recomendação de leitura complementar:
+<p><strong>Leia também:</strong> <a href="[URL_DO_ARTIGO_AQUI]" target="_blank">[TÍTULO_DO_ARTIGO_AQUI]</a></p>
+As URLs dessa lista são 100% seguras. Se você não incluir essa exata estrutura apontando para um artigo do blog da marca, a auditoria do sistema irá reprovar o texto.
 
 ESTRATÉGIA EDITORIAL, NARRATIVA E VOZ:
 22) DIRECIONAMENTO ESTRATÉGICO DO ESPECIALISTA (BÚSSOLA DO ARTIGO): O usuário pode fornecer um bloco de "Conteúdo Adicional" contendo teorias, autores, insumos próprios ou links. Você não precisa fazer um "copia e cola" literal e engessado, mas DEVE usar esses elementos como a base principal da sua argumentação. Use seu conhecimento interno para expandir as teorias ou autores citados, aprofunde os conceitos sugeridos e costure essas referências de forma fluida e inteligente para enriquecer o texto.
@@ -1287,6 +1301,50 @@ ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere a
     if '<' in artigo_html and '>' in artigo_html:
         artigo_html = artigo_html[artigo_html.find('<') : artigo_html.rfind('>') + 1]
 
+# ---------------------------------------------------------
+    # INÍCIO DA NOVA FASE 2.5: LOOP DE AUTO-CORREÇÃO GEO
+    # ---------------------------------------------------------
+    st.write("🔬 Fase 2.5: Auto-Auditoria (Injetando a inteligência para blindar o texto)...")
+    
+    # 1. O sistema roda as duas auditorias mais críticas no RASCUNHO recém-gerado
+    hijacking_risk_draft = detectar_citation_hijacking(artigo_html)
+    entity_coverage_draft = calcular_entity_coverage(artigo_html, entity_gap)
+
+    # 2. Um novo prompt exige que o Claude conserte os próprios erros antes de entregar o artigo final
+    system_refine = """Você é um Revisor Chefe de GEO e E-E-A-T. 
+    Sua missão é receber o rascunho de um artigo em HTML e duas auditorias algorítmicas. Você deve reescrever partes do texto para corrigir as falhas apontadas, sem destruir o que já está bom.
+    
+    REGRAS DE CIRURGIA:
+    1. ENTIDADES: Se a auditoria apontar que faltam "Entidades" (jargões/conceitos), você é OBRIGADO a encontrar um espaço no texto e inserir essas palavras naturalmente.
+    2. HIJACKING: Se a auditoria apontar "Risco de Hijacking" (falta de clareza ou resposta fraca), reescreva os parágrafos criticados para que fiquem mais agressivos, diretos e didáticos.
+    3. PRESERVAÇÃO: É ESTRITAMENTE PROIBIDO apagar ou alterar os links (Tags <a>), imagens e a estrutura de <h2> e <br> que já estão no HTML. Apenas melhore o copywriting.
+    
+    Retorne EXCLUSIVAMENTE o código HTML finalizado. Pare de gerar texto após fechar a última tag."""
+
+    user_refine = f"""
+    ARTIGO ORIGINAL (RASCUNHO):
+    {artigo_html}
+
+    AUDITORIA 1 (Entidades do Nicho Faltando):
+    {entity_coverage_draft}
+
+    AUDITORIA 2 (Risco de Perder Tráfego para IAs):
+    {hijacking_risk_draft}
+    
+    Analise as críticas acima, corrija o texto onde dói, e me devolva o HTML blindado.
+    """
+
+    # Chama o Claude de novo, agora com os olhos abertos para os próprios erros
+    artigo_html = chamar_llm(system_refine, user_refine, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+    
+    # Limpa o HTML novamente por segurança
+    artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
+    if '<' in artigo_html and '>' in artigo_html:
+        artigo_html = artigo_html[artigo_html.find('<') : artigo_html.rfind('>') + 1]
+    # ---------------------------------------------------------
+    # FIM DA NOVA FASE 2.5
+    # ---------------------------------------------------------
+    
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
 
