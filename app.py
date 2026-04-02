@@ -546,20 +546,25 @@ def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
 
     # Adapta a URL dinamicamente garantindo que não quebre a query
     separador = "&" if "?" in wp_url else "?"
-    search_url = f"{wp_url}{separador}search={urllib.parse.quote(palavra_chave)}&per_page=3&_fields=id,title,link"
+    search_url = f"{wp_url}{separador}search={urllib.parse.quote(palavra_chave)}&per_page=3&_fields=id,title,link,excerpt"
     
     try:
         response = requests.get(search_url, headers=headers, timeout=15)
         if response.status_code == 200:
             posts = response.json()
             if not posts:
-                return "Nenhum artigo interno altamente relacionado encontrado no WordPress desta marca."
+                return "Nenhum artigo interno altamente relacionado encontrado."
             
-            contexto_interno = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO):\n"
+            contexto_interno = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO E REFERÊNCIA DE TOM DE VOZ):\n"
             for p in posts:
                 titulo = p.get("title", {}).get("rendered", "Sem título")
                 link = p.get("link", "")
-                contexto_interno += f"- Título: {titulo}\n  URL: {link}\n"
+                
+                # Pega o trecho do texto e limpa o HTML básico para não sujar o prompt
+                trecho = p.get("excerpt", {}).get("rendered", "")
+                trecho_limpo = re.sub(r'<[^>]+>', '', trecho).strip().replace('\n', ' ')
+                
+                contexto_interno += f"- Título: {titulo}\n  URL: {link}\n  Trecho do estilo de escrita: '{trecho_limpo}'\n\n"
             return contexto_interno
         else:
             return f"Erro na busca WP (Status {response.status_code}): O Firewall bloqueou a leitura."
@@ -938,12 +943,30 @@ def avaliar_chunk_citability(artigo_html):
     }
 
 def avaliar_answer_first(artigo_html):
-    inicio = artigo_html[:800].lower()
-    padroes = ["resposta direta:", "definição:", "é ", "refere-se", "significa"]
-    for p in padroes:
-        if p in inicio:
-            return {"answer_first_score": 100, "padrao_detectado": p, "status": "Excelente (Resposta no Topo)"}
-    return {"answer_first_score": 40, "padrao_detectado": "nenhum", "status": "Alerta: A IA pode ter dificuldade de achar a resposta rápida."}
+    # Pega apenas o primeiro parágrafo para análise
+    match = re.search(r'<p>(.*?)</p>', artigo_html, re.DOTALL)
+    if not match:
+        return {"answer_first_score": 0, "status": "Erro: Parágrafo inicial não encontrado."}
+    
+    primeiro_paragrafo = match.group(1).lower()
+    
+    # Novos padrões semânticos (o que uma resposta direta parece naturalmente)
+    padroes_suaves = ["é ", "são ", "refere-se a", "consiste em", "representa", "trata-se de"]
+    
+    encontrou_padrao = any(p in primeiro_paragrafo for p in padroes_suaves)
+    
+    # Se a resposta está no primeiro parágrafo (curto) e usa um verbo de definição
+    if encontrou_padrao and len(primeiro_paragrafo.split()) < 50:
+        return {
+            "answer_first_score": 100, 
+            "status": "Excelente: Resposta integrada ao primeiro parágrafo.",
+            "metodo": "Detecção Semântica"
+        }
+    
+    return {
+        "answer_first_score": 40, 
+        "status": "Alerta: O primeiro parágrafo parece longo ou não define o termo rapidamente."
+    }
 
 def simular_rag_chunks(artigo_html, keyword):
     chunks = artigo_html.split("\n\n")
@@ -1120,11 +1143,10 @@ Sua missão é traduzir o Tom de Voz corporativo em um texto que não pareça um
 - DETALHE IMPERFEITO: Inclua pequenos detalhes contextuais em suas explicações que não são essenciais para o argumento central, mas gritam "fator humano" (ex: "em turmas mais agitadas", "na primeira semana de provas", "quando o sistema trava").
 - FRICÇÃO ANALÍTICA: O texto não pode ser um mar de positividade. Em pelo menos um H2, questione uma prática comum do mercado, aponte um efeito colateral inesperado ou discorde do senso comum. Mostre atrito intelectual.
 
-4. ESTRUTURA GEO INVISÍVEL E SEO:
-- CONCEITO FLUIDO: Logo no início, entregue o conceito da palavra-chave em um parágrafo normal, sem usar etiquetas como "Definição:".
-- RESPOSTA RÁPIDA: Crie um <h2>Resposta rápida para: [palavra-chave]</h2>. Abaixo dele, responda a dúvida principal em 2 ou 3 linhas narrativas e diretas.
-- SÍNTESE VISUAL: Insira a tag exata `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points valiosos. Limite absoluto de 2 listas no artigo todo.
-- CITAÇÃO NATURAL: Inclua a visão de um especialista começando o parágrafo de forma orgânica, como: <p><strong>A visão dos especialistas:</strong> ...</p>
+4) PARÁGRAFO DE IMPACTO (ANSWER-FIRST INTEGRADO): O artigo deve começar obrigatoriamente com um parágrafo de no máximo 4 linhas que combine a introdução com a resposta direta à intenção de busca. 
+- É ESTRITAMENTE PROIBIDO usar cabeçalhos como "Resposta rápida para:" ou etiquetas como "Resposta direta:".
+- O texto deve ser fluido: comece definindo o conceito e entregando a solução logo nas primeiras duas frases. 
+- Use negrito (<strong>) na palavra-chave principal e na parte mais importante da resposta para destacar a densidade semântica para os motores de busca.
 
 5. REGRAS DE LINKAGEM E BLINDAGEM E-E-A-T (TOLERÂNCIA ZERO):
 - VETO TOTAL A RIVAIS: É ESTRITAMENTE PROIBIDO citar o nome ou link de QUALQUER outra escola privada ou sistema de ensino concorrente no Brasil (ex: Balão Vermelho, Anglo, Bernoulli). Ignore-os se aparecerem na pesquisa. A única marca privada permitida é a [Marca Alvo].
@@ -1226,8 +1248,11 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
-ARTIGOS INTERNOS DISPONÍVEIS (RAG REVERSO):
-Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no meio do texto, linkando de forma natural as palavras-chave relacionadas.
+ARTIGOS INTERNOS DISPONÍVEIS (RAG REVERSO E TOM DE VOZ):
+Estes são artigos já publicados no blog da marca. 
+OBJETIVO 1 (ESTILO): Leia os trechos abaixo para entender e replicar a cadência, o vocabulário e o estilo real de escrita da marca.
+OBJETIVO 2 (LINKAGEM OBRIGATÓRIA): Você É OBRIGADO a escolher 1 ou 2 destes links e inseri-los no meio do seu texto. 
+DICA DE OURO PARA NÃO ESQUECER O LINK: Crie um parágrafo dedicado de "Leitura Complementar" ou ancore o link naturalmente em palavras-chave no meio da sua argumentação.
 {contexto_wp}
 
 <checklist_de_seguranca_obrigatorio>
@@ -1239,7 +1264,7 @@ Você DEVE obrigatoriamente usar pelo menos um destes links como hiperlink no me
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
-8.1 VERIFICAÇÃO DE RAG: Leia o seu texto final. Você incluiu a tag <a href="..."> usando as URLs da lista de Artigos Internos Disponíveis? Se não, insira.
+8.1 VERIFICAÇÃO DE RAG (CRÍTICO): Eu vou auditar o seu código. Você usou as URLs da lista "ARTIGOS INTERNOS DISPONÍVEIS"? Se não houver pelo menos um <a href="..."> apontando para um artigo antigo do blog, PARE TUDO, volte no texto e insira o link em um contexto válido.
 9. Você checou a existência de dados numéricos no briefing? Se não houver, garanta que sua abordagem é conceitual e livre de alucinações matemáticas.
 10. AUDITORIA DE FONTES (TOLERÂNCIA ZERO): Você citou alguma Associação, Instituto, Estudo, Pesquisa, Ministério no texto? Se sim, a tag de link (<a href="...">) está EXATAMENTE junto ao nome deles? Se estiver sem link, APAGUE a frase inteira imediatamente.
 11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda?
