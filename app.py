@@ -1185,8 +1185,9 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 2.1) VETO DE VOCABULÁRIO IA APRIMORADO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as seguintes expressões e suas variações: "cenário em transformação", "transcendeu o status", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "mergulhar em", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar".
 2.2) ESTILO JORNALÍSTICO (SHOW, DON'T TELL): Não diga que algo é "inovador" ou "fundamental". Apresente o fato técnico e deixe o leitor concluir isso. Escreva como um analista de dados da McKinsey ou um jornalista investigativo focado em negócios B2B.
 2.3) PROIBIÇÃO DE INTRODUÇÕES CONTEXTUAIS: Nunca comece um artigo situando o tempo ou o espaço (Ex: "No cenário educacional brasileiro", "Hoje em dia", "Historicamente"). Comece com um fato impactante, um dado do briefing ou uma afirmação direta sobre a dor do cliente.
-2.4) BANIMENTO DO TOM "REDENTOR": É estritamente proibido usar palavras com tom de revelação ou dramatismo acadêmico, como: "Desvendar", "Revolução silenciosa", "Jornada", "Vanguarda", "Transformação significativa". Use vocabulário de negócios: "Implementação", "Gargalo", "Métrica", "Otimização".
+2.4) BANIMENTO DO TOM "REDENTOR" E FRASES DE EFEITO: É estritamente proibido usar palavras com tom de revelação ou dramatismo acadêmico ("Desvendar", "Revolução silenciosa", "Jornada", "Vanguarda") e FRASES CURTAS TEATRAIS/ENLATADAS ("Os números não mentem", "Os resultados falam por si", "Esta não é uma tendência passageira"). Use vocabulário de negócios direto: "Implementação", "Gargalo", "Métrica", "Otimização".
 2.5) ASSIMETRIA ESTRUTURAL E FRICÇÃO: O texto NÃO PODE ser uma sequência perfeita de "Introdução > Benefício 1 > Benefício 2 > Conclusão". Em algum momento do texto, insira um H2 que apresente um PROBLEMA ou uma PRÁTICA QUE DÁ ERRADO no mercado hoje, antes de apresentar a solução. Textos humanos têm atrito; mostre o que as escolas fazem de errado antes de dizer como acertar.
+2.6) SÍNDROME DO TÍTULO ÉPICO (PROIBIÇÃO DE H2 CLICHÊS): NUNCA crie subtítulos (H2/H3) usando clichês de IA com dois pontos seguidos de promessas, como: "O futuro da", "A nova fronteira", "O caminho para o sucesso". Faça títulos focados na dor técnica ou benefício operacional direto (ex: "Como a análise de dados reduz a evasão", em vez de "Análise de dados: a nova fronteira").
 3) Não explique o óbvio; entregue leitura avançada.
 4) LINK OFICIAL DA MARCA (OBRIGATÓRIO): A marca alvo e sua URL serão enviadas a você. Toda vez que você citar o nome da marca no texto, você É OBRIGADO a transformá-la em um hiperlink para o site oficial. Exemplo: <a href="[URL_AQUI]" target="_blank">[NOME_DA_MARCA]</a>.
 
@@ -1214,9 +1215,9 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 18) FONTES NEUTRAS E DEEP LINKING: Todo link externo deve ir para páginas específicas (slugs longos), nunca homepages genéricas. Os links externos DEVEM ser exclusivamente de órgãos oficiais (MEC, OCDE), institutos de pesquisa ou portais de notícias sérios (G1, Porvir). Jamais faça link building para blogs de outras escolas.
 19) FONTE DOS LINKS (PROIBIDO ALUCINAR URL): Use EXCLUSIVAMENTE os deep links que foram explicitamente fornecidos no briefing. É ESTRITAMENTE PROIBIDO inventar, adivinhar ou construir URLs da sua própria memória (ex: criar links falsos da SciELO, DOIs falsos, ou caminhos fictícios de universidades). Se o briefing não te fornecer uma URL válida e real, você está liberado da obrigação de colocar links externos. Nesse caso, apenas foque na argumentação conceitual, MAS NÃO CITE o nome do estudo/instituição para não quebrar a Regra de Ouro dos Dados Citados abaixo.
 20) REGRA DE OURO DOS DADOS CITADOS (ANTI-PENALIZAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de associações, institutos, pesquisas ou dados numéricos de mercado (ex: Associação Brasileira de Ensino Bilíngue, IBGE, OMS) sem ancorar a citação em um link (<a href="...">). Se você não tiver o link externo real para inserir, NÃO CITE o nome da instituição ou o dado; reescreva a frase de forma puramente conceitual. Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
-21) LINKAGEM INTERNA (OBRIGAÇÃO ESTRUTURAL ABSOLUTA): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É ESTRITAMENTE OBRIGATÓRIO que você escolha 1 ou 2 artigos dessa lista e crie links para eles. PARA GARANTIR QUE VOCÊ NÃO ESQUEÇA, você DEVE usar obrigatoriamente a seguinte estrutura HTML em um parágrafo isolado, como uma recomendação de leitura complementar:
-<p><strong>Leia também:</strong> <a href="[URL_DO_ARTIGO_AQUI]" target="_blank">[TÍTULO_DO_ARTIGO_AQUI]</a></p>
-As URLs dessa lista são 100% seguras. Se você não incluir essa exata estrutura apontando para um artigo do blog da marca, a auditoria do sistema irá reprovar o texto.
+21) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): Você receberá uma lista chamada "ARTIGOS INTERNOS DISPONÍVEIS". É ESTRITAMENTE OBRIGATÓRIO escolher 1 ou 2 artigos dessa lista e inserir os links de forma NATURAL no meio da sua argumentação (ex: "...conforme aplicamos nas <a href='URL_EXATA_FORNECIDA'>novas metodologias de ensino</a>..."). 
+- VETO AO LEIA TAMBÉM: É proibido criar blocos isolados como "Leia também:" ou "Confira aqui:". O link deve fluir escondido no texto.
+- VETO DE ALUCINAÇÃO (CRÍTICO): Se a lista de Artigos Internos estiver vazia ou indicar um erro de conexão, VOCÊ ESTÁ PROIBIDO DE INVENTAR URLs. Nunca crie um link fictício para o blog da marca.
 
 ESTRATÉGIA EDITORIAL, NARRATIVA E VOZ:
 22) DIRECIONAMENTO ESTRATÉGICO DO ESPECIALISTA (BÚSSOLA DO ARTIGO): O usuário pode fornecer um bloco de "Conteúdo Adicional" contendo teorias, autores, insumos próprios ou links. Você não precisa fazer um "copia e cola" literal e engessado, mas DEVE usar esses elementos como a base principal da sua argumentação. Use seu conhecimento interno para expandir as teorias ou autores citados, aprofunde os conceitos sugeridos e costure essas referências de forma fluida e inteligente para enriquecer o texto.
@@ -1263,10 +1264,10 @@ DIRECIONAMENTO DE COPYWRITING E MARCA:
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
 ARTIGOS INTERNOS DISPONÍVEIS (RAG REVERSO E TOM DE VOZ):
-Estes são artigos já publicados no blog da marca. 
-OBJETIVO 1 (ESTILO): Leia os trechos abaixo para entender e replicar a cadência, o vocabulário e o estilo real de escrita da marca.
-OBJETIVO 2 (LINKAGEM OBRIGATÓRIA): Você É OBRIGADO a escolher 1 ou 2 destes links e inseri-los no meio do seu texto. 
-DICA DE OURO PARA NÃO ESQUECER O LINK: Crie um parágrafo dedicado de "Leitura Complementar" ou ancore o link naturalmente em palavras-chave no meio da sua argumentação.
+Abaixo estão artigos já publicados no blog da marca. 
+OBJETIVO 1 (ESTILO): Leia os trechos para entender e replicar o vocabulário da marca.
+OBJETIVO 2 (LINKAGEM CONTEXTUAL): Você É OBRIGADO a escolher 1 ou 2 destes links e inseri-los no meio do seu texto, usando palavras-chave naturais como âncora (tag <a>). NUNCA use "Leia também".
+ATENÇÃO ANTI-ALUCINAÇÃO: Se o bloco abaixo disser "Erro", "Timeout" ou "Nenhum artigo", ignore o OBJETIVO 2 e NÃO crie nenhum link interno.
 {contexto_wp}
 
 <checklist_de_seguranca_obrigatorio>
@@ -1288,11 +1289,10 @@ DICA DE OURO PARA NÃO ESQUECER O LINK: Crie um parágrafo dedicado de "Leitura 
 14. DIRETRIZ DE GHOSTWRITING E AUTORIA (CRÍTICO):{contexto_ghostwriting if contexto_ghostwriting else "Nenhum autor específico selecionado. Use o tom da marca padrão."}
 ATENÇÃO: Se o bloco acima contiver artigos de um especialista, você assumirá a IDENTIDADE dele. Absorva o vocabulário, o ritmo e o nível de formalidade que ele usa nos artigos fornecidos. Integre o seu conhecimento sobre a palavra-chave com os conceitos que ele costuma defender. 
 
-Escreva o ARTIGO FINAL em HTML conforme as regras GEO, preservando exatamente os marcadores:
-<br>Resumo Estratégico<br>
-<br>Perguntas Frequentes<br>
+Escreva o ARTIGO FINAL em HTML conforme as regras GEO. 
+ATENÇÃO CRÍTICA: Você é OBRIGADO a incluir os exatos marcadores `<br>Resumo Estratégico<br>` no topo e `<br>Perguntas Frequentes<br>` no final do texto. Abaixo de Perguntas Frequentes, crie 3 perguntas e respostas em formato <h3> e <p>.
 
-ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
+Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
