@@ -1300,50 +1300,6 @@ ATENÇÃO: Pare de escrever IMEDIATAMENTE após a última tag HTML. NUNCA gere a
     # GUILHOTINA PYTHON: Corta qualquer "auto-avaliação" da IA que venha depois do fechamento do HTML
     if '<' in artigo_html and '>' in artigo_html:
         artigo_html = artigo_html[artigo_html.find('<') : artigo_html.rfind('>') + 1]
-
-# ---------------------------------------------------------
-    # INÍCIO DA NOVA FASE 2.5: LOOP DE AUTO-CORREÇÃO GEO
-    # ---------------------------------------------------------
-    st.write("🔬 Fase 2.5: Auto-Auditoria (Injetando a inteligência para blindar o texto)...")
-    
-    # 1. O sistema roda as duas auditorias mais críticas no RASCUNHO recém-gerado
-    hijacking_risk_draft = detectar_citation_hijacking(artigo_html)
-    entity_coverage_draft = calcular_entity_coverage(artigo_html, entity_gap)
-
-    # 2. Um novo prompt exige que o Claude conserte os próprios erros antes de entregar o artigo final
-    system_refine = """Você é um Revisor Chefe de GEO e E-E-A-T. 
-    Sua missão é receber o rascunho de um artigo em HTML e duas auditorias algorítmicas. Você deve reescrever partes do texto para corrigir as falhas apontadas, sem destruir o que já está bom.
-    
-    REGRAS DE CIRURGIA:
-    1. ENTIDADES: Se a auditoria apontar que faltam "Entidades" (jargões/conceitos), você é OBRIGADO a encontrar um espaço no texto e inserir essas palavras naturalmente.
-    2. HIJACKING: Se a auditoria apontar "Risco de Hijacking" (falta de clareza ou resposta fraca), reescreva os parágrafos criticados para que fiquem mais agressivos, diretos e didáticos.
-    3. PRESERVAÇÃO: É ESTRITAMENTE PROIBIDO apagar ou alterar os links (Tags <a>), imagens e a estrutura de <h2> e <br> que já estão no HTML. Apenas melhore o copywriting.
-    
-    Retorne EXCLUSIVAMENTE o código HTML finalizado. Pare de gerar texto após fechar a última tag."""
-
-    user_refine = f"""
-    ARTIGO ORIGINAL (RASCUNHO):
-    {artigo_html}
-
-    AUDITORIA 1 (Entidades do Nicho Faltando):
-    {entity_coverage_draft}
-
-    AUDITORIA 2 (Risco de Perder Tráfego para IAs):
-    {hijacking_risk_draft}
-    
-    Analise as críticas acima, corrija o texto onde dói, e me devolva o HTML blindado.
-    """
-
-    # Chama o Claude de novo, agora com os olhos abertos para os próprios erros
-    artigo_html = chamar_llm(system_refine, user_refine, model="anthropic/claude-3.7-sonnet", temperature=0.2)
-    
-    # Limpa o HTML novamente por segurança
-    artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
-    if '<' in artigo_html and '>' in artigo_html:
-        artigo_html = artigo_html[artigo_html.find('<') : artigo_html.rfind('>') + 1]
-    # ---------------------------------------------------------
-    # FIM DA NOVA FASE 2.5
-    # ---------------------------------------------------------
     
     st.write("🛠️ Fase 3: Extraindo JSON e Metadados via Pydantic...")
     schema_gerado = MetadadosArtigo.model_json_schema() if hasattr(MetadadosArtigo, "model_json_schema") else MetadadosArtigo.schema_json()
