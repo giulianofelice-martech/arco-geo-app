@@ -633,8 +633,8 @@ def buscar_baseline_llm(palavra_chave):
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
     """
-    RAG Reverso dinâmico: Busca artigos já publicados no WP da marca selecionada para linkagem interna.
-    Lida com URLs formatadas com /wp-json/ ou com ?rest_route= contornando CloudFront.
+    RAG Reverso dinâmico com Fallback: Tenta buscar pela keyword. 
+    Se o WP não encontrar, puxa os últimos posts para garantir a linkagem interna.
     """
     if not (wp_url and wp_user and wp_pwd):
         return "Sem credenciais do WordPress configuradas para esta marca. Pule a linkagem interna."
@@ -644,39 +644,51 @@ def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
     credenciais = f"{wp_user}:{wp_pwd_clean}"
     token_auth = base64.b64encode(credenciais.encode('utf-8')).decode('utf-8')
     
-    # Mesma Máscara Robusta que funcionou no POST
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'application/json, text/plain, */*',
         'Authorization': f'Basic {token_auth}',
         'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip, deflate, br'
     }
 
-    # Adapta a URL dinamicamente garantindo que não quebre a query
     separador = "&" if "?" in wp_url else "?"
-    search_url = f"{wp_url}{separador}search={urllib.parse.quote(palavra_chave)}&per_page=3&_fields=id,title,link,excerpt"
+    
+    # TENTATIVA 1: Busca nativa do WP pela palavra-chave
+    search_url = f"{wp_url}{separador}search={urllib.parse.quote(palavra_chave)}&per_page=6&_fields=id,title,link,excerpt"
     
     try:
         response = requests.get(search_url, headers=headers, timeout=15)
+        posts = []
+        
         if response.status_code == 200:
             posts = response.json()
-            if not posts:
-                return "Nenhum artigo interno altamente relacionado encontrado."
             
-            contexto_interno = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO E REFERÊNCIA DE TOM DE VOZ):\n"
-            for p in posts:
-                titulo = p.get("title", {}).get("rendered", "Sem título")
-                link = p.get("link", "")
-                
-                # Pega o trecho do texto e limpa o HTML básico para não sujar o prompt
-                trecho = p.get("excerpt", {}).get("rendered", "")
-                trecho_limpo = re.sub(r'<[^>]+>', '', trecho).strip().replace('\n', ' ')
-                
-                contexto_interno += f"- Título: {titulo}\n  URL: {link}\n  Trecho do estilo de escrita: '{trecho_limpo}'\n\n"
-            return contexto_interno
-        else:
-            return f"Erro na busca WP (Status {response.status_code}): O Firewall bloqueou a leitura."
+        # ==========================================
+        # TENTATIVA 2: O FALLBACK (O SEGREDO DO REVISOR)
+        # Se a busca literal falhar, puxa os 10 últimos posts
+        # ==========================================
+        if not posts or len(posts) == 0:
+            fallback_url = f"{wp_url}{separador}per_page=10&status=publish&_fields=id,title,link,excerpt"
+            fallback_res = requests.get(fallback_url, headers=headers, timeout=15)
+            if fallback_res.status_code == 200:
+                posts = fallback_res.json()
+
+        if not posts:
+            return "Nenhum artigo interno altamente relacionado encontrado."
+        
+        contexto_interno = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO E REFERÊNCIA DE TOM DE VOZ):\n"
+        for p in posts[:10]: # Trava de segurança para não estourar os tokens da IA
+            titulo = p.get("title", {}).get("rendered", "Sem título")
+            link = p.get("link", "")
+            
+            trecho = p.get("excerpt", {}).get("rendered", "")
+            trecho_limpo = re.sub(r'<[^>]+>', '', trecho).strip().replace('\n', ' ')
+            
+            contexto_interno += f"- Título: {titulo}\n  URL: {link}\n  Trecho do estilo de escrita: '{trecho_limpo}'\n\n"
+        
+        return contexto_interno
+        
     except Exception as e:
         return f"Falha ao conectar com WP da marca para RAG Reverso: {e}"
 
@@ -686,29 +698,42 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
     import base64
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 
         'Accept': 'application/vnd.api+json', 
         'Authorization': f'Basic {token_auth}'
     }
     
-    filtro = f"?filter[title-filter][condition][path]=title&filter[title-filter][condition][operator]=CONTAINS&filter[title-filter][condition][value]={urllib.parse.quote(palavra_chave)}&page[limit]=3"
+    # TENTATIVA 1: Busca pelo Título
+    filtro = f"?filter[title-filter][condition][path]=title&filter[title-filter][condition][operator]=CONTAINS&filter[title-filter][condition][value]={urllib.parse.quote(palavra_chave)}&page[limit]=6"
+    
     try:
         res = requests.get(f"{d_url}{filtro}", headers=headers, timeout=15)
+        posts = []
         if res.status_code == 200:
             posts = res.json().get("data", [])
-            if not posts: return "Nenhum artigo encontrado no Drupal."
-            ctx = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO DRUPAL):\n"
-            for p in posts:
-                attrs = p.get("attributes", {})
-                titulo = attrs.get('title', '')
-                
-                # Proteção contra path nulo
-                path_data = attrs.get('path') or {}
-                link = path_data.get('alias', '') if isinstance(path_data, dict) else ""
-                
-                ctx += f"- Título: {titulo}\n  URL: {link}\n"
-            return ctx
-        return f"Erro Drupal RAG (Status {res.status_code})"
+            
+        # ==========================================
+        # TENTATIVA 2: FALLBACK DRUPAL
+        # ==========================================
+        if not posts or len(posts) == 0:
+            fallback_url = f"{d_url}?sort=-created&page[limit]=10"
+            fallback_res = requests.get(fallback_url, headers=headers, timeout=15)
+            if fallback_res.status_code == 200:
+                posts = fallback_res.json().get("data", [])
+
+        if not posts: return "Nenhum artigo encontrado no Drupal."
+        
+        ctx = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO DRUPAL):\n"
+        for p in posts[:10]:
+            attrs = p.get("attributes", {})
+            titulo = attrs.get('title', '')
+            
+            path_data = attrs.get('path') or {}
+            link = path_data.get('alias', '') if isinstance(path_data, dict) else ""
+            
+            ctx += f"- Título: {titulo}\n  URL: {link}\n"
+        return ctx
+        
     except Exception as e:
         return f"Erro Drupal RAG: {e}"
 
@@ -1205,7 +1230,7 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS E DEEP LINKS: Você deve vasculhar o contexto orgânico fornecido para resgatar 2 a 3 DEEP LINKS REAIS. REGRA CRÍTICA: É ESTRITAMENTE PROIBIDO usar links de blogs de outras escolas privadas, colégios ou sistemas de ensino concorrentes (ex: Balão Vermelho, Bernoulli, etc.). Escolha APENAS links de autoridades neutras (Portais de Notícias como G1, revistas científicas, OCDE, PISA, MEC). Se não houver links neutros, não sugira nenhum.
+C) MAPA DE EVIDÊNCIAS E DEEP LINKS (SEM LIMITES): Vasculhe o contexto orgânico e resgate o MÁXIMO possível de DEEP LINKS REAIS relevantes (idealmente entre 4 a 8). ATENÇÃO ESPECIAL: Se houver menção a leis (ex: LDB, Novo Ensino Médio), órgãos governamentais (MEC) ou metodologias educacionais no contexto, você DEVE extrair a URL de referência deles. REGRA CRÍTICA: É ESTRITAMENTE PROIBIDO usar links de blogs...
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 """
@@ -1322,8 +1347,8 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 15) VETO TOTAL A RIVAIS E OUTRAS ESCOLAS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil ou no mundo (ex: Balão Vermelho, Anglo, Bernoulli, etc.). Se o contexto do Google trouxer o blog de uma escola, IGNORE-O. A única marca privada do setor educacional que pode ser citada é a Marca Alvo.
 
 16) PROTOCOLO DE RASTREABILIDADE E EXCEÇÃO DE SEGURANÇA (DEEP LINKS): A autoridade depende de referências reais. Extraia links externos (<a href="..." target="_blank">) EXCLUSIVAMENTE do bloco "O QUE A CONCORRÊNCIA DIZ HOJE" ou do "CONTEÚDO ADICIONAL".
-- OBRIGAÇÃO CONDICIONAL: SE o briefing fornecer URLs válidas, você DEVE incluir de 1 a 3 links externos ancorando afirmações.
-- GATILHO ANTI-ALUCINAÇÃO: SE os blocos de apoio NÃO contiverem URLs válidas, VOCÊ ESTÁ PROIBIDO DE INVENTAR LINKS. Neste caso, escreva o artigo sem links externos, focando apenas na força da argumentação conceitual.
+- OBRIGAÇÃO CONDICIONAL: Você NÃO TEM LIMITE de links. Pelo contrário, use uma rica mistura de referências. SE o briefing fornecer URLs válidas, você DEVE espalhar de 4 a 8 links externos (ou mais) pelo texto ancorando afirmações, dados, metodologias e leis.
+- EXCEÇÃO DE LEIS E METODOLOGIAS: Sempre que citar uma Lei Federal, diretriz do MEC ou uma Metodologia Ativa específica, é mandatório colocar um link de referência (mesmo que seja um portal do governo como planalto.gov.br ou mec.gov.br).
 
 17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos publicações jornalísticas e acadêmicas de todos os tipos. Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: a página inicial de um jornal ou de um ministério). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
 
