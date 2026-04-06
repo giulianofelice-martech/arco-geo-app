@@ -1320,14 +1320,17 @@ Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natu
 
 REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 15) VETO TOTAL A RIVAIS E OUTRAS ESCOLAS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil ou no mundo (ex: Balão Vermelho, Anglo, Bernoulli, etc.). Se o contexto do Google trouxer o blog de uma escola, IGNORE-O. A única marca privada do setor educacional que pode ser citada é a Marca Alvo.
-16) PROTOCOLO DE RASTREABILIDADE EXTERNA: O Google exige Evidence Density. Se o briefing forneceu links externos (URLs), você DEVE usá-los envelopados na tag <a href="..." target="_blank">. 
-17) CITAÇÕES DE AUTORIDADE (EXCEÇÃO CONTROLADA): Se você NÃO recebeu URLs no briefing, você está autorizado a citar nominalmente grandes instituições de pesquisa (OCDE, PISA, IBGE, INEP, MEC) para embasar seus argumentos textuais, MAS NÃO CRIE LINKS INVENTADOS para elas. Apenas cite o dado ou o nome do instituto no texto puro.
-18) VETO AO LAZY LINKING E HOMEPAGES: Nunca faça link para "mec.gov.br" ou "porvir.org" soltos. O link deve ser um caminho completo para um artigo ou pesquisa específica.
-19) PROIBIÇÃO DE MATEMÁTICA FANTASMA: Se for citar um dado estatístico (%), certifique-se de que é um dado de mercado amplamente aceito ou fornecido no contexto. Na dúvida, prefira argumentação qualitativa (ex: "reduz significativamente" em vez de "reduz 43%").
-20) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO - CRÍTICO): Preste muita atenção ao bloco "ARTIGOS INTERNOS DISPONÍVEIS" no final do prompt. 
-- Se houver artigos listados lá, é OBRIGATÓRIO que você crie UMA tag <a href="[URL_DO_ARTIGO]"> ancorada em um jargão ou palavra-chave no meio de um dos seus parágrafos.
-- Adapte a sua frase para que o tema do artigo interno faça sentido no contexto. 
-- O texto âncora deve ser natural (Proibido: "leia mais aqui").
+16) PROTOCOLO DE RASTREABILIDADE (DEEP LINKS OBRIGATÓRIOS): É OBRIGATÓRIO incluir pelo menos 2 a 3 links externos (<a href="..." target="_blank">) ancorando afirmações ou dados extraídos do briefing. 
+17) VETO AO LAZY LINKING: É ESTRITAMENTE PROIBIDO linkar para homepages genéricas (ex: "onu.org", "ibge.gov.br"). Todo link DEVE ser um DEEP LINK (URL completa e específica que leva direto à página do estudo/artigo citado, contendo slugs visíveis).
+18) FONTES NEUTRAS E DEEP LINKING: Todo link externo (<a href="..." target="_blank">) deve ser um DEEP LINK apontando para órgãos oficiais (MEC, OCDE) ou portais de notícias sérios. Jamais linke para homepages genéricas (ex: "onu.org") ou blogs de concorrentes.
+19) TOLERÂNCIA ZERO PARA INSTITUIÇÕES SEM LINK (ANTI-ALUCINAÇÃO): É ESTRITAMENTE PROIBIDO citar o nome de qualquer instituição, instituto de pesquisa, associação, estudo ou dado numérico (ex: UNESCO, IBGE, PISA, "segundo pesquisa") se você não tiver a URL exata fornecida no briefing para criar a tag <a href="...">. 
+- Se você não recebeu a URL real no briefing, VOCÊ ESTÁ PROIBIDO de escrever o nome da instituição. Substitua por argumentação puramente conceitual (ex: em vez de "Segundo a UNESCO...", use "Evidências pedagógicas demonstram...").
+- A única exceção são os dados institucionais da própria Marca Alvo, que não precisam de link externo.
+20) PROIBIÇÃO DE MATEMÁTICA FANTASMA: Não invente porcentagens (ex: 30%, 45%), frações ou estatísticas exatas que não existam no texto de apoio.
+21) LINKAGEM INTERNA CONTEXTUAL (OBRIGAÇÃO CRÍTICA E ANTI-ALUCINAÇÃO): Você receberá uma lista de "ARTIGOS INTERNOS DISPONÍVEIS". É ESTRITAMENTE OBRIGATÓRIO escolher 1 artigo dessa lista e criar um link para ele ancorado de forma NATURAL no meio de um raciocínio.
+- EXEMPLO OBRIGATÓRIO DE APLICAÇÃO: "...este é um desafio comum, semelhante ao que ocorre na <a href='[URL_EXATA_FORNECIDA]'>implementação de metodologias ágeis</a>, exigindo planejamento..."
+- VETO AO "LEIA TAMBÉM": É ESTRITAMENTE PROIBIDO criar blocos isolados como "Leia também:" ou "Confira aqui:". O link deve obrigatoriamente fluir escondido nas palavras do texto.
+- VETO DE ALUCINAÇÃO (CRÍTICO): Se a lista de Artigos Internos no final do briefing estiver vazia ou indicar um erro de conexão, VOCÊ ESTÁ PROIBIDO DE INVENTAR URLs. Nesse caso (e apenas nesse caso), você está liberado desta regra. Nunca crie um link fictício para o blog da marca.
 
 ESTRATÉGIA EDITORIAL, NARRATIVA E VOZ:
 22) DIRECIONAMENTO ESTRATÉGICO DO ESPECIALISTA (BÚSSOLA DO ARTIGO): O usuário pode fornecer um bloco de "Conteúdo Adicional" contendo teorias, autores, insumos próprios ou links. Você não precisa fazer um "copia e cola" literal e engessado, mas DEVE usar esses elementos como a base principal da sua argumentação. Use seu conhecimento interno para expandir as teorias ou autores citados, aprofunde os conceitos sugeridos e costure essas referências de forma fluida e inteligente para enriquecer o texto.
