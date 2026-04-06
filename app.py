@@ -1325,10 +1325,11 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 - OBRIGAÇÃO CONDICIONAL: SE o briefing fornecer URLs válidas, você DEVE incluir de 1 a 3 links externos ancorando afirmações.
 - GATILHO ANTI-ALUCINAÇÃO: SE os blocos de apoio NÃO contiverem URLs válidas, VOCÊ ESTÁ PROIBIDO DE INVENTAR LINKS. Neste caso, escreva o artigo sem links externos, focando apenas na força da argumentação conceitual.
 
-17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos tanto fontes institucionais (MEC, OCDE) quanto portais jornalísticos sérios e publicações da grande mídia (ex: G1, Porvir, Estadão). Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: "g1.globo.com" solto). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
+17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos publicações jornalísticas e acadêmicas de todos os tipos. Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: a página inicial de um jornal ou de um ministério). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
 
-18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E ALUCINAÇÃO (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de instituições (UNESCO, PISA, IBGE, INEP) ou usar dados matemáticos exatos (como "aumentou 35%", "9 em cada 10") se você não puder ancorar essa citação numa tag <a href> com uma URL REAL fornecida no briefing.
-- Não existe autoridade sem comprovação. Se não tiver a URL, não cite a estatística nem o instituto. Substitua por percepções empíricas qualitativas (ex: "reduz significativamente").
+18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E ALUCINAÇÃO (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de QUALQUER instituição, instituto de pesquisa, associação, estudo governamental ou ONG se você não puder ancorar essa citação numa tag <a href> com uma URL REAL fornecida no briefing.
+- Não existe autoridade sem comprovação. Se não tiver a URL fornecida, NÃO CITE O NOME DA INSTITUIÇÃO, do estudo ou da pesquisa. Substitua a menção nominal por percepções empíricas qualitativas universais.
+- A regra de alucinação também vale para números: nunca invente estatísticas.
 - Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
 
 19) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): No final deste prompt, você receberá a lista "ARTIGOS INTERNOS DISPONÍVEIS". 
@@ -1350,6 +1351,20 @@ Inclua pelo menos um momento do texto onde uma crença comum do setor é questio
 Sempre que apresentar um benefício ou prática, explique rapidamente o mecanismo por trás.
 29) MICRO-SÍNTESE:
 Após alguns blocos analíticos, inclua uma frase curta que consolide a ideia.
+
+[INSTRUÇÃO DE PROCESSAMENTO OBRIGATÓRIA - EXECUÇÃO CRÍTICA]
+Para garantir que as regras de linkagem (E-E-A-T) sejam cumpridas sem alucinações, você DEVE, antes de gerar o artigo, criar um bloco <thought_process> (não será lido pelo usuário) contendo o seu planejamento.
+Formato obrigatório:
+<thought_process>
+1. Link interno RAG escolhido: [Escreva aqui a URL exata do bloco ARTIGOS INTERNOS DISPONÍVEIS] (Ancorado na frase: "...")
+2. Links externos do briefing que vou usar: [Escreva as URLs exatas, se houver]
+3. Confirmo a regra de segurança: Se não há URLs disponíveis no briefing, não citarei nominalmente NENHUMA instituição de pesquisa e não inventarei números.
+4. Marca alvo mapeada para linkagem de Estudo de Caso.
+</thought_process>
+
+Após fechar a tag </thought_process>, inicie imediatamente o código HTML do artigo com a tag <h1>. 
+Lembre-se: Você é OBRIGADO a incluir os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>`. Abaixo de Perguntas Frequentes, crie 3 perguntas com <h3> e respostas em <p>.
+Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-avaliações ou comentários finais.
 """
 
     user_2 = f"""
@@ -1413,6 +1428,8 @@ Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA ger
 """
     artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
+    artigo_html = re.sub(r'<thought_process>.*?</thought_process>', '', artigo_html, flags=re.DOTALL).strip()
+
     
     # GUILHOTINA PYTHON: Corta qualquer "auto-avaliação" da IA que venha depois do fechamento do HTML
     if '<' in artigo_html and '>' in artigo_html:
