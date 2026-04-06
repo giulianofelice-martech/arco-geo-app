@@ -1358,7 +1358,7 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 - Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
 
 19) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): No final deste prompt, você receberá a lista "ARTIGOS INTERNOS DISPONÍVEIS". 
-- REGRA DE OURO: Você DEVE escolher 1 artigo dessa lista e inserir o link HTML (<a href="[URL_DO_ARTIGO]">) de forma perfeitamente fluida no meio de um parágrafo do seu texto. 
+- REGRA DE OURO: Você DEVE, OBRIGATORIAMENTE, escolher NO MÍNIMO 2 e NO MÁXIMO 4 artigos dessa lista e inserir o link HTML (<a href="[URL_DO_ARTIGO]">) de forma perfeitamente fluida no meio de um parágrafo do seu texto. 
 - Adapte a narrativa do texto para que o jargão do link faça sentido. NUNCA use expressões como "Leia também".
 - VETO DE ALUCINAÇÃO INTERNA: Se a lista "ARTIGOS INTERNOS DISPONÍVEIS" estiver vazia, disser "Erro" ou "Nenhum artigo", IGNORE ESTA REGRA. Nunca invente uma URL para o blog da marca.
 
