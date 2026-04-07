@@ -696,12 +696,18 @@ def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
 def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
     if not (d_url and d_user and d_pwd): return "Sem credenciais Drupal."
     import base64
+    import urllib.parse
+    
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 
         'Accept': 'application/vnd.api+json', 
         'Authorization': f'Basic {token_auth}'
     }
+    
+    # Extrai a base do site (Ex: https://www.saseducacao.com.br)
+    parsed_url = urllib.parse.urlparse(d_url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
     
     # TENTATIVA 1: Busca pelo Título
     filtro = f"?filter[title-filter][condition][path]=title&filter[title-filter][condition][operator]=CONTAINS&filter[title-filter][condition][value]={urllib.parse.quote(palavra_chave)}&page[limit]=6"
@@ -729,8 +735,15 @@ def buscar_artigos_relacionados_drupal(palavra_chave, d_url, d_user, d_pwd):
             titulo = attrs.get('title', '')
             
             path_data = attrs.get('path') or {}
-            link = path_data.get('alias', '') if isinstance(path_data, dict) else ""
+            alias = path_data.get('alias', '') if isinstance(path_data, dict) else ""
             
+            # O PULO DO GATO: Força a URL a ser absoluta
+            if alias and not alias.startswith('http'):
+                # Garante que não teremos barras duplas na junção
+                link = f"{base_url}/{alias.lstrip('/')}"
+            else:
+                link = alias
+                
             ctx += f"- Título: {titulo}\n  URL: {link}\n"
         return ctx
         
