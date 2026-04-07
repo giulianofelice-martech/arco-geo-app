@@ -179,37 +179,42 @@ st.markdown("""
     }
     .pipeline-step:hover { color: #F05D23; }
 
-    /* BOTÃO FLUTUANTE DE AJUDA (DIREITA) */
-    .floating-help-container {
+    /* CONTAINER FLUTUANTE ÚNICO (LADO ESQUERDO) */
+    .floating-controls-container {
         position: fixed;
-        bottom: 40px;
-        right: 40px;
+        top: 110px; /* Ajuste para descer ou subir no eixo Y */
+        left: 25px;
         z-index: 99999;
+        display: flex;
+        gap: 10px;
     }
-    div[data-testid="stPopover"] > button {
+
+    /* Botão de Ajuda (Vermelho) */
+    div[data-testid="stPopover"]:first-child > button {
         background-color: #E21B22 !important;
         color: white !important;
-        border-radius: 50% !important;
-        width: 65px !important;
-        height: 65px !important;
+        border-radius: 12px !important; /* Estilo mais moderno/quadrado suave */
+        width: 50px !important;
+        height: 50px !important;
         border: none !important;
-        box-shadow: 0 10px 15px -3px rgba(226, 27, 34, 0.4) !important;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: transform 0.2s;
-        padding: 0 !important;
-        margin: 0 !important;
+        box-shadow: 0 4px 12px rgba(226, 27, 34, 0.3) !important;
     }
-    div[data-testid="stPopover"] > button:hover {
-        transform: scale(1.1);
-        background-color: #C0141A !important;
+
+    /* Botão de Pautas (Laranja) - Usando seletor de irmão */
+    div[data-testid="stPopover"]:nth-child(2) > button {
+        background-color: #F05D23 !important;
+        color: white !important;
+        border-radius: 12px !important;
+        width: 50px !important;
+        height: 50px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(240, 93, 35, 0.3) !important;
     }
-    div[data-testid="stPopover"] > button p {
-        font-size: 28px !important;
+
+    div[data-testid="stPopover"] button p {
+        font-size: 22px !important;
         font-weight: bold;
         margin: 0 !important;
-        color: white !important;
     }
     /* Remove as bordas e fundos dos botões do menu */
     div[data-testid="stButton"] > button[kind="secondary"] {
@@ -258,7 +263,7 @@ st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True
 # ==========================================
 # BOTÃO FLUTUANTE DE AJUDA (ESQUERDA)
 # ==========================================
-st.markdown('<div class="floating-help-container">', unsafe_allow_html=True)
+st.markdown('<div class="floating-controls-container">', unsafe_allow_html=True)
 with st.popover("?"):
     st.header("📖 Guia Prático do Motor")
     st.markdown("Bem-vindo à v7.0. Este motor funciona como sua **equipe particular de especialistas**. Ele espiona a concorrência, entende as regras do Google e das IAs, e escreve conteúdos usando a voz exata da sua marca.")
@@ -297,7 +302,74 @@ with st.popover("?"):
         * **Retrieval Simulation:** É a chance de uma IA escolher o seu texto como fonte oficial para responder a um usuário.
         * **Risco de Hijacking:** Mede o risco de um concorrente "roubar" o seu clique por ter explicado o assunto de forma mais direta e didática que você.
         """)
-st.markdown('</div>', unsafe_allow_html=True)
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_trending_topics_educacao():
+    """Busca pautas em múltiplas fontes simultaneamente de forma rápida"""
+    fontes_rss = [
+        "https://news.google.com/rss/search?q=MEC+OR+ENEM+OR+escolas&hl=pt-BR&gl=BR&ceid=BR:pt-419", 
+        "https://news.google.com/rss/search?q=edtech+OR+gestão+escolar+OR+inadimplência+escolar&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "https://g1.globo.com/rss/g1/educacao/" 
+    ]
+    
+    def extrair_noticia(url):
+        try:
+            import feedparser
+            feed = feedparser.parse(url)
+            if feed.entries:
+                entry = feed.entries[0]
+                titulo_limpo = entry.title.split(' - ')[0].strip()
+                titulo_curto = titulo_limpo[:55] + "..." if len(titulo_limpo) > 55 else titulo_limpo
+                # Agora retorna uma tupla: (Título, Link)
+                return (titulo_curto, entry.link)
+        except Exception:
+            return None
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        resultados = list(executor.map(extrair_noticia, fontes_rss))
+        
+    # Usamos set() para remover duplicatas baseadas na tupla inteira
+    pautas_coletadas = list(set([res for res in resultados if res]))
+    
+    # Adicionamos um link vazio nas de fallback
+    pautas_fallback = [
+        ("Inovação tecnológica na gestão escolar", ""), 
+        ("Uso de IA no dia a dia da sala de aula", ""), 
+        ("Estratégias para retenção de alunos", "")
+    ]
+    
+    return (pautas_coletadas + pautas_fallback)[:3]
+        
+# 2. O botão de Pautas (🔥) agora SÓ aparece se o formulário estiver aberto
+if st.session_state.get('show_inputs', False) and st.session_state.get('current_page') == "Gerador de Artigos":
+    with st.popover("🔥"):
+        st.markdown("### 🔥 Pautas em Alta")
+        st.caption("Tendências detectadas via Google News e MEC agora:")
+        
+        # Chama a função que agora retorna (Titulo, Link)
+        pautas_quentes = buscar_trending_topics_educacao()
+        
+        for pauta, link in pautas_quentes:
+            col_btn, col_link = st.columns([8, 2])
+            
+            with col_btn:
+                # O botão continua preenchendo o input lá embaixo
+                if st.button(f"{pauta}", use_container_width=True, key=f"trend_{pauta}"):
+                    st.session_state['pauta_sugerida'] = pauta
+                    st.rerun()
+                    
+            with col_link:
+                # Se houver um link real, mostra o botão de abrir aba
+                if link:
+                    st.markdown(
+                        f"""<a href="{link}" target="_blank" title="Ler notícia original" 
+                        style="display: flex; align-items: center; justify-content: center; 
+                        height: 100%; text-decoration: none; font-size: 1.2rem; 
+                        background-color: #F3F4F6; border-radius: 8px;">🔗</a>""", 
+                        unsafe_allow_html=True
+                    )
+
 
 # Armazenando o HTML do pipeline para usar depois
 pipeline_html = """
@@ -325,12 +397,17 @@ class MetadadosArtigo(BaseModel):
     @field_validator('title', mode='before')
     @classmethod
     def ajustar_tamanho_titulo(cls, v: str) -> str:
-        return v
-
+        # NOVA REGRA: Arranca anos (ex: 2024, 2025, 2026, etc) do título
+        v_limpo = re.sub(r'\b202[4-9]\b', '', v)
+        # Limpa hifens, dois pontos ou espaços que sobrarem soltos no final
+        v_limpo = re.sub(r'[-\s:]+$', '', v_limpo).strip()
+        return v_limpo
+        
     @field_validator('meta_description', mode='before')
     @classmethod
     def ajustar_tamanho_meta(cls, v: str) -> str:
         return v[:147] + "..." if len(v) > 150 else v
+
 
 # ==========================================
 # 2. BRANDBOOK EMBUTIDO 
@@ -364,7 +441,7 @@ if 'brandbook_df' not in st.session_state:
             "Territorios": "Vestibulares, Esportes, Gestão escolar, Crescimento",
             "TomDeVoz": "Consultivo, parceiro, dinâmico. Viva, ponta firme, sagaz, aberta, contemporânea",
             "PublicoAlvo": "Mantenedores e Gestores. Coordenadores pedagógicos.",
-            "RegrasNegativas": "Não focar discurso apenas no aluno, não usar jargões sem explicação.",
+            "RegrasNegativas": "Jamais foque o discurso em 'desempenho agregado de escola', o foco principal do benefício deve ser sempre o Aluno. Nunca repita exaustivamente 'O Laboratório de Redação COC', abrevie ou omita o 'COC' após a primeira menção. Nunca use 'plataforma educacional', prefira chamá-la de 'ferramenta'.",
             "RegrasPositivas": "Destaque os diferenciais: - Mais de 60 anos, - Melhor consultoria do Brasil 2x premiada no Top Educação. Propósito: Impulsionar escolas rumo a uma educação contemporânea de excelência."
         },
         {
@@ -554,6 +631,7 @@ def obter_credenciais_cms(marca):
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
+   
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY:
@@ -620,6 +698,37 @@ def chamar_llm(system_prompt, user_prompt, model, temperature=0.3, response_form
         kwargs["response_format"] = response_format
     response = client.chat.completions.create(**kwargs)
     return response.choices[0].message.content
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_fontes_autoridade(palavra_chave):
+    """Busca links de alta autoridade (gov, pesquisas) para Deep Links seguros."""
+    if not SERPAPI_KEY:
+        return "Sem chave Serper configurada."
+    url = "https://google.serper.dev/search"
+    # Query focada em dados neutros para evitar blogs de concorrentes
+    query = f"{palavra_chave} (dados OR estatística OR MEC OR INEP OR pesquisa OR IBGE)"
+    payload = json.dumps({"q": query, "gl": "br", "hl": "pt-br", "num": 5})
+    headers = {'X-API-KEY': SERPAPI_KEY, 'Content-Type': 'application/json'}
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload)
+        dados = response.json()
+        fontes = "🔗 FONTES DE AUTORIDADE EXTERNAS ENCONTRADAS (USE COMO DEEP LINKS SEGUROS):\n"
+        if "organic" in dados:
+            for idx, res in enumerate(dados["organic"]):
+                titulo = res.get('title', 'Sem Título')
+                link = res.get('link', '')
+                snippet = res.get('snippet', 'Sem resumo')
+                
+                # LISTA DE RIVAIS EXTERNOS (Removido saseducacao, geekie e outras da Arco)
+                rivals_externos = ['poliedro', 'anglo', 'bernoulli', 'objetivo', 'eleva', 'fariasbrito', 'aridesa', 'fibonacci']
+                
+                if any(rival in link.lower() for rival in rivals_externos):
+                    continue
+                    
+                fontes += f"- FONTE {idx+1}: {titulo}\n  URL EXATA: {link}\n  CONTEXTO: {snippet}\n\n"
+        return fontes
+    except Exception as e:
+        return f"Erro ao buscar fontes externas: {e}"
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_baseline_llm(palavra_chave):
@@ -1032,7 +1141,7 @@ def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
     {html_atual}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.3, response_format={"type": "json_object"})
 
 # ==========================================================
 # NOVAS MÉTRICAS MATEMÁTICAS RAG / GEO (V7.0)
@@ -1170,12 +1279,79 @@ def refinar_artigo_html(html_atual, instrucoes):
     """
     user = f"INSTRUÇÃO DE ALTERAÇÃO:\n{instrucoes}\n\nARTIGO ORIGINAL (HTML):\n{html_atual}"
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.2)
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.2)
 
+import os
+import unicodedata
+
+def slugify(text):
+    """Transforma 'SAS Educação' em 'sas_educacao' para achar a pasta correta."""
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
+    return text.lower().replace(' ', '_').replace('-', '_')
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def ler_referencias_locais(marca_nome):
+    slug = slugify(marca_nome)
+    caminho_pasta = os.path.join("referencias_tom", slug)
+    
+    if not os.path.exists(caminho_pasta):
+        return ""
+        
+    texto_extraido = ""
+    try:
+        for nome_arquivo in os.listdir(caminho_pasta):
+            caminho_arquivo = os.path.join(caminho_pasta, nome_arquivo)
+            if os.path.isfile(caminho_arquivo):
+                if nome_arquivo.lower().endswith('.txt'):
+                    with open(caminho_arquivo, 'r', encoding='utf-8') as f:
+                        texto_extraido += f"\n--- {nome_arquivo} ---\n{f.read()[:3000]}\n"
+                elif nome_arquivo.lower().endswith('.pdf'):
+                    import PyPDF2
+                    with open(caminho_arquivo, 'rb') as f:
+                        leitor = PyPDF2.PdfReader(f)
+                        texto_pdf = ""
+                        for pagina in leitor.pages[:5]: # Lê até 5 páginas para não estourar tokens
+                            texto_pdf += pagina.extract_text() + "\n"
+                        texto_extraido += f"\n--- {nome_arquivo} ---\n{texto_pdf[:3000]}\n"
+                elif nome_arquivo.lower().endswith('.docx'):
+                    import docx
+                    doc = docx.Document(caminho_arquivo)
+                    texto_docx = "\n".join([p.text for p in doc.paragraphs])
+                    texto_extraido += f"\n--- {nome_arquivo} ---\n{texto_docx[:3000]}\n"
+    except Exception as e:
+        print(f"Erro ao ler referencias de {marca_nome}: {e}")
+        
+    return texto_extraido
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def sintetizar_voz_gemini(brandbook_texto, conteudos_referencia):
+    """Agente 1: Analisa os documentos e cria um Blueprint de Tom de Voz."""
+    if not conteudos_referencia or len(conteudos_referencia.strip()) < 50:
+        return f"Siga o Brandbook original:\n{brandbook_texto}"
+
+    system = """
+    Você é um Analista Chefe de Copywriting. Sua missão é ler um Brandbook oficial e cruzar com exemplos reais de textos já publicados pela marca.
+    Extraia um "Manual de Clonagem de Voz" cirúrgico contendo:
+    1. Comprimento médio das frases (curtas/rápidas ou longas/acadêmicas).
+    2. Nível de formalidade e jargões favoritos usados nos textos.
+    3. Como a marca faz transições.
+    4. O que a marca NUNCA faz (baseado na ausência de padrões).
+    
+    Devolva um guia estrito de instruções (máximo 400 palavras) para guiar o Redator (Claude).
+    """
+    
+    user = f"DIRETRIZES DO BRANDBOOK:\n{brandbook_texto}\n\nTEXTOS DE REFERÊNCIA (Aprenda com eles):\n{conteudos_referencia}"
+    
+    try:
+        # Usa o Gemini 2.5 Pro via OpenRouter
+        return chamar_llm(system, user, model="google/gemini-2.5-pro", temperature=0.2)
+    except Exception as e:
+        return f"Erro no Agente Gemini: {e} - Siga o brandbook: {brandbook_texto}"
+        
 # ==========================================
 # 4. MOTOR PRINCIPAL (COM AS TRAVAS E INCREMENTOS)
 # ==========================================
-def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None):
+def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_adicional="", conteudo_proprietario="", modo_humanizado=False, especialista_nome=None, instrucao_livre=""):
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca_alvo].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
@@ -1185,18 +1361,27 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
     # ROTEADOR DE CMS AQUI
     cms_url, cms_user, cms_pwd, cms_type = obter_credenciais_cms(marca_alvo)
 
-    st.write(f"🕵️‍♂️ Fase 0: Buscando Google (Serper + Jina), IAs e RAG Reverso ({cms_type.upper()})...")
+    st.write(f"🕵️‍♂️ Fase 0: Buscando Google, IAs e ativando Agente Gemini...")
     
-    # EXTRAI O ESTILO DO ESPECIALISTA SE ELE FOI SELECIONADO
+    # Prepara os dados pro Gemini
+    brandbook_txt = f"Tom de Voz: {marca_info['TomDeVoz']} | Regras: {marca_info.get('RegrasPositivas', '')} | Proibido: {marca_info['RegrasNegativas']}"
+    referencias_locais = ler_referencias_locais(marca_alvo)
+    
+    # Busca os dados do especialista (Ghostwriting)
     contexto_ghostwriting = ""
     if especialista_nome:
-        st.write(f"👔 Lendo artigos do autor: {especialista_nome}...")
         contexto_ghostwriting = buscar_estilo_especialista(especialista_nome, st.session_state['especialistas_df'])
         
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futuro_google = executor.submit(buscar_contexto_google, palavra_chave)
+        futuro_fontes = executor.submit(buscar_fontes_autoridade, palavra_chave) 
         futuro_ia = executor.submit(buscar_baseline_llm, palavra_chave)
         futuro_reverse = executor.submit(gerar_reverse_queries, palavra_chave)
+        
+        # AGENTE GEMINI ENTRA AQUI
+        futuro_gemini = executor.submit(sintetizar_voz_gemini, brandbook_txt, referencias_locais)
+        
+        # ... rotas wp/drupal mantidas iguais ...
         
         # O script decide qual CMS atacar
         if cms_type == "drupal":
@@ -1209,6 +1394,10 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         except concurrent.futures.TimeoutError:
             contexto_google = "Aviso: A busca orgânica demorou muito. Conteúdo ignorado para manter a velocidade."
         try:
+            fontes_externas = futuro_fontes.result(timeout=45) 
+        except:
+            fontes_externas = "Aviso: Sem fontes externas adicionais."
+        try:
             baseline_ia = futuro_ia.result(timeout=60) # Aumentado
         except concurrent.futures.TimeoutError:
             baseline_ia = "Aviso: O motor de Baseline demorou muito a responder. Ignorado."
@@ -1217,9 +1406,14 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         except:
             reverse_queries = "{}"
         try:
+            manual_voz_gemini = futuro_gemini.result(timeout=40)
+        except concurrent.futures.TimeoutError:
+            manual_voz_gemini = f"Timeout Gemini. Use Brandbook: {brandbook_txt}"    
+        try:
             contexto_wp = futuro_wp_rag.result(timeout=25) # Aumentado para dar tempo do Firewall do WP responder
         except:
             contexto_wp = "Erro de timeout ao buscar links internos."
+        
 
     st.write("🔍 Fase 0.5: Analisando Entity Gap e Oportunidades Semânticas...")
     entity_gap = analisar_entity_gap(contexto_google, palavra_chave)
@@ -1243,7 +1437,9 @@ REGRAS-MESTRAS (obrigatórias):
 ENTREGÁVEIS DO BRIEFING:
 A) ÂNGULO NARRATIVO ÚNICO: escolha 1 (ex.: Quebra de Mito; Guia Tático; Análise de Tendência; Framework Operacional). Justifique em 2-3 linhas focado NAS DORES do público-alvo informado.
 B) ESTRUTURA ANTI-FÓRMULA (H2): proponha 4 H2 provocativos, específicos e complementares (sem “O que é”, “Benefícios”, “Conclusão”).
-C) MAPA DE EVIDÊNCIAS E DEEP LINKS (SEM LIMITES): Vasculhe o contexto orgânico e resgate o MÁXIMO possível de DEEP LINKS REAIS relevantes (idealmente entre 4 a 8). ATENÇÃO ESPECIAL: Se houver menção a leis (ex: LDB, Novo Ensino Médio), órgãos governamentais (MEC) ou metodologias educacionais no contexto, você DEVE extrair a URL de referência deles. REGRA CRÍTICA: É ESTRITAMENTE PROIBIDO usar links de blogs...
+C) MAPA DE EVIDÊNCIAS E DEEP LINKS: Vasculhe o contexto orgânico e resgate o MÁXIMO possível de DEEP LINKS. REGRA DE OURO (ANTI-ALUCINAÇÃO): É ESTRITAMENTE PROIBIDO inventar, deduzir ou construir URLs falsas. Você SÓ PODE extrair e recomendar links que já existem LITERALMENTE no texto do contexto bruto. Se não houver URL lá, não recomende nenhuma.
+REGRA CRÍTICA E VETO DE CONCORRÊNCIA: É ESTRITAMENTE PROIBIDO extrair ou sugerir links de domínios de sistemas de ensino concorrentes (ex: Poliedro, Anglo, Bernoulli, SAS, Objetivo, Farias Brito, Ari de Sá, Eleva) ou de sites de outras escolas particulares. 
+FILTRO ANTI-PUBLIEDITORIAL: Analise a URL antes de sugeri-la. Se a URL contiver termos como "especial-publicitario", "patrocinado", "publieditorial" ou "branded-content" (como o link do G1 que você vê no contexto), É PROIBIDO USÁ-LA. Só extraia links de jornais neutros, pesquisas, MEC, INEP ou portais governamentais.
 E) ENTITY AUTHORITY GRAPH: Liste pelo menos 6 entidades institucionais relevantes para o tema para reforçar autoridade semântica.
 F) GATILHO DE MARCA (SEM ALUCINAÇÃO): descreva como a marca aparecerá no terço final como um “Estudo de Caso Prático”. FOQUE APENAS na solução específica (o que a plataforma faz/metodologia). É EXPRESSAMENTE PROIBIDO inventar números de clientes (ex: "um grupo de 5 escolas"), inventar taxas de conversão ou cenários fictícios de antes/depois.
 G) MAPA DE CONCRETUDE (PROVAS E BENCHMARKS): Vasculhe o contexto em busca de dados REAIS, números absolutos, benchmarks e comparações tangíveis. Se o contexto mencionar um "mini-caso" (ex: "escola em SP aumentou retenção em 18%"), extraia isso para o Redator usar como micro-história. Nada de conceitos abstratos.
@@ -1258,7 +1454,8 @@ CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido."}
 
 Contexto extraído do Google (Serper + Jina):
-{contexto_google}
+Contexto Google: {contexto_google}
+DEEP LINKS DE AUTORIDADE: {fontes_externas}
 
 Baseline de IAs (consenso atual):
 {baseline_ia}
@@ -1279,7 +1476,7 @@ Instruções:
 
     analise = chamar_llm(system_1, user_1, model="openai/gpt-4o", temperature=0.3)
 
-    st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 3.7 Sonnet)...")
+    st.write("✍️ Fase 2: Redigindo em HTML Avançado (Claude 4 Sonnet)...")
 
     if modo_humanizado:
         st.write("✨ Modo Empático ativado: Focando em cadência humana e fluidez...")
@@ -1330,8 +1527,8 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 1.2) Fale DIRETAMENTE com o Público-Alvo definido. Entenda a realidade deles (ex: um gestor busca eficiência; pais buscam segurança).
 1.3) Ritmo, profundidade e elegância. Voz ativa. Evite enchimento.
 2) PROIBIDO usar jargões de IA como: "No cenário atual", "Cada vez mais", "É inegável que", "É importante ressaltar", "Neste artigo veremos", "Em resumo", "Por fim". 
-2.1) VETO DE VOCABULÁRIO IA E CORPORATIVO (BLACKLIST ABSOLUTA): Estão permanentemente banidas do seu vocabulário as expressões: "cenário em transformação", "mundo globalizado", "mundo contemporâneo", "não é apenas X, mas também Y", "verdadeiro divisor de águas", "é fundamental notar", "revolucionar", "gestores visionários", "transformação institucional", "excelência contemporânea", "inovador", "plataformas avançadas", "a revolução da", "excelência", "inovação".
-2.2) CONCRETUDE E MICRO-HISTÓRIAS (SHOW, DON'T TELL): Fuja de abstrações. Traduza conceitos em cenas reais e diretas. 
+2.1) VETO DE VOCABULÁRIO IA E CORPORATIVO (BLACKLIST ABSOLUTA): Estão permanentemente banidas expressões robóticas e advérbios longos: "significativamente", "extremamente", "primeiramente", "foi estruturado para oferecer" (use apenas "oferece"), "tanto X quanto para Y" (use apenas "e"). Banido também: "cenário em transformação", "verdadeiro divisor de águas", "influenciar o desempenho agregado das escolas" (o foco é sempre no ALUNO!).
+2.2) CONCRETUDE OBRIGATÓRIA (ZERO FRASES VAZIAS): É proibido fazer afirmações genéricas (ex: "a redação é decisiva") sem justificá-las com DADOS ou LÓGICA RÁPIDA (ex: "...visto que instituições atribuem peso 2 à nota"). Fuja de abstrações.
 - Exemplo Ruim: "Sistemas de ensino compartilham uma característica: personalização em escala."
 - Exemplo Bom: "Escolas que mais aprovam não ensinam todo mundo igual. Elas identificam onde cada aluno trava antes que o problema vire reprovação." 
 - Exemplo Bom 2: "Hoje, algumas escolas conseguem prever — com semanas de antecedência — quais alunos têm maior risco de baixo desempenho."
@@ -1347,14 +1544,23 @@ MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
 4) LINK OFICIAL DA MARCA (ANTI-SPAM): A marca alvo e sua URL serão enviadas a você no briefing. Você É OBRIGADO a transformar o nome da marca em um hiperlink (<a href="[URL_AQUI]" target="_blank">) APENAS NA PRIMEIRA VEZ que ela aparecer no texto (geralmente no Estudo de Caso). Nas menções seguintes, escreva o nome da marca como texto puro, sem link, para não configurar spam aos olhos do Google.
 
 GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS:
-4) INTRODUÇÃO DIRETA (ANSWER-FIRST INTEGRADO): Logo no primeiro parágrafo, você DEVE explicar o conceito central e entregar a resposta principal em no máximo 4 linhas. Faça isso de forma orgânica e fluida. É ESTRITAMENTE PROIBIDO usar cabeçalhos como 'Resposta rápida para:' ou etiquetas como 'Definição:' e 'Resposta direta:'. Apenas explique o conceito e responda à dor do usuário de uma vez, garantindo que a palavra-chave principal esteja em <strong>negrito</strong>.
-5) RESUMO ESTRATÉGICO: Insira exatamente a linha `<br>Resumo Estratégico<br>` e crie um <ul> com 3 a 5 bullet points centrais e altamente informativos.
+4) INTRODUÇÃO E LINHA FINA: Após o <h1>, crie uma "Linha Fina" (parágrafo curto em <em>) resumindo o artigo. O 1º parágrafo real deve introduzir o problema direto ao ponto, com dados, SEM usar cabeçalhos artificiais como 'Resposta rápida para'.
+4.1) FRAMEWORK DE PRODUTO OBRIGATÓRIO (H2): A estrutura do texto deve seguir EXATAMENTE esta ordem narrativa: 
+- 1. Introdução e Apresentação do Produto/Dor. 
+- 2. Explicação resumida do que é a ferramenta e problema que resolve. 
+- 3. Detalhes de Como Funciona (Jornada). 
+- 4. Vantagens (sempre após o 'Como funciona'). 
+- 5. Exemplos detalhados. 
+- 6. H2 de Encerramento (Ex: "Sobre o [Marca]") com CTA direto para o site.
+5) RESUMO ESTRATÉGICO: Insira a linha `<br>Resumo Estratégico<br>` após a introdução e crie um <ul> rápido.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
-8) MICRO BLOCO DE AUTORIDADE: Inclua: <p><strong>Segundo especialistas:</strong> ...</p> ancorado com dados factuais ou conceitos sólidos.
+8) BLOCO DE AUTORIDADE ORGÂNICO E RASTREÁVEL: É ESTRITAMENTE PROIBIDO usar muletas genéricas de falsa autoridade como "Segundo especialistas", "Estudos apontam" ou "A neurociência diz". 
+- SE HOUVER FONTE PROFUNDA (DEEP LINK): Se o briefing forneceu uma URL ESPECÍFICA de uma matéria ou pesquisa, cite o nome da organização de forma natural e OBRIGATORIAMENTE ancore com o link (ex: "Dados recentes do Inep (<a href='.../pesquisa-exata'>) mostram que..."). 
+- SE NÃO HOUVER FONTE OU FOR GENÉRICA: Se você NÃO recebeu uma URL, ou se recebeu apenas a homepage raiz (ex: www.mec.gov.br), NÃO cite o nome de nenhuma instituição e não invente um "especialista". Simplesmente afirme o conceito técnico de forma direta, assumindo a autoridade da própria marca que está escrevendo.
 
 REGRAS HTML E FORMATAÇÃO VISUAL (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
-10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES (cerca de 6 a 8 palavras) para não ser cortado no Google. Seja criativo, mas extremamente conciso.
+10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES. É ESTRITAMENTE PROIBIDO incluir o ano atual (ex: 2025, 2026) no título H1, mantenha-o atemporal.
 11) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
 12) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
 13) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
@@ -1364,7 +1570,10 @@ Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natu
 14) LISTAS COM CONTEXTO E LIMITE: O texto não pode parecer uma apresentação de slides. Se usar uma lista (respeitando o limite máximo de 3 no texto todo), é obrigatório introduzi-la com contexto e concluí-la com forte interpretação analítica.
 
 REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
-15) VETO TOTAL A RIVAIS E OUTRAS ESCOLAS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil ou no mundo (ex: Balão Vermelho, Anglo, Bernoulli, etc.). Se o contexto do Google trouxer o blog de uma escola, IGNORE-O. A única marca privada do setor educacional que pode ser citada é a Marca Alvo.
+15) VETO TOTAL A RIVAIS, OUTRAS ESCOLAS E PUBLIEDITORIAIS (CRÍTICO): É ESTRITAMENTE PROIBIDO citar o nome ou inserir hiperlinks para QUALQUER outra escola privada, colégio ou sistema de ensino concorrente no Brasil. 
+- NOMES PROIBIDOS: Poliedro, Anglo, Bernoulli, SAS, Objetivo, Farias Brito, Ari de Sá, Eleva, Fibonacci, etc. 
+- VETO DE MÍDIA COMPRADA: Verifique o slug da URL. Se tiver "especial-publicitario", "patrocinado" ou "publi", ignore-o e NÃO USE. 
+A única marca privada do setor educacional que pode ser citada é a [Marca Alvo].
 
 16) PROTOCOLO DE RASTREABILIDADE E EXCEÇÃO DE SEGURANÇA (DEEP LINKS): A autoridade depende de referências reais. Extraia links externos (<a href="..." target="_blank">) EXCLUSIVAMENTE do bloco "O QUE A CONCORRÊNCIA DIZ HOJE" ou do "CONTEÚDO ADICIONAL".
 - OBRIGAÇÃO CONDICIONAL: Você NÃO TEM LIMITE de links. Pelo contrário, use uma rica mistura de referências. SE o briefing fornecer URLs válidas, você DEVE espalhar de 4 a 8 links externos (ou mais) pelo texto ancorando afirmações, dados, metodologias e leis.
@@ -1372,10 +1581,12 @@ REGRAS DE LINKAGEM, FONTES E VETOS (E-E-A-T):
 
 17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos publicações jornalísticas e acadêmicas de todos os tipos. Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: a página inicial de um jornal ou de um ministério). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
 
-18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E ALUCINAÇÃO (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de QUALQUER instituição, instituto de pesquisa, associação, estudo governamental ou ONG se você não puder ancorar essa citação numa tag <a href> com uma URL REAL fornecida no briefing.
-- Não existe autoridade sem comprovação. Se não tiver a URL fornecida, NÃO CITE O NOME DA INSTITUIÇÃO, do estudo ou da pesquisa. Substitua a menção nominal por percepções empíricas qualitativas universais.
+18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E URLs ALUCINADAS (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de QUALQUER instituição, instituto de pesquisa, associação, estudo governamental ou ONG se você não puder ancorar essa citação numa tag <a href> com uma URL REAL e ESPECÍFICA fornecida no briefing.
+- TRAVA DE "COPIAR E COLAR": Você só pode usar uma tag <a href="..."> se estiver copiando a URL EXATA fornecida no briefing. É terminantemente proibido inventar, "montar", deduzir ou adivinhar caminhos de URL (ex: criar "/pesquisa-2024/" após um domínio verdadeiro) só para fingir que é um deep link.
+- Não existe autoridade sem comprovação. Se não tiver a URL completa fornecida, NÃO CITE O NOME DA INSTITUIÇÃO, do estudo ou da pesquisa. Substitua a menção nominal por percepções empíricas qualitativas universais e não coloque link.
 - A regra de alucinação também vale para números: nunca invente estatísticas.
 - Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
+- ATENÇÃO: NENHUMA instituição tem "passe livre". Se você escrever a frase "<p><strong>Segundo especialistas:</strong> O Ministério da Educação...", você É OBRIGADO a envelopar "Ministério da Educação" com a tag <a href="..."> apontando para a URL real do MEC extraída do briefing. Se o GPT-4o não te deu a URL exata, APAGUE A REFERÊNCIA IMEDIATAMENTE e mude a frase para uma afirmação universal sua.
 
 19) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): No final deste prompt, você receberá a lista "ARTIGOS INTERNOS DISPONÍVEIS". 
 - REGRA DE OURO: Você DEVE, OBRIGATORIAMENTE, escolher NO MÍNIMO 2 e NO MÁXIMO 4 artigos dessa lista e inserir o link HTML (<a href="[URL_DO_ARTIGO]">) de forma perfeitamente fluida no meio de um parágrafo do seu texto. 
@@ -1411,12 +1622,33 @@ Após fechar a tag </thought_process>, inicie imediatamente o código HTML do ar
 Lembre-se: Você é OBRIGADO a incluir os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>`. Abaixo de Perguntas Frequentes, crie 3 perguntas com <h3> e respostas em <p>.
 Pare de escrever IMEDIATAMENTE após fechar a última tag HTML. NUNCA gere auto-avaliações ou comentários finais.
 """
+# === LÓGICA DO PROMPT LIVRE ===
+    bloco_instrucao_livre = ""
+    if instrucao_livre and instrucao_livre.strip():
+        bloco_instrucao_livre = f"""
+
+INSTRUCAO DIRETA DO USUARIO (PRIORIDADE MAXIMA)
+O usuario solicitou o seguinte formato, estrutura e conteudo:
+"{instrucao_livre}"
+
+REGRA DE SOBRESCRICAO: Voce DEVE obedecer estritamente aos topicos, perguntas (H2) e ao formato solicitados acima. Esta instrucao substitui qualquer regra de estrutura do briefing anterior. 
+No entanto, voce DEVE manter: 
+1. A formatacao em HTML puro.
+2. O Tom de Voz da marca.
+3. A regra de nao alucinar dados sem link.
+
+"""
 
     user_2 = f"""
+{bloco_instrucao_livre}
+
 Palavra-chave ou Consulta: '{palavra_chave}'
 
-CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência.
-    
+DEEP LINKS EXTERNOS (FONTES REAIS):
+{fontes_externas}
+
+CONTEXTO TEMPORAL: Ano de {ano_atual}. Não projete o futuro sem evidência. NUNCA insira o ano no título principal (H1) ou no texto a menos que seja um dado histórico.
+
 CONTEÚDO ADICIONAL DO ESPECIALISTA (DIRECIONAMENTO HUMANO OBRIGATÓRIO):
 {conteudo_adicional if conteudo_adicional else "Nenhum conteúdo extra fornecido. Siga apenas o briefing."}
 
@@ -1432,11 +1664,14 @@ SEU BRIEFING (siga à risca o ângulo e integre o Entity Authority Graph):
 
 DIRECIONAMENTO DE COPYWRITING E MARCA:
 - Público-Alvo Deste Texto (Foque toda a narrativa neles): {publico_alvo}
-- Tom de Voz Exigido: {marca_info['TomDeVoz']}
 - Marca Alvo: {marca_alvo}
 - URL da Marca: {url_marca} (OBRIGATÓRIO: Linkar a marca para esta URL sempre que citada).
 - Posicionamento: {marca_info['Posicionamento']}
 - Territórios: {marca_info['Territorios']}
+
+MANUAL DE CLONAGEM DE VOZ (CRIADO PELO AGENTE GEMINI):
+Você é obrigado a escrever o artigo usando exatamente o ritmo, formalidade e regras extraídas abaixo a partir de textos reais da marca:
+{manual_voz_gemini}
 - Diretrizes OBRIGATÓRIAS: {marca_info.get('RegrasPositivas', '')}
 - O que NÃO fazer: {marca_info['RegrasNegativas']}
 
@@ -1448,17 +1683,17 @@ ATENÇÃO ANTI-ALUCINAÇÃO: Se o bloco abaixo disser "Erro", "Timeout" ou "Nenh
 {contexto_wp}
 
 <checklist_de_seguranca_obrigatorio>
-1. A sua "Resposta rápida" está bem no início do texto e é super objetiva?
+1. AVALIAÇÃO ANSWER-FIRST: Você entregou a resposta exata para a dor do leitor logo nas 3 primeiras linhas do texto (usando negrito no conceito principal)? Verifique se você NÃO usou títulos cafonas como "Resposta rápida para:" (isso é proibido).
 2. A sua "Definição" tem menos de 30 palavras? (Se tiver mais, reduza agora).
 3. ASSIMETRIA VISUAL: Você quebrou os parágrafos corretamente? Há frases isoladas servindo como parágrafos curtos misturadas com parágrafos de 3 linhas? Se o texto estiver um "bloco de tijolo" igual, altere agora.
 4. Você usou todas as entidades obrigatórias mapeadas no briefing?
-5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links (<a href="...>). Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
+5. VETO A ESCOLAS E RIVAIS: Verifique seu texto e as URLs dos seus links na tag <a href="...">?. Você citou o nome ou o site de ALGUMA OUTRA ESCOLA PRIVADA ou sistema de ensino que não seja a {marca_alvo}? SE SIM, remova imediatamente.
 6. O seu "Estudo de Caso" foca na tecnologia/metodologia real da {marca_alvo}? Verifique se você inventou historinha de cliente fictício ou números falsos. Se sim, APAGUE ISSO.
 7. CHECK DE DEEP LINKS: Você incluiu pelo menos 2 links externos? Olhe para as URLs dentro do <a href>. Elas são DEEP LINKS reais? Se usou página inicial, substitua IMEDIATAMENTE por um deep link específico ou apague o link.
 8. Você garantiu que TODAS as menções à {marca_alvo} contêm o link <a href="{url_marca}">?
 8.1 VERIFICAÇÃO DE RAG (CRÍTICO): Escaneie o HTML que você acabou de redigir. Existe alguma tag <a href="..."> apontando para uma das URLs da lista "ARTIGOS INTERNOS DISPONÍVEIS"? Se não houver, VOCÊ DEVE voltar ao texto AGORA, escolher um parágrafo pertinente e inserir o link envelopado em um texto âncora natural.
 9. MATEMÁTICA FANTASMA E RASTREABILIDADE (CRÍTICO): Escaneie o seu texto procurando por %, frações ou aumentos numéricos. Responda mentalmente: Você inventou algum dado (ex: "aumenta em 30%", "triplica a retenção") OU usou um número exato sem ancorá-lo imediatamente em um link real <a href="..."> fornecido no briefing? Se a resposta for SIM para qualquer uma das duas, APAGUE O NÚMERO IMEDIATAMENTE. Se o briefing não te deu o número exato junto com a URL de origem, use apenas comparações qualitativas (ex: "escolas reduzem significativamente a evasão").
-10. AUDITORIA DE FONTES E DEEP LINKS (RISCO DE FALHA CRÍTICA): Procure pelas palavras "UNESCO", "PISA", "MEC", "OCDE" ou "IBGE" no texto. Elas estão dentro de uma tag <a href="...">? Olhe para a URL: ela é um DEEP LINK (um artigo, documento ou pesquisa específica)? É ESTRITAMENTE PROIBIDO linkar para a página inicial (home) da instituição (ex: apenas "mec.gov.br" ou "unesco.org"). Se você não tiver o link exato e específico que comprova a afirmação, APAGUE O NOME DA INSTITUIÇÃO AGORA MESMO. Além disso, procure por muletas de falsa autoridade como "Segundo estudos", "Pesquisas apontam" ou "Especialistas dizem". Se essas frases não estiverem ancoradas em um DEEP LINK real para o estudo, REESCREVA a frase assumindo a autoria da afirmação.
+10. AUDITORIA UNIVERSAL DE FONTES, DEEP LINKS E URLs FALSAS (RISCO DE FALHA CRÍTICA): Procure por QUALQUER menção a instituições (órgãos governamentais, universidades, institutos de pesquisa, ONGs, etc.) no seu texto. Elas estão dentro de uma tag <a href="...">? Agora, faça uma checagem de honestidade: Você COPIOU essa URL exata do briefing ou você INVENTOU um caminho/slug falso só para fingir ser um Deep Link (ex: inventou um "/artigo/" ou "/pdf/")? Se você não tiver o link exato do briefing, se tiver inventado um pedaço da URL, ou se tiver usado apenas uma homepage genérica (ex: gov.br ou usp.br), APAGUE O NOME DA INSTITUIÇÃO E O LINK AGORA MESMO. É terminantemente proibido citar organizações ou leis usando links genéricos, inventados ou sem hiperlink oficial comprobatório.
 11. Você analisou o "CONTEÚDO ADICIONAL DO ESPECIALISTA"? O artigo reflete as ideias, autores ou referências sugeridas ali de forma natural e profunda?
 12. O seu título <h1> tem menos de 60 caracteres? Conte as letras.
 13. CONTEÚDO PROPRIETÁRIO (CRÍTICO): Verifique se foi fornecido algum "CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL". Se sim, procure no seu texto gerado. A frase está EXACTAMENTE igual ao original, sem nenhuma palavra alterada? Se você resumiu ou alterou a frase, corrija agora colando a frase original.
@@ -1472,7 +1707,7 @@ ATENÇÃO CRÍTICA: Você é OBRIGADO a incluir os exatos marcadores `<br>Resumo
 
 Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA gere auto-avaliações, comentários ou textos que comecem com "AI:".
 """
-    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-3.7-sonnet", temperature=0.45)
+    artigo_html = chamar_llm(system_2, user_2, model="anthropic/claude-4.5-sonnet", temperature=0.45)
     artigo_html = re.sub(r'^```html\n|```$', '', artigo_html, flags=re.MULTILINE).strip()
     artigo_html = re.sub(r'<thought_process>.*?</thought_process>', '', artigo_html, flags=re.DOTALL).strip()
 
@@ -1486,16 +1721,16 @@ Pare de escrever IMEDIATAMENTE após fechar a última tag HTML do FAQ. NUNCA ger
 
     system_3 = f"""
 Você é especialista em SEO técnico e Schema.org.
-Retorne EXCLUSIVAMENTE **um JSON** puro, válido e COMPATÍVEL com este schema Pydantic:
+Retorne EXCLUSIVAMENTE um JSON puro, válido e COMPATÍVEL com este schema Pydantic:
 {json.dumps(schema_gerado, ensure_ascii=False)}
 
 REGRAS CRÍTICAS:
-1) NUNCA inclua markdown, comentários, ```json ou campos extras.
-2) 'title': 45–60 caracteres (otimizado para H1/SEO, sem marca).
-3) 'meta_description': 130–150 caracteres (promessa clara + gancho, sem clickbait).
-4) 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students", "school"). É ESTRITAMENTE PROIBIDO gerar frases longas. Termos longos quebram a busca da API.
-5) 'schema_faq': JSON-LD **FAQPage** com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
-    - As perguntas e respostas DEVEM ser extraídas **textualmente** da seção “Perguntas Frequentes” presente no HTML fornecido (mesma grafia e sentido).
+1. NUNCA inclua markdown, comentários ou campos extras.
+2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca). É ESTRITAMENTE PROIBIDO inserir o ano atual (ex: 2026) neste campo.
+3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
+4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students"). É ESTRITAMENTE PROIBIDO gerar frases longas.
+5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
+    - As perguntas e respostas DEVEM ser extraídas textualmente da seção Perguntas Frequentes presente no HTML fornecido.
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
 
 ANTI-CLOAKING E VALIDAÇÃO:
@@ -1506,7 +1741,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     user_3 = f"HTML COMPLETO:\n{artigo_html}"
 
-    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-3.7-sonnet", temperature=0.1, response_format={"type": "json_object"})
+    dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-4.5-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
    # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
     try:
@@ -1572,7 +1807,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
         score_originalidade, citabilidade, cluster, reverse_queries, 
         citation_score, entity_coverage, geo_score, retrieval_simulation, 
         hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-        rag_chunks, evidence_density, information_gain, contexto_wp
+        rag_chunks, evidence_density, information_gain, contexto_wp,
+        manual_voz_gemini
     )
 
 def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
@@ -1700,10 +1936,18 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     if instrucoes_usuario and instrucoes_usuario.strip():
         # MODO 1: SÍNTESE CUSTOMIZADA (O usuário deu a regra)
         comportamento_alvo = f"""
-        OBJETIVO ESTRATÉGICO DO USUÁRIO (Siga à risca a estrutura e objetivo pedidos aqui):
+        OBJETIVO ESTRATÉGICO DO USUÁRIO:
         {instrucoes_usuario}
         
-        O objetivo não é fazer um resumo incompleto, mas sim criar um artigo ESTRUTURADO, AUTORAL e COMPLETO, atendendo estritamente ao pedido acima, utilizando APENAS a base de conhecimento anexada.
+        REGRA DE ORDENAÇÃO (FRAMEWORK DE PRODUTO INEGOCIÁVEL):
+        ATENÇÃO CRÍTICA: Mesmo que a instrução do usuário acima peça tópicos ou H2 em uma ordem específica, você É OBRIGADO a reorganizar a estrutura para seguir ESTRITAMENTE a seguinte ordem narrativa:
+        
+        1. Parágrafo de introdução e apresentação.
+        2. Explicação resumida do produto, o problema que resolve e as VANTAGENS associadas (É estritamente proibido jogar as vantagens para o final do texto. Elas devem subir e ficar logo após a introdução).
+        3. Detalhes de "Como funciona" (pode conter vários parágrafos e a jornada do usuário).
+        4. Mais exemplos, dados e detalhes de implementação.
+        5. Parágrafo final de amarração.
+        6. FECHAMENTO OBRIGATÓRIO: Encerre o artigo criando um último <h2> sobre a marca "{marca}" (Ex: "Sobre o {marca}") contendo um CTA chamando o leitor para acessar o site oficial.
         """
     else:
         # MODO 2: TEASER E CAPTAÇÃO DE LEADS (Padrão se o prompt estiver vazio)
@@ -1733,14 +1977,16 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
     3. DIFERENCIAÇÃO EXTREMA DE MARCA: O seu texto DEVE ser guiado 100% pelo Posicionamento e Territórios da Marca Alvo. 
     4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
-    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar termos hiperbólicos, sensacionalistas ou jargões vazios corporativos. NUNCA use: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental", "é inegável que", "neste artigo veremos", "excelência contemporânea". Seja factual, maduro e elegante. 
-    6. PROIBIÇÃO DE MATEMÁTICA FANTASMA: Se o documento original não trouxer um número exato, não invente proporções (%). Escreva de forma qualitativa ("aumenta a retenção", não "aumenta em 30%").
+    5. BLACKLIST DE IA E VETO DE CÓPIA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar advérbios terminados em "mente" (ex: significativamente, extremamente), jargões corporativos (ex: "influenciar o desempenho agregado da escola", "escola parceira", "da coleção") ou locuções passivas como "foi estruturado para oferecer" (use o verbo direto: "oferece"). O foco de todo o benefício do texto DEVE SER O ALUNO.
+    ATENÇÃO CRÍTICA: Mesmo que essas palavras proibidas estejam escritas literalmente no documento base fornecido, VOCÊ É OBRIGADO A REESCREVÊ-LAS E CORTÁ-LAS. A Blacklist tem prioridade absoluta sobre a fidelidade ao texto original. NUNCA use o H2 "Resposta rápida para:".
+    6. CONCRETUDE OBRIGATÓRIA E REESCRITA DE CLICHÊS: Se o documento base fizer afirmações vazias (ex: "A redação é decisiva no ENEM"), você NÃO DEVE agir como um papagaio e apenas copiá-la. Você deve reescrevê-la ou enriquecê-la com fatos lógicos universais (ex: "visto que muitas instituições atribuem peso 2 ou 3 à nota final") para que a frase tenha peso. É proibido gerar introduções vazias.
 
     GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
-    7. INTRODUÇÃO DIRETA (ANSWER-FIRST): Logo no primeiro parágrafo, entregue o contexto principal em no máximo 4 linhas, de forma fluida. O texto DEVE começar obrigatoriamente com uma tag <h1>. Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar etiquetas robóticas como "Resposta direta:").
+    7. INTRODUÇÃO E LINHA FINA: O texto DEVE começar com o <h1>. Logo abaixo, crie uma "Linha Fina" (parágrafo em <em>) resumindo o texto. O 1º parágrafo normal deve introduzir a dor/solução direto ao ponto.
+    7.1. FRAMEWORK DE PRODUTO: Siga estritamente a ordem de H2: Introdução -> O que é a ferramenta/dor resolvida -> Como Funciona (Detalhes) -> Vantagens -> Exemplos -> CTA final sobre a marca.
     8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
     9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
-    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, escape-as com contra-barra (\\").
+    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, coloque uma barra invertida antes da aspa.
 
     RETORNE EXCLUSIVAMENTE UM JSON:
     {{
@@ -1766,7 +2012,7 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     {texto_base_docs}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-4.5-sonnet", temperature=0.3, response_format={"type": "json_object"})
     
 # ==========================================
 # 5. INTERFACE PRINCIPAL
@@ -1851,38 +2097,46 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
 
         # CARDS SELLING LLMS (COM ÍCONES NATIVOS À PROVA DE FALHAS)
         st.markdown("<h3 style='margin-top: 3rem; font-size: 1.5rem;'>As novidades. Veja o que acabou de chegar.</h3>", unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4, c5 = st.columns(5)
         
         with c1:
             st.markdown("""
             <div class="saas-card">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="GPT-4o Logo" style="height: 32px; margin-bottom: 16px;">
-                <div class="card-title">Estrategista (GPT-4o)</div>
-                <div class="card-text">Analisa a concorrência e cria o briefing estrutural com alto Information Gain e regras E-E-A-T.</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Refino de Marca (Gemini)</div>
+                <div class="card-text">Lê seus materiais de referência, o OURO da marca, e treina o motor para escrever com a sua voz exata.</div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
             st.markdown("""
             <div class="saas-card">
-                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
-                <div class="card-title">Redator (Claude 3.7)</div>
-                <div class="card-text">A inteligência mais avançada para Copywriting. Escreve com fluidez humana e variação rítmica.</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="GPT-4o Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Estrategista (GPT-4o)</div>
+                <div class="card-text">Analisa a concorrência e cria briefing com regras E-E-A-T.</div>
             </div>
             """, unsafe_allow_html=True)
         with c3:
             st.markdown("""
             <div class="saas-card">
-                <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
-                <div class="card-title">AI Search Native</div>
-                <div class="card-text">Realiza uma varredura profunda na web em tempo real, extraindo o conteúdo para mapear o 'Entity Gap' exato do seu nicho.</div>
+                <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Claude_AI_symbol.svg" alt="Claude 3.7 Logo" style="height: 32px; margin-bottom: 16px;">
+                <div class="card-title">Redator (Claude 4)</div>
+                <div class="card-text">A inteligência mais avançada para Copywriting.</div>
             </div>
             """, unsafe_allow_html=True)
         with c4:
             st.markdown("""
             <div class="saas-card">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
+                <div class="card-title">AI Search Native</div>
+                <div class="card-text">Extrai o conteúdo da web em tempo real para mapear 'Entity Gap'.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c5:
+            st.markdown("""
+            <div class="saas-card">
                 <div style="font-size: 2rem; margin-bottom: 8px;">🔗</div>
                 <div class="card-title">RAG Reverso (WP)</div>
-                <div class="card-text">Conecta-se ao seu CMS e faz a linkagem interna automática com os artigos que você já publicou.</div>
+                <div class="card-text">Faz linkagem interna com os artigos que você já publicou.</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1923,9 +2177,15 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             # ----------------------------------------------
             # NOVOS INPUTS DO GERADOR
             # ----------------------------------------------
+            # Inicializa a pauta se não existir
+            if 'pauta_sugerida' not in st.session_state:
+                st.session_state['pauta_sugerida'] = ""
+            
+            # ... dentro da coluna de inputs ...
             palavra_chave_input = st.text_area(
                 "🔑 Palavra-chave ou Consulta/Query de Pesquisa", 
-                placeholder="Ex: metodologia bilíngue nas escolas OU como implementar a cultura maker no ensino médio?"
+                value=st.session_state['pauta_sugerida'], # <--- Conecta aqui
+                placeholder="Ex: metodologia bilíngue..."
             )
             
             conteudo_adicional_input = st.text_area(
@@ -1940,6 +2200,14 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                 height=100,
                 help="Frases exatas, citações ou parágrafos que a IA é OBRIGADA a incluir literalmente no texto gerado sem alterar nenhuma palavra.",
                 placeholder="Ex: 'Segundo nosso diretor João, a educação transforma o amanhã.' (A IA vai colar este texto exato dentro do artigo)."
+            )
+
+            # ---> NOVO CAMPO: PROMPT LIVRE DO USUÁRIO <---
+            instrucao_livre_input = st.text_area(
+                "💬 Instruções Específicas / Prompt Livre (Estilo ChatGPT)", 
+                height=120,
+                help="Dite as regras do texto! Peça uma estrutura específica, perguntas exatas para os H2 ou um formato sob medida.",
+                placeholder='Ex: "Preciso de um texto sobre o Vestibular da UERJ. Use uma estrutura de H2 respondendo: como funciona, o que cai, livros obrigatórios e a estrutura das provas."'
             )
             
             # O NOSSO NOVO INTERRUPTOR A/B
@@ -2009,10 +2277,12 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                             score_originalidade, citabilidade, cluster, reverse_queries, 
                             citation_score, entity_coverage, geo_score, retrieval_simulation, 
                             hijacking_risk, ai_simulation, chunk_citability, answer_first, 
-                            rag_chunks, evidence_density, information_gain, contexto_wp
+                            rag_chunks, evidence_density, information_gain, contexto_wp,
+                            manual_voz_gemini
                         ) = executar_geracao_completa(
                             palavra_chave_input, marca_selecionada, publico_selecionado, 
-                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado
+                            conteudo_adicional_input, conteudo_proprietario_input, modo_humanizado, especialista_selecionado,
+                            instrucao_livre_input # <--- ADICIONADO AQUI NO FINAL
                         )
                         
                         st.session_state['art_gerado'] = artigo_html
@@ -2036,7 +2306,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['evidence_density'] = evidence_density
                         st.session_state['information_gain'] = information_gain
                         st.session_state['contexto_wp'] = contexto_wp
-                        
+                        st.session_state['manual_voz_gemini'] = manual_voz_gemini
                         st.session_state['marca_atual'] = marca_selecionada
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
@@ -2219,6 +2489,12 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             # --- SUB-ABA 3: RAIO-X TÉCNICO DE SEO ---
             with tab_seo:
                 st.info("**O que é esta aba?** Voltada para quem entende de SEO. Mostra se usamos o vocabulário certo e como amarrar este artigo com outros no seu blog.")
+                
+                # --- CAIXA DO GEMINI ADICIONADA AQUI ---
+                with st.expander("🎭 Manual de Voz (Gerado pelo Gemini)", expanded=True):
+                    st.markdown("Veja como o Gemini interpretou os PDFs da marca e quais regras ele passou para o Redator (Claude) imitar o estilo.")
+                    st.info(st.session_state.get('manual_voz_gemini', '⚠️ Sem dados do Gemini.'))
+                # ---------------------------------------    
                 
                 with st.expander("🧩 Uso de Jargões do Nicho (Entity Coverage)", expanded=True):
                     st.markdown("Avaliamos se o texto contém as 'Entidades' (termos técnicos e jargões) que provam para o Google que você é especialista no assunto, cobrindo buracos que os concorrentes deixaram (Entity Gap).")
@@ -2755,6 +3031,6 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
 st.markdown("""
 <div style="text-align: center; color: #6b7280; font-size: 13px; margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e7eb; line-height: 1.8;">
     ⚙️ <strong>Feito para simplificar o complexo.</strong> Criação otimizada para humanos e novos motores de busca.<br>
-    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 3.7 Sonnet &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
+    ⚙️ <strong>Stack:</strong> Python | Streamlit | Pydantic &nbsp;&nbsp;&nbsp;&nbsp; 🧠 <strong>LLMs:</strong> GPT-4o | Claude 4 Sonnet | Gemini 2.5 Pro &nbsp;&nbsp;&nbsp;&nbsp; 🔌 <strong>APIs:</strong> Serper.dev | Jina AI | Unsplash
 </div>
 """, unsafe_allow_html=True)
