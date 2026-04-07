@@ -1639,61 +1639,108 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
 
 
 import PyPDF2
+import docx  # Essa linha é obrigatória para ler Word
+import io
 
-def extrair_texto_pdf(arquivo_pdf):
-    """Lê um arquivo PDF carregado no Streamlit e extrai todo o texto."""
-    try:
-        leitor = PyPDF2.PdfReader(arquivo_pdf)
-        texto_completo = ""
-        for pagina in leitor.pages:
-            texto_extrato = pagina.extract_text()
-            if texto_extrato:
-                texto_completo += texto_extrato + "\n"
-        return texto_completo
-    except Exception as e:
-        return f"Erro ao ler PDF: {e}"
-
-def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
-    """Transforma o texto bruto de um PDF em um artigo 'Teaser' para geração de Leads."""
+def extrair_texto_documentos(arquivos_upados):
+    """Lê múltiplos arquivos (PDF, DOCX, TXT) e extrai todo o texto."""
+    texto_completo = ""
+    for arquivo in arquivos_upados:
+        nome_arquivo = arquivo.name.lower()
+        texto_completo += f"\n\n--- INÍCIO DO DOCUMENTO: {arquivo.name} ---\n"
+        
+        try:
+            if nome_arquivo.endswith('.pdf'):
+                leitor = PyPDF2.PdfReader(arquivo)
+                for pagina in leitor.pages:
+                    texto_extrato = pagina.extract_text()
+                    if texto_extrato:
+                        texto_completo += texto_extrato + "\n"
+            
+            elif nome_arquivo.endswith('.docx'):
+                doc = docx.Document(arquivo)
+                for paragrafo in doc.paragraphs:
+                    texto_completo += paragrafo.text + "\n"
+                    
+            elif nome_arquivo.endswith('.txt'):
+                texto_completo += arquivo.read().decode('utf-8') + "\n"
+                
+        except Exception as e:
+            texto_completo += f"\n[Erro ao ler arquivo {arquivo.name}: {e}]\n"
+            
+        texto_completo += f"\n--- FIM DO DOCUMENTO: {arquivo.name} ---\n"
+        
+    return texto_completo
+    
+def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs, instrucoes_usuario):
+    """
+    Transforma documentos brutos em um artigo. 
+    Se houver instruções, segue-as. Se não houver, age como o 'Gerador de Teaser/Spoiler' para Leads.
+    """
     df = st.session_state['brandbook_df']
     marca_info = df[df['Marca'] == marca].iloc[0].to_dict()
     url_marca = marca_info.get('URL', '')
 
-    system = """Você é um Copywriter Especialista em Inbound Marketing, GEO e Repurposing de Conteúdo.
-    Sua missão é ler o texto bruto de um E-book/Guia em PDF e transformá-lo em um "Artigo Resumo / Teaser" em HTML. 
-    O objetivo deste artigo NÃO é entregar todo o conteúdo, mas sim gerar curiosidade e atuar como uma página de atração para que o leitor baixe o material completo.
-    
-    REGRAS INVIOLÁVEIS DE COPYWRITING E CONVERSÃO:
-    1. FONTE DA VERDADE (ANTI-ALUCINAÇÃO): Use EXCLUSIVAMENTE os dados, leis e exemplos presentes no texto do PDF fornecido. Não invente nada fora dele.
-    2. DIFERENCIAÇÃO EXTREMA DE MARCA (CRÍTICO): O seu texto, o seu TÍTULO (H1) e a sua escolha de "Spoiler" DEVEM ser guiados 100% pelo Posicionamento e Territórios da Marca Alvo. É ESTRITAMENTE PROIBIDO gerar um título ou ângulo genérico. 
-       -> Se a marca foca em "Família", o ângulo do artigo deve ser a parceria Escola-Família no ambiente digital.
-       -> Se a marca foca em "Gestão/Alta Performance", o ângulo deve ser eficiência e mitigação de riscos.
-    3. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Não deixe para citar a marca apenas no final! Integre o nome da marca, seus diferenciais e seu propósito (listados nas Diretrizes) no MEIO do texto. Quando explicar o problema ou o "spoiler" do PDF, conecte isso com a forma como a marca enxerga o mercado ou com as soluções que ela já oferece. A autoridade e a história da marca devem estar costuradas na narrativa desde os primeiros parágrafos.
-    4. BLACKLIST DE EXAGEROS (TOLERÂNCIA ZERO): É estritamente proibido usar termos hiperbólicos, sensacionalistas ou jargões vazios de IA. NUNCA use palavras como: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental". Seja factual, maduro, direto e elegante.
-    5. ESTRUTURA TEASER (A TÉCNICA DO SPOILER): É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do PDF. Faça uma introdução sobre o cenário e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material (que faça sentido para o Território da Marca) para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
-    6. O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. É ESTRITAMENTE PROIBIDO usar um tom de "interrogatório" com perguntas seguidas que testem o leitor. 
-       -> Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema do PDF] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos do que deve ser feito e descubra como você pode se destacar com essas mudanças."
-    7. PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML: 
-       <div style='background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;'><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
-    
-    REGRAS DE GEO E HTML:
-    8. ASSIMETRIA VISUAL: Quebre blocos de texto maciços. Intercale parágrafos de 3-4 linhas com parágrafos de uma única frase de impacto.
-    9. ESTRUTURA DE TÍTULOS (SENTENCE CASE) E ANSWER-FIRST SUAVIZADO: O texto DEVE começar obrigatoriamente com uma tag <h1> contendo o título chamativo em Sentence Case. Logo abaixo do H1, crie um <h2>Resposta rápida para: [palavra-chave]</h2>. Abaixo deste H2, entregue a resposta direta em 2 linhas, de forma fluida e natural. É ESTRITAMENTE PROIBIDO usar etiquetas robóticas como "Resposta direta:" ou "Definição:". Vá direto ao ponto como um texto corrido.
-    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por um json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <a href='link'>) em vez de aspas duplas. Se precisar usar aspas duplas no meio do texto, você DEVE escapá-las com contra-barra (\"). 
-    
+    # ==========================================
+    # LÓGICA DE ROTEAMENTO (TEASER VS CUSTOMIZADO)
+    # ==========================================
+    if instrucoes_usuario and instrucoes_usuario.strip():
+        # MODO 1: SÍNTESE CUSTOMIZADA (O usuário deu a regra)
+        comportamento_alvo = f"""
+        OBJETIVO ESTRATÉGICO DO USUÁRIO (Siga à risca a estrutura e objetivo pedidos aqui):
+        {instrucoes_usuario}
+        
+        O objetivo não é fazer um resumo incompleto, mas sim criar um artigo ESTRUTURADO, AUTORAL e COMPLETO, atendendo estritamente ao pedido acima, utilizando APENAS a base de conhecimento anexada.
+        """
+    else:
+        # MODO 2: TEASER E CAPTAÇÃO DE LEADS (Padrão se o prompt estiver vazio)
+        comportamento_alvo = """
+        OBJETIVO ESTRATÉGICO: ESTRUTURA TEASER (A TÉCNICA DO SPOILER)
+        O objetivo deste artigo NÃO é entregar todo o conteúdo dos documentos, mas sim gerar curiosidade e atuar como uma página de atração para que o leitor baixe o material completo.
+        - É expressamente PROIBIDO resumir todos os tópicos ou listar todas as perguntas/respostas do material. 
+        - Faça uma introdução sobre o cenário e escolha APENAS UM conceito forte ou UMA pergunta com resposta do material (que faça sentido para o Território da Marca) para dar como "spoiler" gratuito. Apele para a curiosidade sobre o que ficou de fora.
+        - O GATILHO PARA O DOWNLOAD (TOM CONVIDATIVO): No final do texto, crie a transição para o download. Use este framework mental para a chamada: "Quer saber mais sobre quais são os outros pilares/pontos de [Tema] e como isso impacta a sua realidade? Baixe o material completo para receber direcionais práticos..."
+        - PLACEHOLDER DO TIME DE GROWTH: Logo após o convite para baixar, insira EXATAMENTE esta tag HTML:
+          <div style='background-color: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin-top: 20px;'><strong>[Formulário de Captura do Material inserido pelo time de Growth]</strong></div>
+        """
+
+    # ==========================================
+    # SYSTEM PROMPT BLINDADO (REGRAS DO SYSTEM_2 INCLUÍDAS)
+    # ==========================================
+    system = f"""Você é um Copywriter Especialista, Arquiteto de Informação e Engenheiro de Conteúdo GEO.
+    Sua missão é ler os documentos brutos fornecidos e construir um novo material HTML.
+
+    COMPORTAMENTO DEFINIDO PARA ESTA TAREFA:
+    {comportamento_alvo}
+
+    REGRAS INVIOLÁVEIS DE CONSTRUÇÃO E E-E-A-T (FONTE DA VERDADE):
+    1. ANTI-ALUCINAÇÃO ABSOLUTA: Use EXCLUSIVAMENTE as informações, dados, leis e exemplos presentes nos documentos fornecidos. Não invente funcionalidades, estatísticas ou conceitos de fora. A autoridade deste texto deriva ÚNICA E EXCLUSIVAMENTE dos documentos anexados.
+    2. ZERO LINKAGEM EXTERNA: Como este material é construído a partir de documentação interna, É ESTRITAMENTE PROIBIDO inventar links externos ou citar URLs da web (como MEC, OCDE, portais de notícias).
+
+    MANIFESTO ANTI-ROBÔ E ESTILO DA MARCA:
+    3. DIFERENCIAÇÃO EXTREMA DE MARCA: O seu texto DEVE ser guiado 100% pelo Posicionamento e Territórios da Marca Alvo. 
+    4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
+    5. BLACKLIST DE IA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar termos hiperbólicos, sensacionalistas ou jargões vazios corporativos. NUNCA use: "radicalmente", "revolucionário", "divisor de águas", "no cenário atual", "fundamental", "é inegável que", "neste artigo veremos", "excelência contemporânea". Seja factual, maduro e elegante. 
+    6. PROIBIÇÃO DE MATEMÁTICA FANTASMA: Se o documento original não trouxer um número exato, não invente proporções (%). Escreva de forma qualitativa ("aumenta a retenção", não "aumenta em 30%").
+
+    GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
+    7. INTRODUÇÃO DIRETA (ANSWER-FIRST): Logo no primeiro parágrafo, entregue o contexto principal em no máximo 4 linhas, de forma fluida. O texto DEVE começar obrigatoriamente com uma tag <h1>. Logo abaixo, crie um <h2>Resposta rápida para: [palavra-chave]</h2> e entregue a essência em 2 linhas (sem usar etiquetas robóticas como "Resposta direta:").
+    8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
+    9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
+    10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, escape-as com contra-barra (\\").
+
     RETORNE EXCLUSIVAMENTE UM JSON:
-    {
-        "diagnostico": "Explique qual spoiler você escolheu e como aplicou o 'Brand Weaving' para inserir os diferenciais da marca no meio do texto.",
-        "melhorias_aplicadas": ["Diferenciação de Ângulo", "Brand Weaving", "Técnica do Spoiler", "Gatilho Consultivo", "Sem Exageros"],
-        "html_novo": "O código HTML completo usando aspas simples e escapando aspas duplas internas"
-    }
+    {{
+        "diagnostico": "Explique brevemente a sua estratégia, como usou os documentos, qual spoiler escolheu (se aplicável) e como aplicou a Assimetria Visual.",
+        "melhorias_aplicadas": ["Estruturação sob medida", "Assimetria Visual Aplicada", "Brand Weaving", "Veto a jargões de IA respeitado"],
+        "html_novo": "O código HTML completo usando aspas simples e escapando aspas duplas internas."
+    }}
     """
     
     user = f"""
     PALAVRA-CHAVE FOCO: '{palavra_chave}'
     PÚBLICO-ALVO: {publico}
     MARCA ALVO: {marca}
-    URL DA MARCA OBRIGATÓRIA: {url_marca}
     
     DIRETRIZES DA MARCA ({marca}):
     - Posicionamento: {marca_info['Posicionamento']}
@@ -1702,11 +1749,11 @@ def executar_adaptacao_pdf(palavra_chave, publico, marca, texto_base_pdf):
     - Regras Positivas: {marca_info.get('RegrasPositivas', '')}
     - Proibido (Regras Negativas): {marca_info['RegrasNegativas']}
     
-    TEXTO BRUTO EXTRAÍDO DO PDF (E-BOOK/GUIA) PARA SER TRANSFORMADO EM TEASER:
-    {texto_base_pdf}
+    BASE DE CONHECIMENTO (DOCUMENTOS FORNECIDOS PARA SÍNTESE):
+    {texto_base_docs}
     """
     
-    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.4, response_format={"type": "json_object"})
+    return chamar_llm(system, user, model="anthropic/claude-3.7-sonnet", temperature=0.3, response_format={"type": "json_object"})
     
 # ==========================================
 # 5. INTERFACE PRINCIPAL
@@ -2371,8 +2418,9 @@ elif st.session_state['current_page'] == "Revisor de GEO":
         palavra_chave_rev = st.text_input("🔑 Palavra-chave foco", placeholder="Ex: eca digital")
     
     with col_rev_2:
-        modo_input = st.radio("Origem do Conteúdo:", ["Puxar do WordPress", "Inserir HTML Manualmente", "Upload de PDF (E-book/Guia)"], horizontal=True)
+        modo_input = st.radio("Origem do Conteúdo:", ["Puxar do WordPress", "Inserir HTML Manualmente", "Upload de Documentos (Base de Conhecimento)"], horizontal=True)
         conteudo_input = ""
+        instrucoes_extras = "" # Inicializa a variável
         
         if modo_input == "Puxar do WordPress":
             url_r, user_r, pwd_r, type_r = obter_credenciais_cms(marca_rev)
@@ -2396,50 +2444,56 @@ elif st.session_state['current_page'] == "Revisor de GEO":
         elif modo_input == "Inserir HTML Manualmente":
             conteudo_input = st.text_area("Cole o HTML/Texto Original Aqui:", height=200)
             
-        elif modo_input == "Upload de PDF (E-book/Guia)":
-            arquivo_pdf = st.file_uploader("📄 Arraste seu E-book, Guia ou Pesquisa em PDF", type=['pdf'])
-            if arquivo_pdf:
-                with st.spinner("Lendo páginas do PDF..."):
-                    texto_pdf_extraido = extrair_texto_pdf(arquivo_pdf)
-                if "Erro ao ler" in texto_pdf_extraido:
-                    st.error(texto_pdf_extraido)
+        elif modo_input == "Upload de Documentos (Base de Conhecimento)":
+            arquivos_upados = st.file_uploader("📄 Arraste seus arquivos (PDF, DOCX, TXT). Pode enviar mais de um!", type=['pdf', 'docx', 'txt'], accept_multiple_files=True)
+            
+            # ---> NOVO: AVISO DIDÁTICO PARA O USUÁRIO <---
+            st.info("💡 **Dica de Uso:** Se você preencher o campo abaixo, a IA vai criar um artigo estruturado exatamente como você pedir. Se deixar em branco, ela criará automaticamente um texto 'Teaser/Spoiler' focado em captar leads para baixar o documento original.")
+            
+            instrucoes_extras = st.text_area(
+                "✍️ Direcionamento (Prompt Complementar)", 
+                height=150,
+                placeholder="Ex: Eu tenho um documento em bullet points do time de produto. Preciso transformar esta descrição em um texto fácil de ler otimizado para o ENEM. Inclua os H2: O que é?, Como funciona? e Quais as vantagens? (quebradas em H3)."
+            )
+            
+            if arquivos_upados:
+                with st.spinner("Lendo base de documentos..."):
+                    conteudo_input = extrair_texto_documentos(arquivos_upados)
+                
+                if "[Erro ao ler" in conteudo_input and len(conteudo_input.strip()) < 100:
+                    st.error("Erro crítico ao ler os arquivos. Verifique se o pacote python-docx está no requirements.txt.")
                 else:
-                    st.success(f"✅ PDF lido com sucesso! ({len(texto_pdf_extraido)} caracteres extraídos). O Motor usará este texto como Fonte da Verdade.")
-                    conteudo_input = texto_pdf_extraido
+                    st.success(f"✅ Documentos lidos com sucesso! ({len(conteudo_input)} caracteres extraídos).")
                     with st.expander("Ver Texto Bruto Extraído"):
-                        st.text(texto_pdf_extraido[:2000] + "\n\n... (truncado)")
+                        st.text(conteudo_input[:2000] + "\n\n... (truncado)")
 
-    if st.button("✨ Adaptar e Formatrar para Padrão GEO", type="primary", width="stretch"):
+    if st.button("✨ Construir Artigo e Formatar (GEO)", type="primary", width="stretch"):
         if not TOKEN:
             st.error("⚠️ Chave OPENROUTER_KEY não encontrada.")
         elif not palavra_chave_rev or not conteudo_input:
-            st.warning("⚠️ Preencha a palavra-chave e forneça o conteúdo (PDF ou HTML).")
+            st.warning("⚠️ Preencha a palavra-chave e forneça o conteúdo base.")
         else:
-            with st.spinner("Analisando conteúdo e adaptando para a marca... Isso pode levar alguns segundos."):
+            with st.spinner("Sintetizando documentos e construindo a estrutura... Isso pode levar alguns segundos."):
                 try:
-                    # Decide qual prompt usar baseado na origem (PDF usa lógica de Repurposing, WP usa Cirurgia de Legado)
-                    if modo_input == "Upload de PDF (E-book/Guia)":
-                        resultado_processamento = executar_adaptacao_pdf(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
+                    # Direcionamento do fluxo
+                    if modo_input == "Upload de Documentos (Base de Conhecimento)":
+                        resultado_processamento = executar_adaptacao_documentos(palavra_chave_rev, publico_rev, marca_rev, conteudo_input, instrucoes_extras)
                     else:
                         resultado_processamento = executar_revisao_geo_wp(palavra_chave_rev, publico_rev, marca_rev, conteudo_input)
                     
-                    # Tenta capturar apenas o conteúdo que está entre as chaves { }
+                    # Captura JSON da IA
                     match_json = re.search(r'\{.*\}', resultado_processamento.strip(), re.DOTALL)
                     json_limpo = match_json.group(0) if match_json else resultado_processamento.strip().removeprefix('```json').removesuffix('```').strip()
                     
-                    # TENTATIVA 1: O caminho feliz (Leitura JSON Padrão)
                     try:
                         dados_processados = json.loads(json_limpo, strict=False)
                     except json.JSONDecodeError:
-                        # TENTATIVA 2: O Plano B (Regex Rescue)
-                        # Se a IA colocou aspas duplas sem escapar e quebrou o JSON, resgatamos o HTML à força!
                         st.toast("⚠️ Corrigindo aspas duplas mal formatadas pela IA...", icon="🔧")
                         html_match = re.search(r'"html_novo"\s*:\s*"(.*?)"\s*\}?\s*$', json_limpo, re.DOTALL)
                         
                         html_resgatado = ""
                         if html_match:
                             html_resgatado = html_match.group(1).replace('\\"', '"').replace('\\n', '\n')
-                            # Limpa lixos residuais do fim do arquivo
                             if html_resgatado.endswith('"}'): html_resgatado = html_resgatado[:-2]
                             elif html_resgatado.endswith('"'): html_resgatado = html_resgatado[:-1]
                         
@@ -2467,7 +2521,49 @@ elif st.session_state['current_page'] == "Revisor de GEO":
                         
                     st.markdown("---")
                     st.markdown("### 👁️ Pré-visualização do Artigo")
-                    st.markdown(dados_processados.get('html_novo', ''), unsafe_allow_html=True)
+                    
+                    # ---> NOVO: BOTÃO DE COPIAR EMBUTIDO <---
+                    html_para_copiar = dados_processados.get('html_novo', '')
+                    
+                    componente_copiar_rev = f"""
+                    <div style="font-family: 'Inter', sans-serif;">
+                        <button id="copy-btn-rev" onclick="copyTextRev()" style="background-color: #111827; color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s;">
+                            📋 Copiar Texto Formatado (Para colar no Docs/Word)
+                        </button>
+                        <div id="content-to-copy-rev" style="position: absolute; left: -9999px;">
+                            {html_para_copiar}
+                        </div>
+                        <script>
+                            function copyTextRev() {{
+                                var content = document.getElementById("content-to-copy-rev");
+                                var range = document.createRange();
+                                range.selectNodeContents(content);
+                                var selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                try {{
+                                    document.execCommand("copy");
+                                    var btn = document.getElementById("copy-btn-rev");
+                                    btn.innerHTML = "✅ Texto copiado com sucesso! Agora é só dar Ctrl+V no Docs.";
+                                    btn.style.backgroundColor = "#10B981"; // Fica Verde
+                                    setTimeout(function() {{
+                                        btn.innerHTML = "📋 Copiar Texto Formatado (Para colar no Docs/Word)";
+                                        btn.style.backgroundColor = "#111827"; // Volta pro Preto
+                                    }}, 3000);
+                                }} catch (err) {{
+                                    console.error("Erro ao copiar: ", err);
+                                }}
+                                selection.removeAllRanges();
+                            }}
+                        </script>
+                    </div>
+                    """
+                    
+                    st.components.v1.html(componente_copiar_rev, height=65)
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    html_preview_rev = f"<div style='padding: 20px; border: 1px solid #E5E7EB; border-radius: 8px; background-color: #FFFFFF; color: #111827;'>{html_para_copiar}</div>"
+                    st.markdown(html_preview_rev, unsafe_allow_html=True)
                     
                 except Exception as e:
                     st.error(f"Erro ao processar: {e}")
