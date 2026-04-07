@@ -1,4 +1,8 @@
 streamlit
 pandas
 openai
+requests
+tenacity
+pydantic
 PyPDF2
+python-docx
