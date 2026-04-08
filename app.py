@@ -985,7 +985,7 @@ def buscar_artigos_relacionados_webflow(palavra_chave, w_url, w_user, w_pwd):
                 slug = field_data.get('slug', '')
                 
                 # Monta a URL base do blog do Isaac
-                link = f"https://isaac.com.br/conteudos/{slug}"
+                link = f"https://isaac.com.br/blog/{slug}"
                 ctx += f"- Título: {titulo}\n  URL: {link}\n"
             return ctx
     except Exception as e:
@@ -1125,17 +1125,33 @@ def gerar_cluster(palavra_chave):
 def calcular_citation_score(artigo_html):
     score = 0
     
-    # Isola o primeiro parágrafo para analisar
-    primeiro_paragrafo = artigo_html.split("</p>")[0] if "</p>" in artigo_html else artigo_html[:500]
+    # Isola os 3 primeiros parágrafos para encontrar o negrito da resposta direta
+    paragrafos_iniciais = "".join(artigo_html.split("</p>")[:3])
     
-    # Se a IA usou negrito no início (destacando o termo/resposta), ganha os 2 pontos da estrutura Answer-First
-    if "<strong>" in primeiro_paragrafo: 
+    # 1. Answer-First com Negrito (Vale 2 pontos)
+    if "<strong>" in paragrafos_iniciais: 
         score += 2 
         
+    # 2. Resumo Estratégico (Vale 1 ponto)
     if "Resumo Estratégico" in artigo_html or "Resumo estratégico" in artigo_html: 
         score += 1
-    if "Segundo especialistas" in artigo_html or "Especialistas" in artigo_html: 
+        
+    # 3. Autoridade Real / Anti-Muleta (Vale 1 ponto)
+    # Regra 2.4: O texto GANHA 1 ponto se NÃO usar termos de falsa autoridade.
+    texto_lower = artigo_html.lower()
+    cliches_proibidos = [
+        "segundo especialistas", 
+        "estudos apontam", 
+        "a neurociência comprova",
+        "especialistas afirmam",
+        "especialistas dizem"
+    ]
+    
+    # Se nenhum dos clichês estiver no texto, significa que a IA usou Autoridade Real/Autoral
+    if not any(cliche in texto_lower for cliche in cliches_proibidos):
         score += 1
+        
+    # 4. Perguntas Frequentes (Vale 1 ponto)
     if "Perguntas Frequentes" in artigo_html: 
         score += 1
         
