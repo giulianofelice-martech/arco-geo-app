@@ -2327,7 +2327,7 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
             st.markdown("---")
             
             cms_u, cms_usr, cms_p, cms_t = obter_credenciais_cms(marca_selecionada)
-            WP_READY = bool(cms_u and cms_usr and cms_p)
+            WP_READY = bool(cms_u and cms_p)
     
             if not WP_READY:
                 st.warning(f"🔌 Integração CMS inativa para a marca {marca_selecionada}. Faltam as credenciais no painel de Secrets.")
@@ -2815,7 +2815,7 @@ elif st.session_state['current_page'] == "Revisor de GEO":
         
         if modo_input == "Puxar do WordPress":
             url_r, user_r, pwd_r, type_r = obter_credenciais_cms(marca_rev)
-            if url_r and user_r and pwd_r:
+            if url_r and pwd_r:
                 if type_r == "drupal":
                     posts_cms = listar_posts_drupal(url_r, user_r, pwd_r)
                 elif type_r == "webflow":
@@ -2980,7 +2980,7 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
         if modo_url == "Puxar do CMS":
             cms_u_aud, cms_usr_aud, cms_p_aud, cms_t_aud = obter_credenciais_cms(marca_auditor)
             
-            if cms_u_aud and cms_usr_aud and cms_p_aud:
+            if cms_u_aud and cms_p_aud:
                 with st.spinner(f"Buscando os últimos artigos publicados no {cms_t_aud.upper()}..."):
                     if cms_t_aud == "drupal":
                         posts_aud = listar_posts_drupal(cms_u_aud, cms_usr_aud, cms_p_aud)
