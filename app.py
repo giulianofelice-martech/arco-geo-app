@@ -1002,7 +1002,9 @@ def listar_posts_webflow(w_url, w_user, w_pwd):
         "authorization": f"Bearer {w_pwd.strip()}"
     }
     try:
-        res = requests.get(w_url, headers=headers, timeout=15)
+        # Removi o timeout para garantir que o erro volte
+        res = requests.get(w_url, headers=headers) 
+        
         if res.status_code == 200:
             items = res.json().get("items", [])
             lista_formatada = []
@@ -1010,19 +1012,22 @@ def listar_posts_webflow(w_url, w_user, w_pwd):
                 field_data = p.get('fieldData', {})
                 titulo = field_data.get('name', 'Sem Título') 
                 slug = field_data.get('slug', '')
-                
-                # AQUI ESTAVA O ERRO: Alterado para buscar o campo "texto" conforme seu print
                 conteudo = field_data.get('texto', '') 
                 
                 lista_formatada.append({
                     "id": p.get("id"),
                     "title": {"rendered": titulo},
                     "content": {"rendered": conteudo},
-                    "link": f"https://isaac.com.br/blog/{slug}" # Atualizado com o URL correto da sua Collection
+                    "link": f"https://isaac.com.br/blog/{slug}"
                 })
             return lista_formatada
+        else:
+            # O "DEDO-DURO": Vai mostrar o erro exato no Streamlit
+            st.error(f"Erro na API do Webflow ({res.status_code}): {res.text}")
+            return []
+            
     except Exception as e:
-        print(f"Erro no parser do Webflow: {e}")
+        st.error(f"Erro crítico no Python ao conectar com Webflow: {e}")
     return []
 
 def publicar_webflow(titulo, conteudo_html, meta_dict, w_url, w_user, w_pwd):
