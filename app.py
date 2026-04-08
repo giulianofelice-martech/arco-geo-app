@@ -1633,7 +1633,7 @@ Sua missão é traduzir o Tom de Voz corporativo em um texto que não pareça um
 6. DIRECIONAMENTO E HTML:
 - BÚSSOLA DO ARTIGO: Absorva o bloco "Conteúdo Adicional" (teorias, autores). Expanda esses elementos com seu conhecimento interno, aplicando a memória operacional e a fricção analítica descritas acima.
 - ESTUDO DE CASO: Ao falar da solução da [Marca Alvo], não faça um texto de vendas. Mostre o contexto operacional de como a ferramenta/método deles destravou um problema.
-- REGRAS TÉCNICAS: Use APENAS <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. O <h1> DEVE TER NO MÁXIMO 60 CARACTERES. Títulos em "Sentence case" (Maiúscula só no início).
+- REGRAS TÉCNICAS: Use APENAS <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. O <h1> DEVE TER NO MÁXIMO 60 CARACTERES. Títulos em "Sentence case" (Maiúscula só no início). EXCETO para nomes próprios de produtos ou ferramentas da marca (ex: "Laboratório de Redação"), que devem manter as iniciais maiúsculas em qualquer lugar do texto para reforçar o branding.
 
 Finalize o texto com um corte seco ou uma última reflexão técnica. É rigorosamente proibido usar parágrafos de conclusão clichês. Pare de gerar texto imediatamente após fechar a última tag HTML.
 """
@@ -1672,7 +1672,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 - 3. Detalhes de Como Funciona (Jornada). 
 - 4. Vantagens (sempre após o 'Como funciona'). 
 - 5. Exemplos detalhados. 
-- 6. H2 de Encerramento (Ex: "Sobre o [Marca]") com CTA direto para o site.
+- 6. H2 de Encerramento (Ex: "Sobre o [Marca]") com CTA direto para o site. ESTE BLOCO DEVE SER OBRIGATORIAMENTE O ÚLTIMO H2 DO TEXTO, imediatamente antes do FAQ.
 5) RESUMO ESTRATÉGICO: Insira a linha `<br>Resumo Estratégico<br>` após a introdução e crie um <ul> rápido.
 7) FRAMEWORK E LEITURA ESCANEÁVEL (CHUNK CITABILITY COM ASSIMETRIA EXTREMA): Transforme seções em frameworks estruturados. O limite MÁXIMO de um parágrafo é de 4 linhas (aprox. 35 palavras). É OBRIGATÓRIO QUEBRAR A SIMETRIA: Intercale parágrafos "maiores" (25 a 35 palavras) com parágrafos de impacto ultracurtos formados por UMA ÚNICA FRASE (8 a 15 palavras). É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho visual. LIMITAÇÃO DE LISTAS: Use no máximo 2 a 3 listas (<ul>) em todo o artigo.
 8) BLOCO DE AUTORIDADE ORGÂNICO E RASTREÁVEL: É ESTRITAMENTE PROIBIDO usar muletas genéricas de falsa autoridade como "Segundo especialistas", "Estudos apontam" ou "A neurociência diz". 
@@ -1682,7 +1682,7 @@ GEO (GENERATIVE ENGINE OPTIMIZATION) E CHUNK CITABILITY – REGRAS OBRIGATÓRIAS
 REGRAS HTML E FORMATAÇÃO VISUAL (CRÍTICAS E ABSOLUTAS):
 9) Use exclusivamente HTML puro: <h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <a>. Sem Markdown ou <img>.
 10) O primeiro caractere DEVE ser <h1> e o último DEVE ser o fechamento da última tag HTML. O título <h1> DEVE TER NO MÁXIMO 60 CARACTERES. É ESTRITAMENTE PROIBIDO incluir o ano atual (ex: 2025, 2026) no título H1, mantenha-o atemporal.
-11) REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas").
+11) REGRA DE CAPITALIZAÇÃO E PRODUTOS (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão gramatical brasileiro: APENAS a primeira letra da frase e nomes próprios/marcas devem ser maiúsculos (Ex: "Como a tecnologia ajuda escolas", NUNCA "Como A Tecnologia Ajuda Escolas"). A ÚNICA EXCEÇÃO ABSOLUTA é para nomes de Produtos ou Ferramentas da marca (Ex: "Laboratório de Redação", "Pulso", "Programa Pleno"), que devem SEMPRE manter as iniciais maiúsculas em todo o texto para destacá-los como marca registrada.
 12) PROIBIDO PARÁGRAFOS SIMÉTRICOS: Verifique o texto antes de entregar. Se você notar que os parágrafos estão visualmente do mesmo tamanho, fragmente-os imediatamente. Obrigatoriamente inclua frases isoladas para criar respiros visuais profundos.
 13) VARIAÇÃO HUMANA DE RITMO (OBRIGATÓRIO E EXTREMO):
 Humanos não escrevem com ritmo perfeitamente regular. Introduza variação natural drástica:
@@ -1717,6 +1717,8 @@ A única marca privada do setor educacional que pode ser citada é a [Marca Alvo
 ESTRATÉGIA EDITORIAL, NARRATIVA E VOZ:
 22) DIRECIONAMENTO ESTRATÉGICO DO ESPECIALISTA (BÚSSOLA DO ARTIGO): O usuário pode fornecer um bloco de "Conteúdo Adicional" contendo teorias, autores, insumos próprios ou links. Você não precisa fazer um "copia e cola" literal e engessado, mas DEVE usar esses elementos como a base principal da sua argumentação. Use seu conhecimento interno para expandir as teorias ou autores citados, aprofunde os conceitos sugeridos e costure essas referências de forma fluida e inteligente para enriquecer o texto.
 23) FRAMEWORK DO ESTUDO DE CASO (P.A.R.): O seu "Estudo de Caso" não pode parecer um panfleto publicitário. Ele deve ser escrito na estrutura Problema (qual dor técnica havia) > Ação da Marca (qual tecnologia exata foi usada) > Resultado (o ganho institucional listado no brandbook). Use o nome comercial da marca.
+23.1) MODELO DE NEGÓCIO B2B E PERSONA (CRÍTICO): As marcas educacionais fornecidas (COC, SAS, Geekie, etc.) são B2B. Elas fornecem **ferramental, tecnologia e material didático** para escolas parceiras. NUNCA escreva que a marca "tem professores", "dá aulas" ou "é um cursinho". O foco é sempre mostrar como a ferramenta da marca "apoia o professor e a escola" a preparar "o aluno". NUNCA fale diretamente com o aluno no imperativo de compra (Ex: proibido usar "transforme sua preparação", use "transforme a preparação dos estudantes").
+23.2) VETO DE HIPÉRBOLES E FRASES VAZIAS: É TERMINANTEMENTE PROIBIDO usar verbos de exagero publicitário como "revoluciona", "mágica", "proporciona" ou frases vazias que não informam nada como "uma experiência completa de aprendizado". Prefira a sobriedade objetiva: "apoia", "permite que", "focado em".
 24) ENTITY SATURATION: Integre naturalmente as entidades mapeadas para provar domínio do nicho.
 25) VOZ EDITORIAL DE ANALISTA: Escreva como um analista que observa padrões do setor educacional.
 26) OBSERVAÇÃO OPERACIONAL (ANTI-TEXTO GENÉRICO):
@@ -2100,13 +2102,15 @@ def executar_adaptacao_documentos(palavra_chave, publico, marca, texto_base_docs
     4. BRAND WEAVING (INSERÇÃO NATURAL DA MARCA): Integre o nome da marca, seus diferenciais e seu propósito no MEIO do texto. A autoridade e a história da marca devem estar costuradas na narrativa. É OBRIGATÓRIO transformar a primeira menção da marca em um link: <a href="{url_marca}" target="_blank">[NOME DA MARCA]</a>.
     5. BLACKLIST DE IA E VETO DE CÓPIA (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar advérbios terminados em "mente" (ex: significativamente, extremamente), jargões corporativos (ex: "influenciar o desempenho agregado da escola", "escola parceira", "da coleção") ou locuções passivas como "foi estruturado para oferecer" (use o verbo direto: "oferece"). O foco de todo o benefício do texto DEVE SER O ALUNO.
     ATENÇÃO CRÍTICA: Mesmo que essas palavras proibidas estejam escritas literalmente no documento base fornecido, VOCÊ É OBRIGADO A REESCREVÊ-LAS E CORTÁ-LAS. A Blacklist tem prioridade absoluta sobre a fidelidade ao texto original. NUNCA use o H2 "Resposta rápida para:".
+    5.1. FOCO B2B2C (ALUNO + PROFESSOR/ESCOLA): Mesmo que o público seja "Geral", a marca NÃO vende para o aluno final. Toda vez que citar um benefício para o estudante, você DEVE conectar isso a como a ferramenta ajuda o professor ou a gestão escolar (Ex: "Os alunos produzem mais redações, e o professor tem acesso a dados precisos para apoiar o processo"). Substitua o imperativo direto ao leitor ("você", "sua preparação") por terceira pessoa ("o aluno", "a preparação dos estudantes").
+    5.2. BLACKLIST DE HIPÉRBOLES (TOLERÂNCIA ZERO): É ESTRITAMENTE PROIBIDO usar palavras como "revoluciona" e "proporciona", ou frases prontas e vazias como "experiência completa de aprendizado". Se não há um dado concreto amarrado, não escreva a frase. Troque frases rebuscadas (ex: "ampliar o volume de produção textual") por construções claras e diretas ("permite que os estudantes produzam mais simulados").
     6. CONCRETUDE OBRIGATÓRIA E REESCRITA DE CLICHÊS: Se o documento base fizer afirmações vazias (ex: "A redação é decisiva no ENEM"), você NÃO DEVE agir como um papagaio e apenas copiá-la. Você deve reescrevê-la ou enriquecê-la com fatos lógicos universais (ex: "visto que muitas instituições atribuem peso 2 ou 3 à nota final") para que a frase tenha peso. É proibido gerar introduções vazias.
 
     GEO E CHUNK CITABILITY (HTML E ESTRUTURA VISUAL):
     7. INTRODUÇÃO E LINHA FINA: O texto DEVE começar com o <h1>. Logo abaixo, crie uma "Linha Fina" (parágrafo em <em>) resumindo o texto. O 1º parágrafo normal deve introduzir a dor/solução direto ao ponto.
     7.1. FRAMEWORK DE PRODUTO: Siga estritamente a ordem de H2: Introdução -> O que é a ferramenta/dor resolvida -> Como Funciona (Detalhes) -> Vantagens -> Exemplos -> CTA final sobre a marca.
     8. ASSIMETRIA VISUAL EXTREMA (CRÍTICO): É TERMINANTEMENTE PROIBIDO que os parágrafos tenham o mesmo tamanho. Intercale parágrafos "maiores" (3 a 4 linhas) com frases de impacto isoladas em uma única linha. O ritmo visual deve oscilar drasticamente.
-    9. REGRA DE CAPITALIZAÇÃO (SENTENCE CASE): É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3. Use o padrão brasileiro: APENAS a primeira letra da frase e nomes próprios devem ser maiúsculos. O H1 deve ter no máximo 60 caracteres.
+    9. REGRA DE CAPITALIZAÇÃO E PRODUTOS: É ESTRITAMENTE PROIBIDO usar "Title Case" nos títulos H1, H2 e H3 (use o padrão brasileiro: apenas a primeira letra da frase maiúscula). A ÚNICA EXCEÇÃO ABSOLUTA é para **Nomes Próprios de Produtos ou Ferramentas da marca** (Ex: "Laboratório de Redação", "Pulso", "Plataforma X"). Estes devem SEMPRE manter as iniciais maiúsculas em todo o texto, para destacá-los como marca registrada.
     10. PREVENÇÃO DE ERRO JSON (CRÍTICO): Seu retorno será processado por json.loads(). É OBRIGATÓRIO usar aspas simples (') nas tags HTML (ex: <h2 class='titulo'>) em vez de aspas duplas. Se precisar usar aspas duplas no texto, coloque uma barra invertida antes da aspa.
 
     RETORNE EXCLUSIVAMENTE UM JSON:
