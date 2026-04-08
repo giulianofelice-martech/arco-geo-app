@@ -2341,19 +2341,25 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                 with st.spinner(f"Verificando conexão com o Firewall do {cms_t.upper()}..."):
                     try:
                         import base64
-                        token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-                        # Máscara de Chrome para TODOS (WP e Drupal)
-                        user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                         
-                        headers_teste = {
-                            'User-Agent': user_agent_ping, 
-                            'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
-                            'Authorization': f'Basic {token_teste}',
-                            'Connection': 'keep-alive'
-                        }
-                        
-                        # Ping rápido puxando só 1 post (bem leve)
-                        url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
+                        # Lógica de Ping separada para Webflow e WP/Drupal
+                        if cms_t == "webflow":
+                            headers_teste = {
+                                "accept": "application/json",
+                                "authorization": f"Bearer {cms_p.strip()}"
+                            }
+                            url_ping = f"{cms_u}?limit=1"
+                        else:
+                            token_teste = base64.b64encode(f"{cms_usr}:{cms_p.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
+                            user_agent_ping = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                            headers_teste = {
+                                'User-Agent': user_agent_ping, 
+                                'Accept': 'application/json' if cms_t == 'wp' else 'application/vnd.api+json',
+                                'Authorization': f'Basic {token_teste}',
+                                'Connection': 'keep-alive'
+                            }
+                            url_ping = f"{cms_u}?per_page=1" if cms_t == "wp" else f"{cms_u}?page[limit]=1"
+                            
                         res_ping = requests.get(url_ping, headers=headers_teste, timeout=5)
                         
                         if res_ping.status_code == 200:
