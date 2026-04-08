@@ -1008,16 +1008,17 @@ def listar_posts_webflow(w_url, w_user, w_pwd):
             lista_formatada = []
             for p in items:
                 field_data = p.get('fieldData', {})
-                titulo = field_data.get('name', 'Sem Título')
+                titulo = field_data.get('name', 'Sem Título') 
                 slug = field_data.get('slug', '')
-                # ATENÇÃO: 'post-body' é o nome padrão comum, mas pode ser diferente no seu painel.
-                conteudo = field_data.get('post-body', '') 
+                
+                # AQUI ESTAVA O ERRO: Alterado para buscar o campo "texto" conforme seu print
+                conteudo = field_data.get('texto', '') 
                 
                 lista_formatada.append({
                     "id": p.get("id"),
                     "title": {"rendered": titulo},
                     "content": {"rendered": conteudo},
-                    "link": f"https://isaac.com.br/conteudos/{slug}"
+                    "link": f"https://isaac.com.br/blog/{slug}" # Atualizado com o URL correto da sua Collection
                 })
             return lista_formatada
     except Exception as e:
@@ -1032,17 +1033,14 @@ def publicar_webflow(titulo, conteudo_html, meta_dict, w_url, w_user, w_pwd):
         "authorization": f"Bearer {w_pwd.strip()}"
     }
     
-    # IMPORTANTE: O nome do campo que recebe o HTML (ex: 'post-body') 
-    # e a Meta Description ('meta-description') variam conforme foram criados no Webflow.
-    # Ajuste as chaves abaixo para o que o seu time de desenvolvimento configurou.
     payload = {
         "isArchived": False,
-        "isDraft": True, # Garante que vai como rascunho
+        "isDraft": True, # Vai como rascunho
         "fieldData": {
             "name": titulo,
             "slug": slugify(titulo),
-            "post-body": conteudo_html, 
-            "meta-description": meta_dict.get("meta_description", "")
+            "texto": conteudo_html, # AQUI ESTAVA O ERRO: Enviando para o campo "texto"
+            "chamada": meta_dict.get("meta_description", "") # Mapeei a meta description para o seu campo "Chamada"
         }
     }
     
