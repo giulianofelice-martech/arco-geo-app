@@ -955,6 +955,106 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
         print(f"Erro no parser do Drupal: {e}")
         pass
     return []
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def buscar_artigos_relacionados_webflow(palavra_chave, w_url, w_user, w_pwd):
+    """RAG Reverso e Linkagem Interna para Webflow"""
+    if not (w_url and w_pwd): return "Sem credenciais Webflow."
+    
+    headers = {
+        "accept": "application/json",
+        "authorization": f"Bearer {w_pwd.strip()}"
+    }
+    
+    try:
+        res = requests.get(w_url, headers=headers, timeout=15)
+        if res.status_code == 200:
+            items = res.json().get("items", [])
+            
+            # Filtro local de fallback, já que o Webflow não tem busca literal via API nativa
+            relevantes = [i for i in items if palavra_chave.lower() in i.get('fieldData', {}).get('name', '').lower()]
+            if not relevantes:
+                relevantes = items[:10] # Fallback
+            
+            if not relevantes: return "Nenhum artigo encontrado no Webflow."
+            
+            ctx = "🔗 ARTIGOS DO PRÓPRIO BLOG (RAG REVERSO WEBFLOW):\n"
+            for p in relevantes[:10]:
+                field_data = p.get('fieldData', {})
+                titulo = field_data.get('name', 'Sem Título')
+                slug = field_data.get('slug', '')
+                
+                # Monta a URL base do blog do Isaac
+                link = f"https://isaac.com.br/conteudos/{slug}"
+                ctx += f"- Título: {titulo}\n  URL: {link}\n"
+            return ctx
+    except Exception as e:
+        return f"Erro Webflow RAG: {e}"
+    return "Falha na conexão com Webflow."
+
+@st.cache_data(ttl=300, show_spinner=False)
+def listar_posts_webflow(w_url, w_user, w_pwd):
+    """Busca posts para a aba de Auditoria e Revisor"""
+    if not (w_url and w_pwd): return []
+    
+    headers = {
+        "accept": "application/json",
+        "authorization": f"Bearer {w_pwd.strip()}"
+    }
+    try:
+        res = requests.get(w_url, headers=headers, timeout=15)
+        if res.status_code == 200:
+            items = res.json().get("items", [])
+            lista_formatada = []
+            for p in items:
+                field_data = p.get('fieldData', {})
+                titulo = field_data.get('name', 'Sem Título')
+                slug = field_data.get('slug', '')
+                # ATENÇÃO: 'post-body' é o nome padrão comum, mas pode ser diferente no seu painel.
+                conteudo = field_data.get('post-body', '') 
+                
+                lista_formatada.append({
+                    "id": p.get("id"),
+                    "title": {"rendered": titulo},
+                    "content": {"rendered": conteudo},
+                    "link": f"https://isaac.com.br/conteudos/{slug}"
+                })
+            return lista_formatada
+    except Exception as e:
+        print(f"Erro no parser do Webflow: {e}")
+    return []
+
+def publicar_webflow(titulo, conteudo_html, meta_dict, w_url, w_user, w_pwd):
+    """Envia o rascunho (Draft) direto para o CMS do Webflow"""
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Bearer {w_pwd.strip()}"
+    }
+    
+    # IMPORTANTE: O nome do campo que recebe o HTML (ex: 'post-body') 
+    # e a Meta Description ('meta-description') variam conforme foram criados no Webflow.
+    # Ajuste as chaves abaixo para o que o seu time de desenvolvimento configurou.
+    payload = {
+        "isArchived": False,
+        "isDraft": True, # Garante que vai como rascunho
+        "fieldData": {
+            "name": titulo,
+            "slug": slugify(titulo),
+            "post-body": conteudo_html, 
+            "meta-description": meta_dict.get("meta_description", "")
+        }
+    }
+    
+    try:
+        response = requests.post(w_url, json=payload, headers=headers, timeout=30)
+        return response
+    except Exception as e:
+        class ErrorResponse:
+            status_code = 500
+            text = f"Erro interno de conexão: {str(e)}"
+            def json(self): return {}
+        return ErrorResponse()
     
 # ==========================================================
 # NOVAS FUNÇÕES INCREMENTAIS DE ROBUSTEZ E GEO (v5 e v6)
@@ -1386,6 +1486,8 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         # O script decide qual CMS atacar
         if cms_type == "drupal":
             futuro_wp_rag = executor.submit(buscar_artigos_relacionados_drupal, palavra_chave, cms_url, cms_user, cms_pwd)
+        elif cms_type == "webflow":
+            futuro_wp_rag = executor.submit(buscar_artigos_relacionados_webflow, palavra_chave, cms_url, cms_user, cms_pwd)
         else:
             futuro_wp_rag = executor.submit(buscar_artigos_relacionados_wp, palavra_chave, cms_url, cms_user, cms_pwd)
         
@@ -2456,6 +2558,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         with st.spinner(f"Enviando via API para o {cms_t.upper()}..."):
                             if cms_t == "drupal":
                                 res = publicar_drupal(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
+                            elif cms_t == "webflow":
+                                res = publicar_webflow(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
                             else:
                                 res = publicar_wp(meta.get("title", st.session_state['keyword_atual']), st.session_state['art_gerado'], meta, cms_u, cms_usr, cms_p)
                             
@@ -2716,6 +2820,8 @@ elif st.session_state['current_page'] == "Revisor de GEO":
             if url_r and user_r and pwd_r:
                 if type_r == "drupal":
                     posts_cms = listar_posts_drupal(url_r, user_r, pwd_r)
+                elif type_r == "webflow":
+                    posts_cms = listar_posts_webflow(url_r, user_r, pwd_r)
                 else:
                     posts_cms = listar_posts_wp(url_r, user_r, pwd_r)
                 
@@ -2880,6 +2986,8 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 with st.spinner(f"Buscando os últimos artigos publicados no {cms_t_aud.upper()}..."):
                     if cms_t_aud == "drupal":
                         posts_aud = listar_posts_drupal(cms_u_aud, cms_usr_aud, cms_p_aud)
+                    elif cms_t_aud == "webflow":
+                        posts_aud = listar_posts_webflow(cms_u_aud, cms_usr_aud, cms_p_aud)
                     else:
                         posts_aud = listar_posts_wp(cms_u_aud, cms_usr_aud, cms_p_aud)
                     
