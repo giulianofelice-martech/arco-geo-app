@@ -740,6 +740,34 @@ def buscar_baseline_llm(palavra_chave):
         return f"Erro ao buscar Baseline de IA: {e}"
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def simular_multi_agentes(termo):
+    """Dispara a mesma pergunta para 3 motores gerativos diferentes em paralelo."""
+    system_prompt = "Você é um assistente de IA focado em pesquisa. Responda à pergunta do usuário de forma direta. Se houver instituições, marcas ou artigos de referência, cite-os."
+    
+    # Modelos disponíveis no OpenRouter para teste de Citação
+    modelos = {
+        "Perplexity (Web Search)": "perplexity/llama-3.1-sonar-large-128k-online",
+        "Gemini Flash": "google/gemini-2.5-flash",
+        "Claude 3.5 Sonnet": "anthropic/claude-3.5-sonnet"
+    }
+    
+    resultados_agentes = {}
+    
+    def consultar_ia(nome, modelo):
+        try:
+            return nome, chamar_llm(system_prompt, termo, model=modelo, temperature=0.1)
+        except Exception as e:
+            return nome, f"Erro: {e}"
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(consultar_ia, nome, modelo) for nome, modelo in modelos.items()]
+        for future in concurrent.futures.as_completed(futures):
+            nome, resposta = future.result()
+            resultados_agentes[nome] = resposta
+            
+    return resultados_agentes
+
+@st.cache_data(ttl=3600, show_spinner=False)
 def buscar_artigos_relacionados_wp(palavra_chave, wp_url, wp_user, wp_pwd):
     """
     RAG Reverso dinâmico com Fallback: Tenta buscar pela keyword. 
@@ -3089,59 +3117,79 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 st.write(f"🎯 Buscas que serão rastreadas: *{', '.join(buscas_alvo)}*")
                 
                 # Passo 2: Pesquisar as buscas no Google e LLMs em paralelo
-                st.write("2️⃣ Rastreadores vasculhando o Google e consultando LLMs...")
+                st.write("2️⃣ Rastreadores vasculhando o Google e consultando Multi-Agentes (Perplexity, Gemini, Claude)...")
                 resultados_google_agregados = ""
-                resultados_ia_agregados = ""
+                resultados_ia_agregados = {} # Agora é um dicionário para os vários agentes
                 
                 def auditar_termo(termo):
-                    return buscar_contexto_google(termo), buscar_baseline_llm(termo)
+                    return buscar_contexto_google(termo), simular_multi_agentes(termo)
                 
-                # Executa múltiplas buscas simultâneas para ser rápido
+                # Executa múltiplas buscas simultâneas
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     futures = {executor.submit(auditar_termo, q): q for q in buscas_alvo}
                     for future in concurrent.futures.as_completed(futures):
                         q = futures[future]
                         try:
-                            g_res, ia_res = future.result(timeout=45)
+                            g_res, ia_res_dict = future.result(timeout=60)
                             resultados_google_agregados += f"\n\n--- Busca: '{q}' ---\n{g_res}"
-                            resultados_ia_agregados += f"\n\n--- Busca: '{q}' ---\n{ia_res}"
+                            
+                            # Agrupa os resultados das IAs por agente
+                            for nome_ia, resposta in ia_res_dict.items():
+                                if nome_ia not in resultados_ia_agregados:
+                                    resultados_ia_agregados[nome_ia] = ""
+                                resultados_ia_agregados[nome_ia] += f"\n\n--- Busca: '{q}' ---\n{resposta}"
+                                
                         except Exception as e:
                             st.write(f"⚠️ Timeout/Erro ao buscar o termo '{q}': {e}")
 
-                # Passo 3: Varrer os resultados procurando a URL
-                st.write("3️⃣ Cruzando dados e procurando a URL fornecida...")
+                # Passo 3: Varrer os resultados procurando a URL e a Marca
+                st.write("3️⃣ Cruzando dados e procurando a URL fornecida nas respostas...")
                 
                 url_limpa = url_auditor.lower().replace("https://", "").replace("http://", "").replace("www.", "").strip()
-                # Tira a barra final se existir para não falhar no match do Google
                 if url_limpa.endswith('/'): url_limpa = url_limpa[:-1] 
                 
                 marca_limpa = marca_auditor.lower().replace(" ", "")
                 
                 google_ranqueia_url = url_limpa in resultados_google_agregados.lower()
-                ia_menciona_marca = marca_limpa in resultados_ia_agregados.lower().replace(" ", "")
                 
                 status_aud.update(label="✅ Auditoria Concluída!", state="complete", expanded=False)
 
             # ==================================
-            # Passo 4: Avaliação e Revisor GEO
+            # Passo 4: Avaliação e Placar GEO
             # ==================================
             st.markdown("---")
             st.subheader("🎯 Veredito da Auditoria")
             
             c_res1, c_res2 = st.columns(2)
             with c_res1:
-                st.markdown("### 🌐 Google Search (Múltiplas Buscas)")
+                st.markdown("### 🌐 Google Search Clássico")
                 if google_ranqueia_url:
                     st.success(f"✅ **SUCESSO EXTREMO!** A URL do seu artigo foi encontrada no Top 3 orgânico ou Featured Snippets para as buscas testadas.")
                 else:
                     st.error(f"❌ **NÃO RANQUEIA.** O Google não está mostrando sua URL no Top 3 para o Intent Map gerado.")
             
             with c_res2:
-                st.markdown("### 🤖 Consenso de IA (Share of Voice)")
-                if ia_menciona_marca:
-                    st.success(f"✅ **AUTORIDADE RECONHECIDA!** As IAs estão citando a marca **{marca_auditor}** espontaneamente nestes tópicos.")
-                else:
-                    st.error(f"❌ **PONTO CEGO DE IA.** O consenso das inteligências artificiais não cita a sua marca como autoridade nessas buscas.")
+                st.markdown("### 🤖 Placar de Citação (Multi-Agentes)")
+                
+                score_agentes = 0
+                total_agentes = len(resultados_ia_agregados)
+                ia_menciona_marca = False # Controle global
+                
+                for nome_ia, respostas_agregadas in resultados_ia_agregados.items():
+                    texto_limpo = respostas_agregadas.lower()
+                    
+                    # Verifica se a IA citou a URL do post OU o nome da marca
+                    if url_limpa in texto_limpo or marca_limpa in texto_limpo.replace(" ", ""):
+                        st.success(f"✅ **{nome_ia}**: Mencionou a marca/artigo!")
+                        score_agentes += 1
+                        ia_menciona_marca = True
+                    else:
+                        st.error(f"❌ **{nome_ia}**: Ponto cego. Não recomendou você.")
+                        
+                if score_agentes >= 2:
+                    st.info("🏆 **Excelente Share of Voice!** A maioria das IAs considera você uma autoridade neste termo.")
+                elif score_agentes == 1:
+                    st.warning("⚠️ **Alerta:** Apenas uma IA reconhece sua autoridade. Risco de perder tráfego no SGE.")
             
             st.markdown("<br>", unsafe_allow_html=True)
             
