@@ -1228,12 +1228,12 @@ def executar_revisao_geo_wp(palavra_chave, publico, marca, html_atual):
     
     DIRETRIZES DE REVISÃO E REESCRITA OBRIGATÓRIAS:
     1. ASSIMETRIA VISUAL EXTREMA: Destrua blocos de texto maciços. Intercale parágrafos "maiores" (3-4 linhas) com parágrafos de UMA ÚNICA FRASE (respiro visual profundo). É proibido que os parágrafos tenham tamanho simétrico.
-    2. ANSWER-FIRST: Crie um <h2>Resposta rápida para: [palavra-chave]</h2> logo no início e entregue a resposta mastigada em 2 linhas com a tag <p><strong>Resposta direta:</strong>.
-    3. CHUNK CITABILITY: Insira um <p><strong>Definição:</strong> com menos de 30 palavras no início. Limite listas (<ul>) a no máximo 2 em todo o artigo.
-    4. BRANDBOOK DA MARCA: Reescreva trechos fora de tom usando o Tom de Voz e Posicionamento exigidos no briefing. Garanta que o nome da marca seja linkado para a URL oficial.
-    5. PRESERVAÇÃO DE DADOS: Mantenha as informações e ideias do texto original. Não invente "Estudos da OCDE" ou dados matemáticos se eles não estiverem no texto original.
-    6. Mantenha os marcadores `<br>Resumo Estratégico<br>` e `<br>Perguntas Frequentes<br>` onde achar pertinente para o novo esqueleto.
-    7. PRESERVAÇÃO DE LINKS E IMAGENS (REGRA INTOCÁVEL): É ESTRITAMENTE PROIBIDO remover, alterar URLs, ou deletar tags `<a>` (hiperlinks), `<img>` e `<figure>` que já estão no HTML original. Você deve reposicioná-las logicamente no novo texto, mantendo os atributos `href`, `src` e classes intactos. O seu trabalho é melhorar o copywriting e a estrutura em volta da mídia, NUNCA apagar o trabalho de linkagem interna/externa e imagens que o redator original já fez.
+    2. ANSWER-FIRST ORGÂNICO (ANTI-ROBÔ): O texto DEVE entregar a resposta principal logo nas 3 primeiras linhas do primeiro parágrafo, usando negrito (<strong>) no conceito principal. É ESTRITAMENTE PROIBIDO criar cabeçalhos artificiais como "<h2>Resposta rápida para:</h2>" ou rótulos como "<p><strong>Resposta direta:</strong>". A leitura deve ser fluida e humana.
+    3. CHUNK CITABILITY: O texto deve conter definições curtas diluídas nos parágrafos (menos de 30 palavras). Limite listas (<ul>) a no máximo 2 em todo o artigo. É ESTRITAMENTE PROIBIDO usar rótulos artificiais como "<p><strong>Definição:</strong>".
+    4. BRANDBOOK DA MARCA E VETO A IA: Reescreva trechos fora de tom usando o Tom de Voz do briefing. Remova jargões clássicos de IA que possam estar no texto antigo ("no cenário atual", "cada vez mais", "em resumo").
+    5. PRESERVAÇÃO DE DADOS (ANTI-ALUCINAÇÃO): Mantenha as informações e ideias do texto original. Não invente "Estudos da OCDE" ou dados matemáticos se eles não estiverem no texto original.
+    6. ESTRUTURA GEO: Mantenha ou insira os marcadores `<br>Resumo Estratégico<br>` logo após a introdução e `<br>Perguntas Frequentes<br>` no final do texto para o novo esqueleto.
+    7. PRESERVAÇÃO DE LINKS E IMAGENS (REGRA INTOCÁVEL): É ESTRITAMENTE PROIBIDO remover, alterar URLs, ou deletar tags `<a>` (hiperlinks), `<img>` e `<figure>` que já estão no HTML original. Você deve reposicioná-las logicamente no novo texto. O seu trabalho é melhorar o copywriting e a estrutura em volta da mídia, NUNCA apagar o trabalho de linkagem e imagens que o redator original já fez.
     8. CORREÇÃO DE CAPITALIZAÇÃO (CRÍTICO): Revise todos os títulos (H1, H2, H3). Se eles estiverem em "Title Case" (Todas As Iniciais Maiúsculas), reescreva-os IMEDIATAMENTE para o padrão brasileiro "Sentence Case" (Apenas a primeira letra e nomes próprios em maiúscula).
     
     RETORNE EXCLUSIVAMENTE UM JSON SEGUINDO ESTE FORMATO EXATO:
