@@ -746,9 +746,9 @@ def simular_multi_agentes(termo):
     
     # Modelos disponíveis no OpenRouter para teste de Citação
     modelos = {
-        "Perplexity (Web Search)": "perplexity/llama-3.1-sonar-large-128k-online",
-        "Gemini Flash": "google/gemini-2.5-flash",
-        "Claude 3.5 Sonnet": "anthropic/claude-3.5-sonnet"
+        "Perplexity (Web Search)": "perplexity/sonar-pro", # O modelo com acesso web que você validou
+        "Gemini Flash": "google/gemini-2.5-flash", 
+        "Claude 3.7 Sonnet": "anthropic/claude-3.7-sonnet" # Atualizado para a versão que você testou
     }
     
     resultados_agentes = {}
@@ -3175,18 +3175,23 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 total_agentes = len(resultados_ia_agregados)
                 ia_menciona_marca = False # Controle global
                 
+                # Extrai apenas o domínio e o caminho do post para o radar (Ex: coc.com.br/artigo-enem)
+                url_limpa = url_auditor.lower().replace("https://", "").replace("http://", "").replace("www.", "").strip()
+                if url_limpa.endswith('/'): url_limpa = url_limpa[:-1]
+                
                 for nome_ia, respostas_agregadas in resultados_ia_agregados.items():
                     texto_limpo = respostas_agregadas.lower()
                     
-                    # Verifica se a IA citou a URL do post OU o nome da marca
-                    if url_limpa in texto_limpo or marca_limpa in texto_limpo.replace(" ", ""):
-                        st.success(f"✅ **{nome_ia}**: Mencionou a marca/artigo!")
+                    # RADAR ESTREITO: Só dá sucesso se a URL ESPECÍFICA do blogpost aparecer na resposta.
+                    # Se você quiser que o nome da marca (Ex: " COC") também sirva, adicione: or f" {marca_auditor.lower()} " in texto_limpo
+                    if url_limpa in texto_limpo:
+                        st.success(f"✅ **{nome_ia}**: Mencionou o seu artigo!")
                         score_agentes += 1
                         ia_menciona_marca = True
                     else:
-                        st.error(f"❌ **{nome_ia}**: Ponto cego. Não recomendou você.")
+                        st.error(f"❌ **{nome_ia}**: Ponto cego. Não recomendou o seu artigo.")
                     
-                    # --- NOVO: EXPANSORES PARA LER A RESPOSTA BRUTA ---
+                    # --- EXPANSORES PARA LER A RESPOSTA BRUTA ---
                     with st.expander(f"👀 Ver o que o {nome_ia} respondeu"):
                         if "Erro:" in respostas_agregadas:
                             st.error(respostas_agregadas) # Mostra o erro da API, se houver
