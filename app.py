@@ -1527,7 +1527,7 @@ def executar_geracao_completa(palavra_chave, marca_alvo, publico_alvo, conteudo_
         except:
             reverse_queries = "{}"
         try:
-            manual_voz_gemini = futuro_gemini.result(timeout=40)
+            manual_voz_gemini = futuro_gemini.result(timeout=100)
         except concurrent.futures.TimeoutError:
             manual_voz_gemini = f"Timeout Gemini. Use Brandbook: {brandbook_txt}"    
         try:
