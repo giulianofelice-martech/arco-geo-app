@@ -742,7 +742,9 @@ def buscar_baseline_llm(palavra_chave):
 @st.cache_data(ttl=3600, show_spinner=False)
 def simular_multi_agentes(termo):
     """Dispara a mesma pergunta para 3 motores gerativos diferentes em paralelo."""
-    system_prompt = "Você é um assistente de IA focado em pesquisa. Responda à pergunta do usuário de forma direta. Se houver instituições, marcas ou artigos de referência, cite-os."
+    system_prompt = """Você é um motor de busca gerativo focado em entregar respostas precisas. 
+    REGRA CRÍTICA E ABSOLUTA: No final da sua resposta, você DEVE obrigatoriamente criar uma seção chamada 'FONTES UTILIZADAS:' e imprimir as URLs COMPLETAS, exatas e clicáveis de todos os sites que você leu para montar a resposta. 
+    É ESTRITAMENTE PROIBIDO usar apenas marcadores como [1] ou [2] sem listar o link completo no final. Escreva o link inteiro (Ex: https://www.site.com.br/artigo)."""
     
     # Modelos disponíveis no OpenRouter para teste de Citação
     modelos = {
