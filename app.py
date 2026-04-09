@@ -955,12 +955,19 @@ def listar_posts_wp(wp_url, wp_user, wp_pwd):
 def listar_posts_drupal(d_url, d_user, d_pwd):
     if not (d_url and d_user and d_pwd): return []
     import base64
+    import urllib.parse # Necessário para montar a URL base
+    
     token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
         'Accept': 'application/vnd.api+json', 
         'Authorization': f'Basic {token_auth}'
     }
+    
+    # Extrai a base do site (Ex: https://www.saseducacao.com.br)
+    parsed_url = urllib.parse.urlparse(d_url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    
     try:
         res = requests.get(f"{d_url}?sort=-created&page[limit]=15", headers=headers, timeout=15)
         if res.status_code == 200:
@@ -975,17 +982,24 @@ def listar_posts_drupal(d_url, d_user, d_pwd):
                 body_data = attrs.get("body") or {}
                 conteudo = body_data.get("value", "") if isinstance(body_data, dict) else ""
                 
+                # --- NOVO: Extraindo o Link/Alias do Drupal ---
+                path_data = attrs.get("path") or {}
+                alias = path_data.get("alias", "") if isinstance(path_data, dict) else ""
+                
+                # Monta a URL completa para o Auditor
+                link_completo = f"{base_url}/{alias.lstrip('/')}" if alias else ""
+                
                 lista_formatada.append({
                     "id": p.get("id"),
                     "title": {"rendered": titulo},
-                    "content": {"rendered": conteudo}
+                    "content": {"rendered": conteudo},
+                    "link": link_completo # O Auditor agora vai achar isso!
                 })
             return lista_formatada
     except Exception as e:
         print(f"Erro no parser do Drupal: {e}")
         pass
     return []
-
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_artigos_relacionados_webflow(palavra_chave, w_url, w_user, w_pwd):
     """RAG Reverso e Linkagem Interna para Webflow"""
