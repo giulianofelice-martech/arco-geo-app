@@ -3185,12 +3185,20 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                         ia_menciona_marca = True
                     else:
                         st.error(f"❌ **{nome_ia}**: Ponto cego. Não recomendou você.")
+                    
+                    # --- NOVO: EXPANSORES PARA LER A RESPOSTA BRUTA ---
+                    with st.expander(f"👀 Ver o que o {nome_ia} respondeu"):
+                        if "Erro:" in respostas_agregadas:
+                            st.error(respostas_agregadas) # Mostra o erro da API, se houver
+                        else:
+                            st.markdown(respostas_agregadas) # Mostra a resposta formatada da IA
                         
+                # Lógica de aviso final da coluna 2
                 if score_agentes >= 2:
                     st.info("🏆 **Excelente Share of Voice!** A maioria das IAs considera você uma autoridade neste termo.")
                 elif score_agentes == 1:
                     st.warning("⚠️ **Alerta:** Apenas uma IA reconhece sua autoridade. Risco de perder tráfego no SGE.")
-            
+                                
             st.markdown("<br>", unsafe_allow_html=True)
             
             # Lógica de Encaminhamento
@@ -3211,7 +3219,13 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 st.code(resultados_google_agregados if resultados_google_agregados else "Sem dados.", language="markdown")
                 
                 st.markdown("**Como as IAs responderam às perguntas hoje:**")
-                st.code(resultados_ia_agregados if resultados_ia_agregados else "Sem dados.", language="markdown")
+                # --- SUBSTITUA A LINHA DO ST.CODE AQUI POR ESTE LOOP ---
+                if isinstance(resultados_ia_agregados, dict):
+                    for ia_name, ia_text in resultados_ia_agregados.items():
+                        st.markdown(f"**🤖 {ia_name}:**")
+                        st.info(ia_text if ia_text else "Sem resposta.")
+                else:
+                    st.code(resultados_ia_agregados if resultados_ia_agregados else "Sem dados.", language="markdown")
 
 st.markdown("""
 <div style="text-align: center; color: #6b7280; font-size: 13px; margin-top: 60px; padding-top: 20px; border-top: 1px solid #e5e7eb; line-height: 1.8;">
