@@ -11,48 +11,103 @@ import urllib.parse
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
 import streamlit.components.v1 as components
-
-def injetar_ga4():
-    """Injeta o Google Analytics 4 no DOM principal do Streamlit."""
+  
+def injetar_ga4(path_atual):
+    """Injeta o GA4 sem delays (Disparo Instantâneo)."""
     GA4_ID = "G-YWQ3BETC7C"
     
+    titulo_pagina = f"Motor GEO | {path_atual.strip('/').capitalize()}"
+    if path_atual == "/home": titulo_pagina = "Motor GEO | Home"
+    
+    timestamp = int(time.time() * 1000)
+    
     ga4_script = f"""
-    <script>
-        const parentDoc = window.parent.document;
-        if (!parentDoc.getElementById('ga4-script')) {{
-            const script1 = parentDoc.createElement('script');
-            script1.id = 'ga4-script';
-            script1.async = true;
-            script1.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
-            parentDoc.head.appendChild(script1);
+    <script id="ga4-exec-{timestamp}">
+        try {{
+            const pWin = window.parent;
+            const pDoc = pWin.document;
+            const cPath = '{path_atual}';
+            const cTitle = '{titulo_pagina}';
+            const ga4Id = '{GA4_ID}';
 
-            const script2 = parentDoc.createElement('script');
-            script2.innerHTML = `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){{dataLayer.push(arguments);}}
-                gtag('js', new Date());
-                gtag('config', '{GA4_ID}');
-            `;
-            parentDoc.head.appendChild(script2);
+            // 1. Instalação Básica 
+            if (!pDoc.getElementById('ga4-base-script')) {{
+                const s = pDoc.createElement('script');
+                s.id = 'ga4-base-script';
+                s.async = true;
+                s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+                pDoc.head.appendChild(s);
+
+                pWin.dataLayer = pWin.dataLayer || [];
+                pWin.gtag = function() {{ pWin.dataLayer.push(arguments); }};
+                pWin.gtag('js', new Date());
+                
+                // Desliga disparo automático
+                pWin.gtag('config', ga4Id, {{ 'send_page_view': false }});
+            }}
+
+            // 2. Disparo Imediato (Sem setTimeout)
+            if (typeof pWin.gtag === 'function') {{
+                pWin.gtag('event', 'page_view', {{
+                    'page_path': cPath,
+                    'page_title': cTitle,
+                    'send_to': ga4Id
+                }});
+            }}
+
+        }} catch(e) {{
+            console.error("Erro GA4 Custom:", e);
         }}
     </script>
     """
-    components.html(ga4_script, width=0, height=0)
-
+    
+    # 3. Cadeado Python
+    if st.session_state.get('last_ga_path') != path_atual:
+        components.html(ga4_script, width=0, height=0)
+        st.session_state['last_ga_path'] = path_atual
+        
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
 
-# ATIVA O GOOGLE ANALYTICS 4
-injetar_ga4()
-
-# Lógica de Navegação via Query Parameters (Mais estável que botões)
+# 1.1 Lógica de Navegação via Query Parameters (APENAS UMA VEZ)
 query_params = st.query_params
+
 if 'current_page' not in st.session_state:
-    st.session_state['current_page'] = query_params.get("page", "Gerador de Artigos")
+    # Lê a URL ao abrir o app
+    mapa_reverso = {
+        "gerador": "Gerador de Artigos", "brandbook": "BrandBook", 
+        "monitor": "Monitor de GEO", "revisor": "Revisor de GEO", "auditor": "Auditor de Artigos"
+    }
+    pagina_url = query_params.get("page", "gerador")
+    st.session_state['current_page'] = mapa_reverso.get(pagina_url, "Gerador de Artigos")
+
 if 'show_inputs' not in st.session_state:
     st.session_state['show_inputs'] = False
+
+# 1.2 Mapeia o estado atual para o Path do GA4
+page_name = st.session_state.get('current_page')
+show_inputs = st.session_state.get('show_inputs')
+
+if page_name == "Gerador de Artigos":
+    path_atual = "/gerador" if show_inputs else "/home"
+elif page_name == "BrandBook":
+    path_atual = "/brandbook"
+elif page_name == "Monitor de GEO":
+    path_atual = "/monitor"
+elif page_name == "Revisor de GEO":
+    path_atual = "/revisor"
+elif page_name == "Auditor de Artigos":
+    path_atual = "/auditor"
+else:
+    path_atual = "/home"
+
+# 1.3 Atualiza a URL visualmente no navegador
+st.query_params["page"] = path_atual.strip("/")
+
+# 1.4 Injeta o GA4 com o path correto
+injetar_ga4(path_atual)
 
 # ==========================================
 # ESTILOS GLOBAIS
