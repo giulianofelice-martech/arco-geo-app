@@ -65,6 +65,36 @@ def injetar_ga4(path_atual):
     if st.session_state.get('last_ga_path') != path_atual:
         components.html(ga4_script, width=0, height=0)
         st.session_state['last_ga_path'] = path_atual
+
+def disparar_evento_geracao(keyword, marca):
+    """Dispara um evento customizado no GA4 informando que um artigo foi gerado."""
+    GA4_ID = "G-YWQ3BETC7C"
+    
+    # Usamos o timestamp para o Streamlit renderizar o JS na hora
+    timestamp = int(time.time() * 1000)
+    
+    # Limpamos aspas ou quebras de linha para não quebrar o Javascript
+    keyword_limpa = str(keyword).replace("'", "").replace('"', '').replace('\n', ' ')
+    marca_limpa = str(marca).replace("'", "").replace('"', '')
+    
+    evento_script = f"""
+    <script id="ga4-event-{timestamp}">
+        try {{
+            const pWin = window.parent;
+            if (typeof pWin.gtag === 'function') {{
+                // Dispara o evento customizado chamado 'artigo_gerado'
+                pWin.gtag('event', 'artigo_gerado', {{
+                    'search_query': '{keyword_limpa}',
+                    'marca_alvo': '{marca_limpa}',
+                    'send_to': '{GA4_ID}'
+                }});
+            }}
+        }} catch(e) {{
+            console.error("Erro GA4 Event:", e);
+        }}
+    </script>
+    """
+    components.html(evento_script, width=0, height=0)
         
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -2571,6 +2601,10 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['marca_atual'] = marca_selecionada
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
+
+                        # Gatilho do GA4 (Dispara a query e a marca para o painel)
+                        disparar_evento_geracao(palavra_chave_input, marca_selecionada)
+                        
                     except Exception as e:
                         status.update(label="❌ Erro durante a geração", state="error")
                         st.error(f"Erro Crítico: {e}")
