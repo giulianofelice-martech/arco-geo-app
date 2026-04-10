@@ -10,11 +10,42 @@ import concurrent.futures
 import urllib.parse
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, Field, ValidationError, field_validator
+import streamlit.components.v1 as components
+
+def injetar_ga4():
+    """Injeta o Google Analytics 4 no DOM principal do Streamlit."""
+    GA4_ID = "G-YWQ3BETC7C"
+    
+    ga4_script = f"""
+    <script>
+        const parentDoc = window.parent.document;
+        if (!parentDoc.getElementById('ga4-script')) {{
+            const script1 = parentDoc.createElement('script');
+            script1.id = 'ga4-script';
+            script1.async = true;
+            script1.src = 'https://www.googletagmanager.com/gtag/js?id={GA4_ID}';
+            parentDoc.head.appendChild(script1);
+
+            const script2 = parentDoc.createElement('script');
+            script2.innerHTML = `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){{dataLayer.push(arguments);}}
+                gtag('js', new Date());
+                gtag('config', '{GA4_ID}');
+            `;
+            parentDoc.head.appendChild(script2);
+        }}
+    </script>
+    """
+    components.html(ga4_script, width=0, height=0)
 
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
+
+# ATIVA O GOOGLE ANALYTICS 4
+injetar_ga4()
 
 # Lógica de Navegação via Query Parameters (Mais estável que botões)
 query_params = st.query_params
