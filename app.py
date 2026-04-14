@@ -123,6 +123,44 @@ def disparar_evento_customizado(nome_evento, keyword, marca):
     </script>
     """
     components.html(evento_script, width=0, height=0)
+
+def disparar_evento_customizado(nome_evento, keyword, marca, url=""):
+    """Dispara eventos customizados no GA4 com suporte a URL opcional."""
+    GA4_ID = "G-343MMKCTX3"
+    timestamp = int(time.time() * 1000)
+    
+    # Limpeza básica de segurança
+    keyword_limpa = str(keyword).replace("'", "").replace('"', '').replace('\n', ' ')
+    marca_limpa = str(marca).replace("'", "").replace('"', '')
+    url_limpa = str(url).strip()
+
+    # Preparamos os parâmetros do evento
+    params = {
+        'search_query': keyword_limpa,
+        'marca_alvo': marca_limpa,
+        'send_to': GA4_ID
+    }
+    
+    # Se houver URL (caso do Auditor), adicionamos ao pacote
+    if url_limpa:
+        params['url_selecionada'] = url_limpa
+
+    # Convertemos para JSON para o JS ler sem erros
+    params_json = json.dumps(params)
+    
+    evento_script = f"""
+    <script id="ga4-{nome_evento}-{timestamp}">
+        try {{
+            const pWin = window.parent;
+            if (typeof pWin.gtag === 'function') {{
+                pWin.gtag('event', '{nome_evento}', {params_json});
+            }}
+        }} catch(e) {{
+            console.error("Erro GA4 Event ({nome_evento}):", e);
+        }}
+    </script>
+    """
+    components.html(evento_script, width=0, height=0)
         
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -3326,6 +3364,15 @@ elif st.session_state['current_page'] == "Auditor de Artigos":
                 google_ranqueia_url = url_limpa in resultados_google_agregados.lower()
                 
                 status_aud.update(label="✅ Auditoria Concluída!", state="complete", expanded=False)
+
+                # ---> GATILHO GA4: ARTIGO AUDITADO <---
+                disparar_evento_customizado(
+                    nome_evento="artigo_auditado", 
+                    keyword=palavra_chave_auditor, 
+                    marca=marca_auditor, 
+                    url=url_auditor
+                )
+                # --------------------------------------
 
             # ==================================
             # Passo 4: Avaliação e Placar GEO
