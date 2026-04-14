@@ -95,6 +95,34 @@ def disparar_evento_geracao(keyword, marca):
     </script>
     """
     components.html(evento_script, width=0, height=0)
+
+def disparar_evento_customizado(nome_evento, keyword, marca):
+    """Dispara eventos customizados no GA4 com proteção de caracteres."""
+    GA4_ID = "G-343MMKCTX3"
+    
+    timestamp = int(time.time() * 1000)
+    
+    # Limpeza brutal para evitar que aspas quebrem o Javascript
+    keyword_limpa = str(keyword).replace("'", "").replace('"', '').replace('\n', ' ')
+    marca_limpa = str(marca).replace("'", "").replace('"', '')
+    
+    evento_script = f"""
+    <script id="ga4-{nome_evento}-{timestamp}">
+        try {{
+            const pWin = window.parent;
+            if (typeof pWin.gtag === 'function') {{
+                pWin.gtag('event', '{nome_evento}', {{
+                    'search_query': '{keyword_limpa}',
+                    'marca_alvo': '{marca_limpa}',
+                    'send_to': '{GA4_ID}'
+                }});
+            }}
+        }} catch(e) {{
+            console.error("Erro GA4 Event ({nome_evento}):", e);
+        }}
+    </script>
+    """
+    components.html(evento_script, width=0, height=0)
         
 # ==========================================
 # 1. CONFIGURAÇÃO DA PÁGINA
@@ -3092,6 +3120,15 @@ elif st.session_state['current_page'] == "Revisor de GEO":
                         }
                     
                     st.success("Adaptação concluída com sucesso!")
+
+                    # ---> GATILHO GA4: ROTEADOR DE EVENTOS <---
+                    if modo_input == "Upload de Documentos (Base de Conhecimento)":
+                        # É uma adaptação/teaser de um material rico
+                        disparar_evento_customizado("adaptacao_gerada", palavra_chave_rev, marca_rev)
+                    else:
+                        # Cobre tanto "Puxar do WordPress" quanto "Inserir HTML Manualmente"
+                        disparar_evento_customizado("revisao_gerada", palavra_chave_rev, marca_rev)
+                    # ------------------------------------------
                     
                     col_resultado_1, col_resultado_2 = st.columns(2)
                     
