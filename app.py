@@ -174,7 +174,7 @@ if 'current_page' not in st.session_state:
     # Lê a URL ao abrir o app
     mapa_reverso = {
         "gerador": "Gerador de Artigos", "brandbook": "BrandBook", 
-        "monitor": "Monitor de GEO", "revisor": "Revisor de GEO", "auditor": "Auditor de Artigos"
+        "monitor": "Monitor de GEO", "revisor": "Revisor & Adaptador de Artigos", "auditor": "Auditor de Artigos"
     }
     pagina_url = query_params.get("page", "gerador")
     st.session_state['current_page'] = mapa_reverso.get(pagina_url, "Gerador de Artigos")
@@ -192,7 +192,7 @@ elif page_name == "BrandBook":
     path_atual = "/brandbook"
 elif page_name == "Monitor de GEO":
     path_atual = "/monitor"
-elif page_name == "Revisor de GEO":
+elif page_name == "Revisor & Adaptador de Artigos":
     path_atual = "/revisor"
 elif page_name == "Auditor de Artigos":
     path_atual = "/auditor"
@@ -415,7 +415,7 @@ nav_cols = st.columns([2, 2, 2, 2, 2, 2])
 with nav_cols[0]:
     st.markdown('<img src="https://cdn.prod.website-files.com/6810e8cd1c64e82623876ba8/681134835142ef28e05b06ba_logo-arco-dark.svg" style="width: 140px; margin-top: -20px;" alt="Logo Arco">', unsafe_allow_html=True)
 
-opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor de GEO", "Auditor de Artigos"]
+opcoes_menu = ["Gerador de Artigos", "BrandBook", "Monitor de GEO", "Revisor & Adaptador de Artigos", "Auditor de Artigos"]
 
 # Aplicamos o estilo do menu selecionado DE UMA VEZ AQUI EM CIMA, para não empurrar os botões no loop
 try:
@@ -3041,7 +3041,7 @@ elif st.session_state['current_page'] == "Monitor de GEO":
 # ==========================================
 # 7. ADAPTADOR DE PDF & REVISOR GEO (ABA 4)
 # ==========================================
-elif st.session_state['current_page'] == "Revisor de GEO":
+elif st.session_state['current_page'] == "Revisor & Adaptador de Artigos":
     st.subheader("♻️ Adaptador & Revisor GEO")
     st.caption("Adapte um E-book/PDF proprietário para a voz de qualquer marca ou revise um artigo antigo do WordPress.")
     
