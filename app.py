@@ -2679,17 +2679,31 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
 
-                        # --- LÓGICA PARA PEGAR O USUÁRIO LOGADO NO STREAMLIT CLOUD ---
+                        # --- LÓGICA BLINDADA PARA PEGAR O USUÁRIO (HEADERS DO STREAMLIT CLOUD) ---
                         usuario_ga4 = "anonimo"
                         try:
-                            # Tenta puxar o email do sistema de login do Streamlit
-                            email_completo = st.experimental_user.email
+                            # 1. Primeiro tenta ler direto dos Headers (Funciona 100% no Cloud)
+                            from streamlit.web.server.websocket_headers import _get_websocket_headers
+                            headers = _get_websocket_headers()
+                            
+                            email_completo = ""
+                            if headers and "X-Goog-Authenticated-User-Email" in headers:
+                                email_completo = headers["X-Goog-Authenticated-User-Email"]
+                            elif headers and "X-Auth-Request-Email" in headers:
+                                email_completo = headers["X-Auth-Request-Email"]
+                            
+                            # 2. Fallback para a função nativa (se os headers falharem)
+                            if not email_completo and hasattr(st, "experimental_user") and hasattr(st.experimental_user, "email"):
+                                email_completo = st.experimental_user.email
+                                
+                            # 3. Limpeza Final (Tira "accounts.google.com:" e deixa só o nome)
                             if email_completo:
-                                # Fatie o email no "@" e pegue a primeira parte (ex: daniel.araujo)
-                                usuario_ga4 = email_completo.split('@')[0]
-                        except Exception:
-                            pass # Se rodar localmente no seu PC, ele vai como "anonimo"
-                        # -------------------------------------------------------------
+                                email_limpo = str(email_completo).replace('accounts.google.com:', '').strip()
+                                usuario_ga4 = email_limpo.split('@')[0] # Fica só 'daniel.araujo'
+                                
+                        except Exception as e:
+                            print(f"Aviso de Identidade: {e}") 
+                        # ------------------------------------------------------------------------
 
                         # Gatilho do GA4 enviando todos os textos e o USUÁRIO
                         disparar_evento_geracao(
