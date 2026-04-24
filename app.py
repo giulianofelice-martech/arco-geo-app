@@ -66,21 +66,18 @@ def injetar_ga4(path_atual):
         components.html(ga4_script, width=0, height=0)
         st.session_state['last_ga_path'] = path_atual
 
-def disparar_evento_geracao(keyword, marca, publico, conteudo_add, conteudo_prop, prompt_livre, empatia, especialista):
+def disparar_evento_geracao(keyword, marca, publico, conteudo_add, conteudo_prop, prompt_livre, empatia, especialista, usuario):
     """Dispara evento customizado informando a geração e envia até 100 caracteres dos textos utilizados."""
-    GA4_ID = "G-YWQ3BETC7C" # O ID que você usa na ferramenta
+    GA4_ID = "G-YWQ3BETC7C" # O seu ID real
     
     timestamp = int(time.time() * 1000)
     
-    # Função auxiliar para limpar quebras de linha e travar no limite de 100 caracteres do GA4
     def limpa_e_corta(texto):
         if not texto: return ""
-        # Troca quebras de linha por espaço para não quebrar o visual no GA4
         t_limpo = str(texto).strip().replace('\n', ' ').replace('\r', '')
-        # Retorna o texto real cortado no limite cravado do Google
         return t_limpo[:100]
     
-    # Preparamos os parâmetros passando o texto real (fatiado em 100 caracteres)
+    # Adicionamos a linha do usuario aqui embaixo
     params = {
         'search_query': limpa_e_corta(keyword),
         'marca_alvo': limpa_e_corta(marca),
@@ -90,10 +87,10 @@ def disparar_evento_geracao(keyword, marca, publico, conteudo_add, conteudo_prop
         'prompt_livre': limpa_e_corta(prompt_livre),
         'ativou_empatia': "Sim" if empatia else "Não",
         'ativou_especialista': "Sim" if especialista else "Não",
+        'usuario_logado': limpa_e_corta(usuario), # <--- NOVO PARÂMETRO
         'send_to': GA4_ID
     }
 
-    # Convertemos para JSON seguro (blinda aspas e caracteres especiais do usuário)
     params_json = json.dumps(params)
     
     evento_script = f"""
@@ -2682,7 +2679,19 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
 
-                        # Gatilho do GA4 enviando todos os textos e seleções da tela
+                        # --- LÓGICA PARA PEGAR O USUÁRIO LOGADO NO STREAMLIT CLOUD ---
+                        usuario_ga4 = "anonimo"
+                        try:
+                            # Tenta puxar o email do sistema de login do Streamlit
+                            email_completo = st.experimental_user.email
+                            if email_completo:
+                                # Fatie o email no "@" e pegue a primeira parte (ex: daniel.araujo)
+                                usuario_ga4 = email_completo.split('@')[0]
+                        except Exception:
+                            pass # Se rodar localmente no seu PC, ele vai como "anonimo"
+                        # -------------------------------------------------------------
+
+                        # Gatilho do GA4 enviando todos os textos e o USUÁRIO
                         disparar_evento_geracao(
                             keyword=palavra_chave_input, 
                             marca=marca_selecionada,
@@ -2691,7 +2700,8 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                             conteudo_prop=conteudo_proprietario_input,
                             prompt_livre=instrucao_livre_input,
                             empatia=modo_humanizado,
-                            especialista=modo_especialista
+                            especialista=modo_especialista,
+                            usuario=usuario_ga4  # <--- PASSANDO O USUÁRIO AQUI
                         )
                         
                     except Exception as e:
