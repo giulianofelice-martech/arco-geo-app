@@ -2679,45 +2679,36 @@ elif st.session_state['current_page'] == "Gerador de Artigos":
                         st.session_state['keyword_atual'] = palavra_chave_input
                         status.update(label="✅ Artigo gerado com sucesso!", state="complete", expanded=False)
 
-                        # --- LÓGICA DE CAPTURA COM MODO DEBUG VISUAL ---
+                        # --- LÓGICA DE CAPTURA DO USUÁRIO (X-Streamlit-User Base64) ---
                         usuario_ga4 = "anonimo"
-                        email_completo = None
-
                         try:
-                            # 1. Tenta pegar como atributo
-                            if hasattr(st, "experimental_user"):
-                                email_completo = getattr(st.experimental_user, "email", None)
-                                
-                                # Se falhou como atributo, tenta acessar como dicionário
-                                if not email_completo:
-                                    try:
-                                        email_completo = st.experimental_user.get("email")
-                                    except:
-                                        pass
+                            import base64
+                            import json
                             
-                            # 2. Se falhou, tenta pelos headers modernos
-                            if not email_completo and hasattr(st, "context"):
+                            # Acessa os cabeçalhos do Streamlit
+                            if hasattr(st, "context") and hasattr(st.context, "headers"):
                                 headers = st.context.headers
-                                email_completo = headers.get("X-Goog-Authenticated-User-Email") or headers.get("X-Auth-Request-Email")
-                            
-                            # 3. Se achou, limpa e salva
-                            if email_completo:
-                                email_limpo = str(email_completo).replace('accounts.google.com:', '').strip()
-                                usuario_ga4 = email_limpo.split('@')[0]
-                            else:
-                                # SE NÃO ACHOU NADA, IMPRIME A MEMÓRIA DO SERVIDOR NA TELA
-                                st.warning("🚨 MODO DEBUG ATIVADO: Não encontrei o e-mail. Veja o que o servidor enviou:")
-                                debug_data = {}
-                                if hasattr(st, "experimental_user"): 
-                                    try: debug_data["st_experimental_user"] = dict(st.experimental_user)
-                                    except: debug_data["st_experimental_user"] = "Não iterável"
-                                if hasattr(st, "context"): 
-                                    try: debug_data["headers_st_context"] = dict(st.context.headers)
-                                    except: debug_data["headers_st_context"] = "Sem headers"
-                                st.json(debug_data)
                                 
+                                # Procura o token secreto que vimos no Debug
+                                if "X-Streamlit-User" in headers:
+                                    token_b64 = headers["X-Streamlit-User"]
+                                    
+                                    # Adiciona padding de base64 caso falte (segurança extra)
+                                    token_b64 += "=" * ((4 - len(token_b64) % 4) % 4)
+                                    
+                                    # Decodifica de Base64 para String
+                                    token_decodificado = base64.b64decode(token_b64).decode('utf-8')
+                                    
+                                    # Transforma a String num Dicionário e pega o email
+                                    dados_usuario = json.loads(token_decodificado)
+                                    email_completo = dados_usuario.get("email", "")
+                                    
+                                    if email_completo:
+                                        # Fica só com a parte antes do @ (ex: giuliano.felice)
+                                        usuario_ga4 = str(email_completo).split('@')[0]
+                                        
                         except Exception as e:
-                            st.error(f"Erro ao tentar ler o usuário: {e}")
+                            print(f"Erro ao decodificar X-Streamlit-User: {e}")
                         # ------------------------------------------------------------------------
 
                         # Gatilho do GA4 enviando todos os textos e o USUÁRIO
