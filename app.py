@@ -2195,13 +2195,11 @@ ANTI-CLOAKING E VALIDAÇÃO:
                 img_html_pronta = ""
                 
                 # 1. TENTA WIKIMEDIA (Agnóstico, mas com filtro Horizontal e Anti-protesto)
-                # O primeiro termo é o input do usuário. O segundo é o termo genérico gerado pelo Claude
                 termo_pesquisa = palavra_chave_input if i == 0 else termo
                 img_html_pronta = buscar_imagem_wikimedia(termo_pesquisa)
                 
                 # 2. TENTA UNSPLASH (Se a Wikipedia não achou nada bom ou só foto vertical)
                 if not img_html_pronta and UNSPLASH_KEY:
-                    import urllib.parse
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2223,7 +2221,6 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     
                 # INJETA NO HTML USANDO REGEX
                 if img_html_pronta:
-                    import re
                     if i == 0:
                         artigo_html = re.sub(r'(<br>\s*Resumo Estratégico\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
                     else:
