@@ -829,7 +829,7 @@ import requests
 import urllib.parse
 
 def buscar_imagem_wikimedia(termo):
-    """Busca imagem na Wikipedia de forma 100% agnóstica."""
+    """Busca imagem na Wikipedia com filtro de Layout (Horizontal) e Anti-Protesto."""
     import requests
     import urllib.parse
     
@@ -840,26 +840,54 @@ def buscar_imagem_wikimedia(termo):
         "generator": "search",
         "gsrsearch": termo,
         "gsrnamespace": 6,  # Apenas Imagens
-        "gsrlimit": 1,
+        "gsrlimit": 10,     # Puxa as 10 melhores para o Python poder filtrar
         "prop": "imageinfo",
-        "iiprop": "url"
+        "iiprop": "url|size|extmetadata" # Pede o tamanho (size) e a descrição (extmetadata)
     }
-    headers = {'User-Agent': 'MotorGEO/7.1'}
+    headers = {'User-Agent': 'MotorGEO/7.2'}
+    
+    # Blacklist para blindar a marca contra imagens negativas/jornalísticas
+    blacklist = ['protest', 'greve', 'manifest', 'merenda', 'fome', 'polícia', 'ocupação', 'strike', 'sindicato', 'cartaz', 'reivindica', 'paralisa']
     
     try:
-        res = requests.get(url, params=params, headers=headers, timeout=5)
+        res = requests.get(url, params=params, headers=headers, timeout=8)
         if res.status_code == 200:
             dados = res.json()
             if "query" in dados and "pages" in dados["query"]:
                 paginas = dados["query"]["pages"]
-                pagina_id = list(paginas.keys())[0]
-                # ID negativo significa que a busca não achou nada
-                if int(pagina_id) > 0: 
-                    info = paginas[pagina_id].get("imageinfo", [])
+                
+                # Itera sobre as imagens retornadas para achar a perfeita
+                for page_id, page_data in paginas.items():
+                    if int(page_id) < 0:
+                        continue # Pula se for erro
+                        
+                    info = page_data.get("imageinfo", [])
                     if info:
-                        img_url = info[0].get("url")
-                        return f'<img src="{img_url}" alt="Imagem: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
-    except Exception:
+                        img_data = info[0]
+                        w = img_data.get("width", 0)
+                        h = img_data.get("height", 0)
+                        img_url = img_data.get("url", "")
+                        
+                        # FILTRO 1: Proporção Horizontal (Landscape)
+                        # A largura tem que ser pelo menos 20% maior que a altura
+                        if w < (h * 1.2):
+                            continue # É vertical ou muito quadrada, pula para a próxima
+                            
+                        # FILTRO 2: Blindagem Anti-Protesto
+                        ext_meta = img_data.get("extmetadata", {})
+                        texto_imagem = str(ext_meta.get("ObjectName", {}).get("value", "")).lower()
+                        titulo_imagem = str(page_data.get("title", "")).lower()
+                        
+                        conteudo_texto = texto_imagem + " " + titulo_imagem
+                        
+                        # Se tiver qualquer palavra proibida, aborta essa foto
+                        if any(palavra in conteudo_texto for palavra in blacklist):
+                            continue 
+                            
+                        # Se passou na proporção e na blacklist, é a imagem perfeita!
+                        return f'<img src="{img_url}" alt="Imagem ilustrativa: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
+    except Exception as e:
+        print(f"Erro na API Wikimedia: {e}")
         pass
         
     return ""
@@ -2129,7 +2157,7 @@ REGRAS CRÍTICAS:
 1. NUNCA inclua markdown, comentários ou campos extras.
 2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca). É ESTRITAMENTE PROIBIDO inserir o ano atual (ex: 2026) neste campo.
 3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
-4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "classroom", "students"). É ESTRITAMENTE PROIBIDO gerar frases longas.
+4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "university campus", "happy students"). É ESTRITAMENTE PROIBIDO usar nomes próprios, marcas, locais específicos (ex: Unicamp, USP, Brasil) ou termos com conotação negativa (ex: exam stress, protest, hard work). Busque SEMPRE CONCEITOS VISUAIS POSITIVOS, ASPIRACIONAIS E ACADÊMICOS (ex: "education success", "modern classroom").
 5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
     - As perguntas e respostas DEVEM ser extraídas textualmente da seção Perguntas Frequentes presente no HTML fornecido.
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
