@@ -2230,7 +2230,6 @@ ANTI-CLOAKING E VALIDAÇÃO:
                         artigo_html = re.sub(r'(<br>\s*Perguntas Frequentes\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
                         
     except Exception as e:
-        import streamlit as st
         st.error(f"Erro ao injetar imagem: {e}")
         
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
