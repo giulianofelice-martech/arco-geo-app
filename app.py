@@ -2143,9 +2143,9 @@ REGRAS CRÍTICAS:
 2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca). É ESTRITAMENTE PROIBIDO inserir o ano atual (ex: 2026) neste campo.
 3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
 4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 3 palavras).
-    - REGRA DE OURO (ESTÉTICA E BRAND SAFETY): Você DEVE obrigatoriamente incluir a palavra "brazilian" ou "latin" nos seus termos para forçar o banco de imagens a trazer diversidade e fenótipos nacionais.
-    - Exemplos bons: "brazilian students", "diverse brazilian classroom", "brazilian teacher".
-    - É ESTRITAMENTE PROIBIDO usar nomes próprios, siglas ou conceitos negativos.
+    - REGRA DE OURO (ESTÉTICA E BRAND SAFETY): Foque estritamente no ambiente acadêmico/corporativo. Você DEVE incluir a palavra "brazilian" ou "latin" nos termos para forçar o banco de imagens a trazer fenótipos nacionais (Ex: "brazilian students studying", "diverse brazilian classroom").
+    - REGRA ANTI-METÁFORA E LAICIDADE (CRÍTICO): É ESTRITAMENTE PROIBIDO interpretar metáforas do texto literalmente (Ex: se o texto diz "rezar por uma vaga", NÃO gere prompts sobre religião ou algo que não tem relação com o artigo que está sendo gerado). 
+    - BLACKLIST: É EXPRESSAMENTE PROIBIDO usar nomes próprios ou termos religiosos, politicos, de guerra OU negativos (Ex: "praying", "church", "god", "religion", "stress", "sad").
 5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
     - As perguntas e respostas DEVEM ser extraídas textualmente da seção Perguntas Frequentes presente no HTML fornecido.
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
@@ -2171,7 +2171,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1. TENTA NO UNSPLASH (Com os termos focados no Brasil gerados pelo Claude)
+               # 1. TENTA NO UNSPLASH (Com os termos focados no Brasil gerados pelo Claude)
                 if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
@@ -2180,8 +2180,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
                             dados_img = res.json()
                             if "results" in dados_img and len(dados_img["results"]) > 0:
                                 img_url = dados_img["results"][0]["urls"]["regular"]
-                                alt_text = dados_img["results"][0]["alt_description"] or termo
-                                img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
+                                alt_text = str(dados_img["results"][0]["alt_description"] or termo).lower()
+                                
+                                # ---> NOVO: GUARDRAIL PYTHON ANTI-RELIGIÃO/PROTESTO <---
+                                bad_words = ['pray', 'church', 'religion', 'god', 'cross', 'worship', 'war', 'protest', 'strike']
+                                
+                                # Se a descrição da foto do Unsplash tiver palavras proibidas, aborta e vai pro Fallback
+                                if not any(bw in alt_text for bw in bad_words):
+                                    img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     except Exception:
                         pass
                 
