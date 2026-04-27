@@ -829,7 +829,7 @@ import requests
 import urllib.parse
 
 def buscar_imagem_wikimedia(termo):
-    """Busca imagem na Wikipedia com filtro de Layout (Horizontal) e Brand Safety (Anti-Negatividade)."""
+    """Busca imagem na Wikipedia com filtro de Layout (Horizontal), Extensão (Sem vídeos) e Brand Safety (Anti-Negatividade)."""
     import requests
     import urllib.parse
     
@@ -839,8 +839,8 @@ def buscar_imagem_wikimedia(termo):
         "format": "json",
         "generator": "search",
         "gsrsearch": termo,
-        "gsrnamespace": 6,  # Apenas Imagens
-        "gsrlimit": 15,     # Aumentamos para 15 para ter margem se muitas fotos caírem no filtro
+        "gsrnamespace": 6,  # Apenas Imagens/Arquivos
+        "gsrlimit": 15,     # Traz 15 para ter margem se muitas fotos caírem nos filtros
         "prop": "imageinfo",
         "iiprop": "url|size|extmetadata" 
     }
@@ -869,7 +869,7 @@ def buscar_imagem_wikimedia(termo):
             if "query" in dados and "pages" in dados["query"]:
                 paginas = dados["query"]["pages"]
                 
-                # Itera por todas as fotos que a API retornou
+                # Itera por todas as mídias que a API retornou
                 for page_id, page_data in paginas.items():
                     if int(page_id) < 0: continue 
                         
@@ -880,6 +880,10 @@ def buscar_imagem_wikimedia(termo):
                         h = img_data.get("height", 0)
                         img_url = img_data.get("url", "")
                         
+                        # FILTRO 0: Garantir que é IMAGEM ESTÁTICA (Barra vídeos .webm, .ogg, .mp4)
+                        if not img_url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')):
+                            continue
+
                         # FILTRO 1: Proporção. Largura deve ser > 1.2x a Altura (Imagem Deitada/Landscape)
                         if w < (h * 1.2):
                             continue 
@@ -891,11 +895,11 @@ def buscar_imagem_wikimedia(termo):
                         
                         conteudo_texto = texto_imagem + " " + titulo_imagem
                         
-                        # Se a imagem tiver QUALQUER palavra da blacklist, ela é sumariamente descartada
+                        # Se a imagem tiver QUALQUER palavra da blacklist, é sumariamente descartada
                         if any(palavra in conteudo_texto for palavra in blacklist):
                             continue 
                             
-                        # Passou na proporção e passou na segurança de marca!
+                        # Passou em todos os filtros! Retorna o HTML.
                         return f'<img src="{img_url}" alt="Imagem ilustrativa: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
     except Exception as e:
         print(f"Erro na API Wikimedia: {e}")
@@ -2194,11 +2198,16 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1. TENTA WIKIMEDIA (Agnóstico, mas com filtro Horizontal e Anti-protesto)
-                termo_pesquisa = palavra_chave_input if i == 0 else termo
+                # 1. TENTA WIKIMEDIA (Com filtro Horizontal, Estático, Anti-protesto e Contexto Brasil)
+                if i == 0:
+                    termo_pesquisa = palavra_chave_input 
+                else:
+                    # Para a 2ª foto (termo em inglês do Claude), forçamos o contexto nacional na Wiki
+                    termo_pesquisa = "escola alunos brasil" if "student" in termo.lower() or "class" in termo.lower() else f"{termo} brasil"
+                
                 img_html_pronta = buscar_imagem_wikimedia(termo_pesquisa)
                 
-                # 2. TENTA UNSPLASH (Se a Wikipedia não achou nada bom ou só foto vertical)
+                # 2. TENTA UNSPLASH (Se a Wikipedia falhou ou retornou só vídeos/fotos verticais)
                 if not img_html_pronta and UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
@@ -2212,14 +2221,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     except Exception:
                         pass
                 
-                # 3. FALLBACK ABSOLUTO: POLLINATIONS
+                # 3. FALLBACK ABSOLUTO: POLLINATIONS (Gerado por IA)
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     
-                # INJETA NO HTML USANDO REGEX
+                # INJETA NO HTML USANDO REGEX GLOBAL
                 if img_html_pronta:
                     if i == 0:
                         artigo_html = re.sub(r'(<br>\s*Resumo Estratégico\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
