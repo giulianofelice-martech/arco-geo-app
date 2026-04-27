@@ -829,7 +829,7 @@ import requests
 import urllib.parse
 
 def buscar_imagem_wikimedia(termo):
-    """Busca imagem na Wikipedia com filtro de Layout (Horizontal) e Anti-Protesto."""
+    """Busca imagem na Wikipedia com filtro de Layout (Horizontal) e Brand Safety (Anti-Negatividade)."""
     import requests
     import urllib.parse
     
@@ -840,14 +840,27 @@ def buscar_imagem_wikimedia(termo):
         "generator": "search",
         "gsrsearch": termo,
         "gsrnamespace": 6,  # Apenas Imagens
-        "gsrlimit": 10,     # Puxa as 10 melhores para o Python poder filtrar
+        "gsrlimit": 15,     # Aumentamos para 15 para ter margem se muitas fotos caírem no filtro
         "prop": "imageinfo",
-        "iiprop": "url|size|extmetadata" # Pede o tamanho (size) e a descrição (extmetadata)
+        "iiprop": "url|size|extmetadata" 
     }
-    headers = {'User-Agent': 'MotorGEO/7.2'}
+    headers = {'User-Agent': 'MotorGEO/7.4'}
     
-    # Blacklist para blindar a marca contra imagens negativas/jornalísticas
-    blacklist = ['protest', 'greve', 'manifest', 'merenda', 'fome', 'polícia', 'ocupação', 'strike', 'sindicato', 'cartaz', 'reivindica', 'paralisa']
+    # 🛡️ BLACKLIST DE BRAND SAFETY (Escudo Universal Anti-Negatividade)
+    blacklist = [
+        # Conflitos e Protestos
+        'protest', 'greve', 'manifest', 'ocupação', 'ocupada', 'strike', 'sindicato', 'cartaz', 'reivindic', 'paralisa',
+        # Violência e Polícia
+        'polícia', 'police', 'riot', 'confronto', 'briga', 'violência', 'violence', 'arma', 'gun', 'crime', 'prison', 'prisão',
+        # Miséria e Fome
+        'merenda', 'fome', 'hunger', 'misery', 'miséria', 'pobre', 'poverty', 'mendigo', 'beggar', 'homeless', 'morador de rua',
+        # Tragédias, Acidentes e Doenças
+        'desastre', 'disaster', 'acidente', 'accident', 'tragédia', 'tragedy', 'doença', 'disease', 'doente', 'sick', 'hospital', 'morte', 'death', 'morto', 'blood', 'sangue',
+        # Tristeza e Saúde Mental
+        'triste', 'sad', 'crying', 'choro', 'depressão', 'ansiedade', 'bullying',
+        # Conteúdo Impróprio/NSFW
+        'nsfw', 'nude', 'naked', 'sex', 'porn'
+    ]
     
     try:
         res = requests.get(url, params=params, headers=headers, timeout=8)
@@ -856,10 +869,9 @@ def buscar_imagem_wikimedia(termo):
             if "query" in dados and "pages" in dados["query"]:
                 paginas = dados["query"]["pages"]
                 
-                # Itera sobre as imagens retornadas para achar a perfeita
+                # Itera por todas as fotos que a API retornou
                 for page_id, page_data in paginas.items():
-                    if int(page_id) < 0:
-                        continue # Pula se for erro
+                    if int(page_id) < 0: continue 
                         
                     info = page_data.get("imageinfo", [])
                     if info:
@@ -868,23 +880,22 @@ def buscar_imagem_wikimedia(termo):
                         h = img_data.get("height", 0)
                         img_url = img_data.get("url", "")
                         
-                        # FILTRO 1: Proporção Horizontal (Landscape)
-                        # A largura tem que ser pelo menos 20% maior que a altura
+                        # FILTRO 1: Proporção. Largura deve ser > 1.2x a Altura (Imagem Deitada/Landscape)
                         if w < (h * 1.2):
-                            continue # É vertical ou muito quadrada, pula para a próxima
+                            continue 
                             
-                        # FILTRO 2: Blindagem Anti-Protesto
+                        # FILTRO 2: Brand Safety Absoluto
                         ext_meta = img_data.get("extmetadata", {})
                         texto_imagem = str(ext_meta.get("ObjectName", {}).get("value", "")).lower()
                         titulo_imagem = str(page_data.get("title", "")).lower()
                         
                         conteudo_texto = texto_imagem + " " + titulo_imagem
                         
-                        # Se tiver qualquer palavra proibida, aborta essa foto
+                        # Se a imagem tiver QUALQUER palavra da blacklist, ela é sumariamente descartada
                         if any(palavra in conteudo_texto for palavra in blacklist):
                             continue 
                             
-                        # Se passou na proporção e na blacklist, é a imagem perfeita!
+                        # Passou na proporção e passou na segurança de marca!
                         return f'<img src="{img_url}" alt="Imagem ilustrativa: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
     except Exception as e:
         print(f"Erro na API Wikimedia: {e}")
@@ -2183,13 +2194,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1. TENTA WIKIMEDIA (Agnóstico)
-                # Na primeira imagem usamos a keyword principal, na segunda o conceito da IA
+                # 1. TENTA WIKIMEDIA (Agnóstico, mas com filtro Horizontal e Anti-protesto)
+                # O primeiro termo é o input do usuário. O segundo é o termo genérico gerado pelo Claude
                 termo_pesquisa = palavra_chave_input if i == 0 else termo
                 img_html_pronta = buscar_imagem_wikimedia(termo_pesquisa)
                 
-                # 2. TENTA UNSPLASH (Se a Wikipedia não achar o termo)
+                # 2. TENTA UNSPLASH (Se a Wikipedia não achou nada bom ou só foto vertical)
                 if not img_html_pronta and UNSPLASH_KEY:
+                    import urllib.parse
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2202,24 +2214,23 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     except Exception:
                         pass
                 
-                # 3. FALLBACK ABSOLUTO: POLLINATIONS (Gera por IA)
+                # 3. FALLBACK ABSOLUTO: POLLINATIONS
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     
-                # INJETA NO HTML USANDO REGEX (Para ignorar espaços extras que o Claude possa colocar)
+                # INJETA NO HTML USANDO REGEX
                 if img_html_pronta:
                     import re
                     if i == 0:
-                        # Procura por <br>Resumo Estratégico<br> com ou sem espaços
                         artigo_html = re.sub(r'(<br>\s*Resumo Estratégico\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
                     else:
-                        # Procura por <br>Perguntas Frequentes<br>
                         artigo_html = re.sub(r'(<br>\s*Perguntas Frequentes\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
                         
     except Exception as e:
+        import streamlit as st
         st.error(f"Erro ao injetar imagem: {e}")
         
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
