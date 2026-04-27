@@ -828,85 +828,55 @@ def obter_credenciais_cms(marca):
 import requests
 import urllib.parse
 
-def buscar_imagem_wikimedia(termo):
-    """Busca imagem na Wikipedia com filtro de Layout (Horizontal), Extensão (Sem vídeos) e Brand Safety (Anti-Negatividade)."""
-    import requests
-    import urllib.parse
+def buscar_imagem_agencia_brasil(termo):
+    """
+    Busca imagens na API do Wikimedia Commons filtrando por fotos da Agência Brasil.
+    Não precisa de API Key.
+    """
+    # Adicionamos "Agência Brasil" na busca para forçar a origem da foto
+    query = f'{termo} "Agência Brasil"'
     
     url = "https://commons.wikimedia.org/w/api.php"
     params = {
         "action": "query",
         "format": "json",
         "generator": "search",
-        "gsrsearch": termo,
-        "gsrnamespace": 6,  # Apenas Imagens/Arquivos
-        "gsrlimit": 15,     # Traz 15 para ter margem se muitas fotos caírem nos filtros
+        "gsrsearch": query,
+        "gsrnamespace": 6,  # 6 é o ID do namespace de Arquivos/Imagens na Wikipedia
+        "gsrlimit": 1,      # Traz apenas o melhor resultado
         "prop": "imageinfo",
-        "iiprop": "url|size|extmetadata" 
+        "iiprop": "url|extmetadata"
     }
-    headers = {'User-Agent': 'MotorGEO/7.4'}
     
-    # 🛡️ BLACKLIST DE BRAND SAFETY (Escudo Universal Anti-Negatividade)
-    blacklist = [
-        # Conflitos e Protestos
-        'protest', 'greve', 'manifest', 'ocupação', 'ocupada', 'strike', 'sindicato', 'cartaz', 'reivindic', 'paralisa',
-        # Violência e Polícia
-        'polícia', 'police', 'riot', 'confronto', 'briga', 'violência', 'violence', 'arma', 'gun', 'crime', 'prison', 'prisão',
-        # Miséria e Fome
-        'merenda', 'fome', 'hunger', 'misery', 'miséria', 'pobre', 'poverty', 'mendigo', 'beggar', 'homeless', 'morador de rua',
-        # Tragédias, Acidentes e Doenças
-        'desastre', 'disaster', 'acidente', 'accident', 'tragédia', 'tragedy', 'doença', 'disease', 'doente', 'sick', 'hospital', 'morte', 'death', 'morto', 'blood', 'sangue',
-        # Tristeza e Saúde Mental
-        'triste', 'sad', 'crying', 'choro', 'depressão', 'ansiedade', 'bullying',
-        # Conteúdo Impróprio/NSFW
-        'nsfw', 'nude', 'naked', 'sex', 'porn'
-    ]
+    headers = {
+        'User-Agent': 'MotorGEO/7.0 (https://arcomartech.com; seu-email@arco.com)' # A Wiki pede um User-Agent real
+    }
     
     try:
         res = requests.get(url, params=params, headers=headers, timeout=8)
         if res.status_code == 200:
             dados = res.json()
             if "query" in dados and "pages" in dados["query"]:
+                # A API retorna um dicionário de páginas, pegamos a primeira
                 paginas = dados["query"]["pages"]
+                primeira_pagina_id = list(paginas.keys())[0]
+                info_imagem = paginas[primeira_pagina_id].get("imageinfo", [])
                 
-                # Itera por todas as mídias que a API retornou
-                for page_id, page_data in paginas.items():
-                    if int(page_id) < 0: continue 
-                        
-                    info = page_data.get("imageinfo", [])
-                    if info:
-                        img_data = info[0]
-                        w = img_data.get("width", 0)
-                        h = img_data.get("height", 0)
-                        img_url = img_data.get("url", "")
-                        
-                        # FILTRO 0: Garantir que é IMAGEM ESTÁTICA (Barra vídeos .webm, .ogg, .mp4)
-                        if not img_url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp')):
-                            continue
-
-                        # FILTRO 1: Proporção. Largura deve ser > 1.2x a Altura (Imagem Deitada/Landscape)
-                        if w < (h * 1.2):
-                            continue 
-                            
-                        # FILTRO 2: Brand Safety Absoluto
-                        ext_meta = img_data.get("extmetadata", {})
-                        texto_imagem = str(ext_meta.get("ObjectName", {}).get("value", "")).lower()
-                        titulo_imagem = str(page_data.get("title", "")).lower()
-                        
-                        conteudo_texto = texto_imagem + " " + titulo_imagem
-                        
-                        # Se a imagem tiver QUALQUER palavra da blacklist, é sumariamente descartada
-                        if any(palavra in conteudo_texto for palavra in blacklist):
-                            continue 
-                            
-                        # Passou em todos os filtros! Retorna o HTML.
-                        return f'<img src="{img_url}" alt="Imagem ilustrativa: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
+                if info_imagem:
+                    img_url = info_imagem[0].get("url")
+                    
+                    # Tenta pegar a descrição real da foto, se não tiver, usa o termo
+                    ext_meta = info_imagem[0].get("extmetadata", {})
+                    alt_text = ext_meta.get("ObjectName", {}).get("value", termo)
+                    
+                    # Retorna a tag HTML pronta
+                    return f'<img src="{img_url}" alt="Foto EBC/Agência Brasil: {alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
     except Exception as e:
-        print(f"Erro na API Wikimedia: {e}")
+        print(f"Erro na API Wikimedia/Agência Brasil: {e}")
         pass
         
     return ""
-    
+   
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY:
@@ -2172,7 +2142,10 @@ REGRAS CRÍTICAS:
 1. NUNCA inclua markdown, comentários ou campos extras.
 2. 'title': 45-60 caracteres (otimizado para H1/SEO, sem marca). É ESTRITAMENTE PROIBIDO inserir o ano atual (ex: 2026) neste campo.
 3. 'meta_description': 130-150 caracteres (promessa clara + gancho, sem clickbait).
-4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 2 palavras, ex.: "university campus", "happy students"). É ESTRITAMENTE PROIBIDO usar nomes próprios, marcas, locais específicos (ex: Unicamp, USP, Brasil) ou termos com conotação negativa (ex: exam stress, protest, hard work). Busque SEMPRE CONCEITOS VISUAIS POSITIVOS, ASPIRACIONAIS E ACADÊMICOS (ex: "education success", "modern classroom").
+4. 'dicas_imagens': exatamente 2 strings em inglês, MUITO CURTAS E SIMPLES (máximo 1 a 3 palavras).
+    - REGRA DE OURO (ESTÉTICA E BRAND SAFETY): Você DEVE obrigatoriamente incluir a palavra "brazilian" ou "latin" nos seus termos para forçar o banco de imagens a trazer diversidade e fenótipos nacionais.
+    - Exemplos bons: "brazilian students", "diverse brazilian classroom", "brazilian teacher".
+    - É ESTRITAMENTE PROIBIDO usar nomes próprios, siglas ou conceitos negativos.
 5. 'schema_faq': JSON-LD FAQPage com @context "[https://schema.org](https://schema.org)", @type "FAQPage" e mainEntity como lista de objetos Question/acceptedAnswer.
     - As perguntas e respostas DEVEM ser extraídas textualmente da seção Perguntas Frequentes presente no HTML fornecido.
     - Se não houver FAQ no HTML, retorne 'schema_faq': {{}}. 
@@ -2187,7 +2160,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-4.5-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-   # MOTOR TRIPLO DE IMAGENS (WIKIMEDIA -> UNSPLASH -> POLLINATIONS)
+   # MOTOR DUPLO DE IMAGENS (UNSPLASH FOCADO -> POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
@@ -2198,17 +2171,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1. TENTA WIKIMEDIA (Com filtro Horizontal, Estático, Anti-protesto e Contexto Brasil)
-                if i == 0:
-                    termo_pesquisa = palavra_chave_input 
-                else:
-                    # Para a 2ª foto (termo em inglês do Claude), forçamos o contexto nacional na Wiki
-                    termo_pesquisa = "escola alunos brasil" if "student" in termo.lower() or "class" in termo.lower() else f"{termo} brasil"
-                
-                img_html_pronta = buscar_imagem_wikimedia(termo_pesquisa)
-                
-                # 2. TENTA UNSPLASH (Se a Wikipedia falhou ou retornou só vídeos/fotos verticais)
-                if not img_html_pronta and UNSPLASH_KEY:
+                # 1. TENTA NO UNSPLASH (Com os termos focados no Brasil gerados pelo Claude)
+                if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2221,14 +2185,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     except Exception:
                         pass
                 
-                # 3. FALLBACK ABSOLUTO: POLLINATIONS (Gerado por IA)
+                # 2. FALLBACK: TENTA GERAR POR IA NO POLLINATIONS
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     
-                # INJETA NO HTML USANDO REGEX GLOBAL
+                # INJETA NO HTML USANDO REGEX
                 if img_html_pronta:
                     if i == 0:
                         artigo_html = re.sub(r'(<br>\s*Resumo Estratégico\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
@@ -2237,7 +2201,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
                         
     except Exception as e:
         st.error(f"Erro ao injetar imagem: {e}")
-        
+
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
     st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
     score_originalidade = avaliar_originalidade(artigo_html, contexto_google)
