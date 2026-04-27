@@ -828,15 +828,13 @@ def obter_credenciais_cms(marca):
 import requests
 import urllib.parse
 
-def buscar_imagem_wikimedia(termo, forcar_agencia_brasil=False):
+def buscar_imagem_agencia_brasil(termo):
     """
-    Busca na Wikipedia (Wikimedia Commons). 
-    Pode buscar o termo livre (ótimo para "Unicamp") ou forçar fotos da EBC/Agência Brasil.
+    Busca imagens na API do Wikimedia Commons filtrando por fotos da Agência Brasil.
+    Não precisa de API Key.
     """
-    import requests
-    
-    # Se forçado, adiciona a tag para buscar fotos governamentais/jornalísticas
-    query = f'{termo} "Agência Brasil"' if forcar_agencia_brasil else termo
+    # Adicionamos "Agência Brasil" na busca para forçar a origem da foto
+    query = f'{termo} "Agência Brasil"'
     
     url = "https://commons.wikimedia.org/w/api.php"
     params = {
@@ -844,28 +842,37 @@ def buscar_imagem_wikimedia(termo, forcar_agencia_brasil=False):
         "format": "json",
         "generator": "search",
         "gsrsearch": query,
-        "gsrnamespace": 6,  # Só imagens
-        "gsrlimit": 1,      # Só a melhor
+        "gsrnamespace": 6,  # 6 é o ID do namespace de Arquivos/Imagens na Wikipedia
+        "gsrlimit": 1,      # Traz apenas o melhor resultado
         "prop": "imageinfo",
         "iiprop": "url|extmetadata"
     }
     
-    headers = {'User-Agent': 'MotorGEO/7.1 (https://arcomartech.com)'}
+    headers = {
+        'User-Agent': 'MotorGEO/7.0 (https://arcomartech.com; seu-email@arco.com)' # A Wiki pede um User-Agent real
+    }
     
     try:
-        res = requests.get(url, params=params, headers=headers, timeout=5)
+        res = requests.get(url, params=params, headers=headers, timeout=8)
         if res.status_code == 200:
             dados = res.json()
             if "query" in dados and "pages" in dados["query"]:
+                # A API retorna um dicionário de páginas, pegamos a primeira
                 paginas = dados["query"]["pages"]
                 primeira_pagina_id = list(paginas.keys())[0]
                 info_imagem = paginas[primeira_pagina_id].get("imageinfo", [])
                 
                 if info_imagem:
                     img_url = info_imagem[0].get("url")
-                    return f'<img src="{img_url}" alt="Imagem ilustrativa: {termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+                    
+                    # Tenta pegar a descrição real da foto, se não tiver, usa o termo
+                    ext_meta = info_imagem[0].get("extmetadata", {})
+                    alt_text = ext_meta.get("ObjectName", {}).get("value", termo)
+                    
+                    # Retorna a tag HTML pronta
+                    return f'<img src="{img_url}" alt="Foto EBC/Agência Brasil: {alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
     except Exception as e:
-        print(f"Erro na API Wikimedia: {e}")
+        print(f"Erro na API Wikimedia/Agência Brasil: {e}")
         pass
         
     return ""
@@ -2161,18 +2168,8 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1º ESCUDO: WIKIMEDIA LIVRE (Perfeito para achar fotos REAIS da "Unicamp", "USP", etc)
-                # Tenta usar a palavra-chave real que o usuário digitou
-                if i == 0:
-                    img_html_pronta = buscar_imagem_wikimedia(palavra_chave_input, forcar_agencia_brasil=False)
-                
-                # 2º ESCUDO: AGÊNCIA BRASIL (Para conceitos gerais como "escola pública", "alunos enem")
-                if not img_html_pronta:
-                    termo_br = palavra_chave_input if i == 0 else "escola educação brasil"
-                    img_html_pronta = buscar_imagem_wikimedia(termo_br, forcar_agencia_brasil=True)
-                
-                # 3º ESCUDO: UNSPLASH (Fotos bonitas e genéricas em inglês)
-                if not img_html_pronta and UNSPLASH_KEY:
+                # 1. TENTA NO UNSPLASH (Se tiver termo em inglês genérico funciona bem)
+                if UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2185,7 +2182,14 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     except Exception:
                         pass
                 
-                # 4º ESCUDO: POLLINATIONS (Gerado por IA - Último recurso)
+                # 2. TENTA NA AGÊNCIA BRASIL / WIKIMEDIA (Fallback Nacional)
+                if not img_html_pronta:
+                    # Traduzimos o termo de volta pro português de forma burra/rápida, 
+                    # ou usamos a palavra-chave original da pesquisa para achar conteúdo no Brasil
+                    termo_wiki = palavra_chave_input if i == 0 else "escola pública"
+                    img_html_pronta = buscar_imagem_agencia_brasil(termo_wiki)
+                
+                # 3. TENTA GERAR POR IA NO POLLINATIONS (Último recurso)
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
