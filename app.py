@@ -828,55 +828,42 @@ def obter_credenciais_cms(marca):
 import requests
 import urllib.parse
 
-def buscar_imagem_agencia_brasil(termo):
-    """
-    Busca imagens na API do Wikimedia Commons filtrando por fotos da Agência Brasil.
-    Não precisa de API Key.
-    """
-    # Adicionamos "Agência Brasil" na busca para forçar a origem da foto
-    query = f'{termo} "Agência Brasil"'
+def buscar_imagem_wikimedia(termo):
+    """Busca imagem na Wikipedia de forma 100% agnóstica."""
+    import requests
+    import urllib.parse
     
     url = "https://commons.wikimedia.org/w/api.php"
     params = {
         "action": "query",
         "format": "json",
         "generator": "search",
-        "gsrsearch": query,
-        "gsrnamespace": 6,  # 6 é o ID do namespace de Arquivos/Imagens na Wikipedia
-        "gsrlimit": 1,      # Traz apenas o melhor resultado
+        "gsrsearch": termo,
+        "gsrnamespace": 6,  # Apenas Imagens
+        "gsrlimit": 1,
         "prop": "imageinfo",
-        "iiprop": "url|extmetadata"
+        "iiprop": "url"
     }
-    
-    headers = {
-        'User-Agent': 'MotorGEO/7.0 (https://arcomartech.com; seu-email@arco.com)' # A Wiki pede um User-Agent real
-    }
+    headers = {'User-Agent': 'MotorGEO/7.1'}
     
     try:
-        res = requests.get(url, params=params, headers=headers, timeout=8)
+        res = requests.get(url, params=params, headers=headers, timeout=5)
         if res.status_code == 200:
             dados = res.json()
             if "query" in dados and "pages" in dados["query"]:
-                # A API retorna um dicionário de páginas, pegamos a primeira
                 paginas = dados["query"]["pages"]
-                primeira_pagina_id = list(paginas.keys())[0]
-                info_imagem = paginas[primeira_pagina_id].get("imageinfo", [])
-                
-                if info_imagem:
-                    img_url = info_imagem[0].get("url")
-                    
-                    # Tenta pegar a descrição real da foto, se não tiver, usa o termo
-                    ext_meta = info_imagem[0].get("extmetadata", {})
-                    alt_text = ext_meta.get("ObjectName", {}).get("value", termo)
-                    
-                    # Retorna a tag HTML pronta
-                    return f'<img src="{img_url}" alt="Foto EBC/Agência Brasil: {alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
-    except Exception as e:
-        print(f"Erro na API Wikimedia/Agência Brasil: {e}")
+                pagina_id = list(paginas.keys())[0]
+                # ID negativo significa que a busca não achou nada
+                if int(pagina_id) > 0: 
+                    info = paginas[pagina_id].get("imageinfo", [])
+                    if info:
+                        img_url = info[0].get("url")
+                        return f'<img src="{img_url}" alt="Imagem: {termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
+    except Exception:
         pass
         
     return ""
-   
+    
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
     if not SERPAPI_KEY:
@@ -2157,7 +2144,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-4.5-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-   # MOTOR TRIPLO DE IMAGENS (UNSPLASH -> AGÊNCIA BRASIL -> POLLINATIONS)
+   # MOTOR TRIPLO DE IMAGENS (WIKIMEDIA -> UNSPLASH -> POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
@@ -2168,8 +2155,13 @@ ANTI-CLOAKING E VALIDAÇÃO:
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
                 
-                # 1. TENTA NO UNSPLASH (Se tiver termo em inglês genérico funciona bem)
-                if UNSPLASH_KEY:
+                # 1. TENTA WIKIMEDIA (Agnóstico)
+                # Na primeira imagem usamos a keyword principal, na segunda o conceito da IA
+                termo_pesquisa = palavra_chave_input if i == 0 else termo
+                img_html_pronta = buscar_imagem_wikimedia(termo_pesquisa)
+                
+                # 2. TENTA UNSPLASH (Se a Wikipedia não achar o termo)
+                if not img_html_pronta and UNSPLASH_KEY:
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2178,32 +2170,30 @@ ANTI-CLOAKING E VALIDAÇÃO:
                             if "results" in dados_img and len(dados_img["results"]) > 0:
                                 img_url = dados_img["results"][0]["urls"]["regular"]
                                 alt_text = dados_img["results"][0]["alt_description"] or termo
-                                img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+                                img_html_pronta = f'<img src="{img_url}" alt="{alt_text}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     except Exception:
                         pass
                 
-                # 2. TENTA NA AGÊNCIA BRASIL / WIKIMEDIA (Fallback Nacional)
-                if not img_html_pronta:
-                    # Traduzimos o termo de volta pro português de forma burra/rápida, 
-                    # ou usamos a palavra-chave original da pesquisa para achar conteúdo no Brasil
-                    termo_wiki = palavra_chave_input if i == 0 else "escola pública"
-                    img_html_pronta = buscar_imagem_agencia_brasil(termo_wiki)
-                
-                # 3. TENTA GERAR POR IA NO POLLINATIONS (Último recurso)
+                # 3. FALLBACK ABSOLUTO: POLLINATIONS (Gera por IA)
                 if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
-                    img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+                    img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px; margin-bottom:15px;" loading="lazy" decoding="async" />'
                     
-                # INJETA NO HTML
+                # INJETA NO HTML USANDO REGEX (Para ignorar espaços extras que o Claude possa colocar)
                 if img_html_pronta:
-                    alvo_replace = '<br>Resumo Estratégico<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
-                    artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
-                    
+                    import re
+                    if i == 0:
+                        # Procura por <br>Resumo Estratégico<br> com ou sem espaços
+                        artigo_html = re.sub(r'(<br>\s*Resumo Estratégico\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
+                    else:
+                        # Procura por <br>Perguntas Frequentes<br>
+                        artigo_html = re.sub(r'(<br>\s*Perguntas Frequentes\s*<br>)', f'{img_html_pronta}\n\\1', artigo_html, count=1, flags=re.IGNORECASE)
+                        
     except Exception as e:
         st.error(f"Erro ao injetar imagem: {e}")
-
+        
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
     st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
     score_originalidade = avaliar_originalidade(artigo_html, contexto_google)
