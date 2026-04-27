@@ -824,6 +824,58 @@ def obter_credenciais_cms(marca):
 # ==========================================
 # 3.2 FUNÇÕES DE CONTEXTO E BUSCA
 # ==========================================
+
+import requests
+import urllib.parse
+
+def buscar_imagem_agencia_brasil(termo):
+    """
+    Busca imagens na API do Wikimedia Commons filtrando por fotos da Agência Brasil.
+    Não precisa de API Key.
+    """
+    # Adicionamos "Agência Brasil" na busca para forçar a origem da foto
+    query = f'{termo} "Agência Brasil"'
+    
+    url = "https://commons.wikimedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "format": "json",
+        "generator": "search",
+        "gsrsearch": query,
+        "gsrnamespace": 6,  # 6 é o ID do namespace de Arquivos/Imagens na Wikipedia
+        "gsrlimit": 1,      # Traz apenas o melhor resultado
+        "prop": "imageinfo",
+        "iiprop": "url|extmetadata"
+    }
+    
+    headers = {
+        'User-Agent': 'MotorGEO/7.0 (https://arcomartech.com; seu-email@arco.com)' # A Wiki pede um User-Agent real
+    }
+    
+    try:
+        res = requests.get(url, params=params, headers=headers, timeout=8)
+        if res.status_code == 200:
+            dados = res.json()
+            if "query" in dados and "pages" in dados["query"]:
+                # A API retorna um dicionário de páginas, pegamos a primeira
+                paginas = dados["query"]["pages"]
+                primeira_pagina_id = list(paginas.keys())[0]
+                info_imagem = paginas[primeira_pagina_id].get("imageinfo", [])
+                
+                if info_imagem:
+                    img_url = info_imagem[0].get("url")
+                    
+                    # Tenta pegar a descrição real da foto, se não tiver, usa o termo
+                    ext_meta = info_imagem[0].get("extmetadata", {})
+                    alt_text = ext_meta.get("ObjectName", {}).get("value", termo)
+                    
+                    # Retorna a tag HTML pronta
+                    return f'<img src="{img_url}" alt="Foto EBC/Agência Brasil: {alt_text}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
+    except Exception as e:
+        print(f"Erro na API Wikimedia/Agência Brasil: {e}")
+        pass
+        
+    return ""
    
 @st.cache_data(ttl=3600, show_spinner=False)
 def buscar_contexto_google(palavra_chave):
@@ -1939,12 +1991,12 @@ A única marca privada do setor educacional que pode ser citada é a [Marca Alvo
 
 17) DIVERSIDADE DE FONTES E VETO A HOMEPAGES: Valorizamos publicações jornalísticas e acadêmicas de todos os tipos. Contudo, é ESTRITAMENTE PROIBIDO fazer link para homepages genéricas (ex: a página inicial de um jornal ou de um ministério). O link DEVE ser um caminho completo (Deep Link) extraído do briefing para a matéria/pesquisa específica.
 
-18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E URLs ALUCINADAS (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de QUALQUER instituição, instituto de pesquisa, associação, estudo governamental ou ONG se você não puder ancorar essa citação numa tag <a href> com uma URL REAL e ESPECÍFICA fornecida no briefing.
+18) TOLERÂNCIA ZERO PARA DADOS ÓRFÃOS E URLs ALUCINADAS (CRÍTICO): É TERMINANTEMENTE PROIBIDO citar o nome de QUALQUER instituição, instituto de pesquisa, associação, estudo governamental, ONG ou DADOS NUMÉRICOS (ex: "taxas superiores a 90%", "reduziu em 30%") se você não puder ancorar essa citação numa tag <a href> com uma URL REAL e ESPECÍFICA fornecida no briefing.
 - TRAVA DE "COPIAR E COLAR": Você só pode usar uma tag <a href="..."> se estiver copiando a URL EXATA fornecida no briefing. É terminantemente proibido inventar, "montar", deduzir ou adivinhar caminhos de URL (ex: criar "/pesquisa-2024/" após um domínio verdadeiro) só para fingir que é um deep link.
 - Não existe autoridade sem comprovação. Se não tiver a URL completa fornecida, NÃO CITE O NOME DA INSTITUIÇÃO, do estudo ou da pesquisa. Substitua a menção nominal por percepções empíricas qualitativas universais e não coloque link.
-- A regra de alucinação também vale para números: nunca invente estatísticas.
+- A REJEIÇÃO DO DADO ÓRFÃO: A regra de alucinação também vale para números. É ESTRITAMENTE PROIBIDO usar porcentagens ou estatísticas exatas que não tenham um link de referência real suportando-as. Se o briefing não te deu a URL exata para lastrear o dado, APAGUE O DADO NUMÉRICO DO TEXTO. Substitua por uma afirmação puramente conceitual. Ex: Troque "escolas reportam taxas superiores a 90%" por "escolas observam um aumento significativo na aprovação".
 - Exceção: Dados institucionais da própria Marca Alvo não precisam de link.
-- ATENÇÃO: NENHUMA instituição tem "passe livre". Se você escrever a frase "<p><strong>Segundo especialistas:</strong> O Ministério da Educação...", você É OBRIGADO a envelopar "Ministério da Educação" com a tag <a href="..."> apontando para a URL real do MEC extraída do briefing. Se o GPT-4o não te deu a URL exata, APAGUE A REFERÊNCIA IMEDIATAMENTE e mude a frase para uma afirmação universal sua.
+- ATENÇÃO: NENHUMA instituição tem "passe livre". Se você escrever a frase <p><strong>Segundo especialistas:</strong> O Ministério da Educação...", você É OBRIGADO a envelopar "Ministério da Educação" com a tag <a href="..."> apontando para a URL real do MEC extraída do briefing. Se o GPT-4o não te deu a URL exata, APAGUE A REFERÊNCIA IMEDIATAMENTE e mude a frase para uma afirmação universal sua.
 
 19) LINKAGEM INTERNA CONTEXTUAL (RAG REVERSO): No final deste prompt, você receberá a lista "ARTIGOS INTERNOS DISPONÍVEIS". 
 - REGRA DE OURO: Você DEVE, OBRIGATORIAMENTE, escolher NO MÍNIMO 2 e NO MÁXIMO 4 artigos dessa lista e inserir o link HTML (<a href="[URL_DO_ARTIGO]">) de forma perfeitamente fluida no meio de um parágrafo do seu texto. 
@@ -2058,6 +2110,8 @@ ATENÇÃO ANTI-ALUCINAÇÃO: Se o bloco abaixo disser "Erro", "Timeout" ou "Nenh
 12. O seu título <h1> tem menos de 60 caracteres? Conte as letras.
 13. CONTEÚDO PROPRIETÁRIO (CRÍTICO): Verifique se foi fornecido algum "CONTEÚDO PROPRIETÁRIO INEGOCIÁVEL". Se sim, procure no seu texto gerado. A frase está EXACTAMENTE igual ao original, sem nenhuma palavra alterada? Se você resumiu ou alterou a frase, corrija agora colando a frase original.
 14. DIRETRIZ DE GHOSTWRITING E AUTORIA (CRÍTICO):{contexto_ghostwriting if contexto_ghostwriting else "Nenhum autor específico selecionado. Use o tom da marca padrão."}
+15. REVISÃO DE CAPITALIZAÇÃO (CRÍTICO): Escaneie todos os seus títulos <h2> e <h3> gerados. Eles estão escritos com todas as palavras em maiúscula (Title Case)? Ex: "O Impacto Do Bilinguismo Na Formação". SE SIM, VOCÊ É OBRIGADO A REESCREVER ISSO AGORA MESMO para o padrão brasileiro: "O impacto do bilinguismo na formação" (Apenas a primeira letra da frase e nomes próprios/marcas em maiúscula).
+16. CHECK DE EVIDÊNCIAS: Procure no seu texto por afirmações como "escolas reportam", "estudos mostram", ou qualquer porcentagem (%). Essa frase ESTÁ acompanhada de um link <a href> apontando para a fonte real? Se estiver solta sem link, APAGUE-A IMEDIATAMENTE.
 ATENÇÃO: Se o bloco acima contiver artigos de um especialista, você assumirá a IDENTIDADE dele. Absorva o vocabulário, o ritmo e o nível de formalidade que ele usa nos artigos fornecidos. Integre o seu conhecimento sobre a palavra-chave com os conceitos que ele costuma defender. 
 
 </checklist_de_seguranca_obrigatorio>
@@ -2103,7 +2157,7 @@ ANTI-CLOAKING E VALIDAÇÃO:
 
     dicas_json = chamar_llm(system_3, user_3, model="anthropic/claude-4.5-sonnet", temperature=0.1, response_format={"type": "json_object"})
 
-   # MOTOR DUPLO DE IMAGENS (UNSPLASH + FALLBACK POLLINATIONS)
+   # MOTOR TRIPLO DE IMAGENS (UNSPLASH -> AGÊNCIA BRASIL -> POLLINATIONS)
     try:
         json_limpo = dicas_json.strip().removeprefix('```json').removesuffix('```').strip()
         meta_dicas = json.loads(json_limpo)
@@ -2113,8 +2167,9 @@ ANTI-CLOAKING E VALIDAÇÃO:
         if isinstance(termos_busca, list):
             for i, termo in enumerate(termos_busca[:2]):
                 img_html_pronta = ""
+                
+                # 1. TENTA NO UNSPLASH (Se tiver termo em inglês genérico funciona bem)
                 if UNSPLASH_KEY:
-                    # URL LIMPA E DIRETA
                     url = f"https://api.unsplash.com/search/photos?query={urllib.parse.quote(termo)}&client_id={UNSPLASH_KEY}&per_page=1&orientation=landscape"
                     try:
                         res = requests.get(url, timeout=5)
@@ -2127,18 +2182,27 @@ ANTI-CLOAKING E VALIDAÇÃO:
                     except Exception:
                         pass
                 
+                # 2. TENTA NA AGÊNCIA BRASIL / WIKIMEDIA (Fallback Nacional)
                 if not img_html_pronta:
-                    # FALLBACK LIMPO E DIRETA
+                    # Traduzimos o termo de volta pro português de forma burra/rápida, 
+                    # ou usamos a palavra-chave original da pesquisa para achar conteúdo no Brasil
+                    termo_wiki = palavra_chave_input if i == 0 else "escola pública"
+                    img_html_pronta = buscar_imagem_agencia_brasil(termo_wiki)
+                
+                # 3. TENTA GERAR POR IA NO POLLINATIONS (Último recurso)
+                if not img_html_pronta:
                     clean_termo = str(termo).replace("'", "").replace('"', '').strip()
                     p_codificado = urllib.parse.quote(clean_termo)
                     base_poll = "https://image.pollinations.ai/prompt/"
                     img_html_pronta = f'<img src="{base_poll}{p_codificado}?width=1024&height=512&nologo=true&model=flux" alt="{clean_termo}" style="width:100%; border-radius:8px;" loading="lazy" decoding="async" />'
                     
+                # INJETA NO HTML
                 if img_html_pronta:
                     alvo_replace = '<br>Resumo Estratégico<br>' if i == 0 else '<br>Perguntas Frequentes<br>'
                     artigo_html = artigo_html.replace(alvo_replace, f'{img_html_pronta}\n{alvo_replace}', 1)
+                    
     except Exception as e:
-        st.error(f"Erro ao injetar imagem: {e}") # Mudei para st.error para você ver se falhar
+        st.error(f"Erro ao injetar imagem: {e}")
 
     # CHAMADAS INCREMENTAIS PÓS-REDAÇÃO (GEO PIPELINE COMPLETO)
     st.write("📊 Fase 4: Calculando Originalidade, Citabilidade GEO e Cluster...")
