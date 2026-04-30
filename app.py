@@ -550,13 +550,15 @@ if st.session_state.get('show_inputs', False) and st.session_state.get('current_
         # Chama a função que agora retorna (Titulo, Link)
         pautas_quentes = buscar_trending_topics_educacao()
         
-        # Adicionamos o enumerate(pautas_quentes) para ter um índice 'i'
+        # O loop agora usa o enumerate para garantir uma key única
         for i, (pauta, link) in enumerate(pautas_quentes):
             col_btn, col_link = st.columns([8, 2])
             
             with col_btn:
-                # Adicionamos o '{i}_' na key. O erro StreamlitDuplicateElementKey sumirá para sempre.
+                # Botão com a key única usando o índice 'i'
                 if st.button(f"{pauta}", use_container_width=True, key=f"trend_{i}_{pauta}"):
+                    st.session_state['pauta_sugerida'] = pauta
+                    st.rerun()
                     
             with col_link:
                 # Se houver um link real, mostra o botão de abrir aba
