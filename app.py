@@ -522,8 +522,15 @@ def buscar_trending_topics_educacao():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         resultados = list(executor.map(extrair_noticia, fontes_rss))
         
-    # Usamos set() para remover duplicatas baseadas na tupla inteira
-    pautas_coletadas = list(set([res for res in resultados if res]))
+    # Deduplica olhando APENAS para o título, ignorando variações no link
+    dicionario_unico = {}
+    for res in resultados:
+        if res:
+            titulo, link = res
+            if titulo not in dicionario_unico:
+                dicionario_unico[titulo] = link
+                
+    pautas_coletadas = list(dicionario_unico.items())
     
     # Adicionamos um link vazio nas de fallback
     pautas_fallback = [
@@ -543,14 +550,13 @@ if st.session_state.get('show_inputs', False) and st.session_state.get('current_
         # Chama a função que agora retorna (Titulo, Link)
         pautas_quentes = buscar_trending_topics_educacao()
         
-        for pauta, link in pautas_quentes:
+        # Adicionamos o enumerate(pautas_quentes) para ter um índice 'i'
+        for i, (pauta, link) in enumerate(pautas_quentes):
             col_btn, col_link = st.columns([8, 2])
             
             with col_btn:
-                # O botão continua preenchendo o input lá embaixo
-                if st.button(f"{pauta}", use_container_width=True, key=f"trend_{pauta}"):
-                    st.session_state['pauta_sugerida'] = pauta
-                    st.rerun()
+                # Adicionamos o '{i}_' na key. O erro StreamlitDuplicateElementKey sumirá para sempre.
+                if st.button(f"{pauta}", use_container_width=True, key=f"trend_{i}_{pauta}"):
                     
             with col_link:
                 # Se houver um link real, mostra o botão de abrir aba
