@@ -107,37 +107,9 @@ def disparar_evento_geracao(keyword, marca, publico, conteudo_add, conteudo_prop
     """
     components.html(evento_script, width=0, height=0)
 
-def disparar_evento_customizado(nome_evento, keyword, marca):
-    """Dispara eventos customizados no GA4 com proteção de caracteres."""
-    GA4_ID = "G-343MMKCTX3"
-    
-    timestamp = int(time.time() * 1000)
-    
-    # Limpeza brutal para evitar que aspas quebrem o Javascript
-    keyword_limpa = str(keyword).replace("'", "").replace('"', '').replace('\n', ' ')
-    marca_limpa = str(marca).replace("'", "").replace('"', '')
-    
-    evento_script = f"""
-    <script id="ga4-{nome_evento}-{timestamp}">
-        try {{
-            const pWin = window.parent;
-            if (typeof pWin.gtag === 'function') {{
-                pWin.gtag('event', '{nome_evento}', {{
-                    'search_query': '{keyword_limpa}',
-                    'marca_alvo': '{marca_limpa}',
-                    'send_to': '{GA4_ID}'
-                }});
-            }}
-        }} catch(e) {{
-            console.error("Erro GA4 Event ({nome_evento}):", e);
-        }}
-    </script>
-    """
-    components.html(evento_script, width=0, height=0)
-
 def disparar_evento_customizado(nome_evento, keyword, marca, url=""):
     """Dispara eventos customizados no GA4 com suporte a URL opcional."""
-    GA4_ID = "G-343MMKCTX3"
+    GA4_ID = "G-YWQ3BETC7C"
     timestamp = int(time.time() * 1000)
     
     # Limpeza básica de segurança
