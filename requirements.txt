@@ -7,3 +7,5 @@ pydantic
 PyPDF2
 python-docx
 feedparser
+streamlit-gsheets-connection
+plotly>=5.0.0
