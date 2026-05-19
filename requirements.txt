@@ -7,6 +7,3 @@ pydantic
 PyPDF2
 python-docx
 feedparser
-gspread>=6.0.0
-google-auth>=2.0.0
-plotly>=5.0.0
