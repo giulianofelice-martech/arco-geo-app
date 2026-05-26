@@ -146,7 +146,7 @@ def disparar_evento_customizado(nome_evento, keyword, marca, url=""):
     components.html(evento_script, width=0, height=0)
         
 # ==========================================
-# 1. CONFIGURAÇÃO DA PÁGINA
+# 1. CONFIGURAÇÃO DA PÁGINA [teste]
 # ==========================================
 st.set_page_config(page_title="Arco Martech | Motor GEO", page_icon="🚀", layout="wide", initial_sidebar_state="collapsed")
 
