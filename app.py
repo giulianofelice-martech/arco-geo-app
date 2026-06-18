@@ -188,9 +188,9 @@ st.query_params["page"] = path_atual.strip("/")
 # 1.4 Injeta o GA4 com o path correto
 injetar_ga4(path_atual)
 
-# ==========================================
+# ===========================================
 # ESTILOS GLOBAIS
-# ==========================================
+# ===========================================
 st.markdown("""
     <style>
     /* Importando as fontes do site da Arco */
