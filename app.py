@@ -2262,9 +2262,45 @@ def publicar_wp(titulo, conteudo_html, meta_dict, wp_url, wp_user, wp_pwd):
 
 def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
     import base64
+    import requests
+    
     # Descobre o nome da rota dinamicamente (ex: node--quark_blog)
     node_type = "node--" + d_url.rstrip('/').split('/')[-1] 
+    token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
     
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 
+        'Accept': 'application/vnd.api+json', 
+        'Content-Type': 'application/vnd.api+json', 
+        'Authorization': f'Basic {token_auth}'
+    }
+
+    # ==========================================
+    # 1. PESCARIA AUTOMÁTICA DE IMAGEM CORINGA
+    # ==========================================
+    image_type = "file--file" # Fallback padrão
+    image_uuid = ""
+    
+    try:
+        # Busca os últimos 5 posts para ter certeza que acharemos uma imagem
+        get_url = f"{d_url}?sort=-created&page[limit]=5"
+        res_get = requests.get(get_url, headers=headers, timeout=15)
+        
+        if res_get.status_code == 200:
+            posts = res_get.json().get("data", [])
+            for post in posts:
+                # Tenta achar o bloco de imagem nos relacionamentos
+                rel_data = post.get("relationships", {}).get("field_quark_blog_featured_image", {}).get("data")
+                if rel_data and isinstance(rel_data, dict):
+                    image_type = rel_data.get("type", "file--file")
+                    image_uuid = rel_data.get("id", "")
+                    break # Achou uma imagem real! Para a busca.
+    except Exception as e:
+        print(f"Aviso: Falha na pescaria automática da imagem: {e}")
+
+    # ==========================================
+    # 2. MONTAR O PAYLOAD
+    # ==========================================
     payload = {
         "data": {
             "type": node_type,
@@ -2276,13 +2312,20 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
         }
     }
     
-    token_auth = base64.b64encode(f"{d_user}:{d_pwd.replace(' ', '').strip()}".encode('utf-8')).decode('utf-8')
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 
-        'Accept': 'application/vnd.api+json', 
-        'Content-Type': 'application/vnd.api+json', 
-        'Authorization': f'Basic {token_auth}'
-    }
+    # Se conseguiu capturar uma imagem real, injeta ela no payload!
+    if image_uuid:
+        payload["data"]["relationships"] = {
+            "field_quark_blog_featured_image": {
+                "data": {
+                    "type": image_type,
+                    "id": image_uuid
+                }
+            }
+        }
+
+    # ==========================================
+    # 3. PUBLICAR O ARTIGO
+    # ==========================================
     try:
         return requests.post(d_url, json=payload, headers=headers, timeout=30)
     except Exception as e:
