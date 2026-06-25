@@ -2271,9 +2271,7 @@ def publicar_drupal(titulo, conteudo_html, meta_dict, d_url, d_user, d_pwd):
             "attributes": {
                 "title": titulo,
                 "body": {"value": conteudo_html, "format": "full_html"},
-                "status": False,
-                # TENTATIVA DE BYPASS: Preenchendo o campo obrigatório do SAS com um placeholder genérico
-                "field_quark_blog_featured_image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" 
+                "status": False
             }
         }
     }
